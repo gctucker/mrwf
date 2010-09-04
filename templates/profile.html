@@ -1,0 +1,12 @@
+{% extends "nav_layout.html" %}
+
+{% block contents %}
+          <div class="element">
+            First name: {{ part.person.first_name }}<br />
+            Last name: {{ part.person.last_name }}<br />
+          </div>
+          <p style="font-size: 0.7em">{% if django_version %}
+            Django {{ django_version }}<br />{% endif %}{% if cams_version %}
+            CAMS {{ cams_version }}<br />{% endif %}
+          </p>
+{% endblock %}

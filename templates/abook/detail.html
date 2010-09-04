@@ -1,0 +1,24 @@
+{% extends "abook/search.html" %}
+
+{% block detail %}
+          <div class="element">{% block detail_name %}{% endblock %}
+          </div>
+          <div>{% if not contacts %}
+            <p>Sorry, no contact information available.</p>{% else %}{% for c in contacts %}
+            <table class="details separator">{% if c.line_1 or c.line_2 or c.line_3 %}
+              <tr>
+                <td class="key">address</td>
+                <td class="value">{% if c.line_1 %}
+                  {{ c.line_1 }}{% endif %}{% if c.line_2 %}<br />
+                  {{ c.line_2 }}{% endif %}{% if c.line_3 %}<br />
+                  {{ c.line_3 }}{% endif %}
+                </td>
+              </tr>{% endif %}{% if c.postcode %}
+              <tr><td class="key">postcode</td><td class="value">{{ c.postcode }}</td></tr>{% endif %}{% if c.town %}
+              <tr><td class="key">town</td><td class="value">{{ c.town }}</td></tr>{% endif %}{% if c.telephone %}
+              <tr><td class="key">telephone</td><td class="value">{{ c.telephone }}</td></tr>{% endif %}{% if c.mobile %}
+              <tr><td class="key">mobile</td><td class="value">{{ c.mobile }}</td></tr>{% endif %}{% if c.email %}
+              <tr><td class="key">e-mail</td><td class="value"><a href="mailto:{{ c.email }}">{{ c.email }}</a></td></tr>{% endif %}{% if c.website %}
+              <tr><td class="key">website</td><td class="value"><a href="{{ c.website }}">{{ c.website }}</a></td></tr>{% endif %}
+            </table>{% endfor %}{% endif %}
+          </div>{% if user.is_staff %}{% block detail_edit %}{% endblock %}{% endif %}{% endblock %}

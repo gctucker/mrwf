@@ -1,0 +1,15 @@
+{% extends "browser.html" %}
+
+{% block browse_title %}Group: {{ group.name }}{% endblock %}
+
+{% block browse_it %}
+                <a href="{{ px }}abook/person/{{ it.participant.person.id }}/">
+                  {{ it.participant.person.first_name }} {{ it.participant.person.middle_name }} {{ it.participant.person.last_name }}{% if it.role %}
+                  &nbsp;({{ it.role }}){% endif %}
+                </a>
+{% endblock %}
+
+{% block browse_footer %}
+          <div class="cmd"><a href="{{ px }}cams/participants/group/{{ group.id }}/export/">&lt;export&gt;</a></div>
+          <p><a href="{{ px }}cams/participants/">&lt;&lt;&nbsp;back to the list of groups</a></p>
+{% endblock %}

@@ -1,0 +1,7 @@
+{% extends "abook/detail.html" %}
+
+{% block detail_name %}
+            <h2>{{ org.name }}</h2>{% endblock %}
+
+{% block detail_edit %}
+          <div class="cmd"><a href="{{ px }}admin/abook/organisation/{{ org.id }}/">&lt;edit&gt;</a></div>{% endblock%}

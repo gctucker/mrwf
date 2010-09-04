@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block body %}
+    <table id="layout">
+      <tr>
+        <td id="navbar">
+          <ul id="navlist">{% for p in pages %}
+            <li>{% if p.name = current_page %}<span class="current_nav">{{ p.title }}</span>{% else %}<a href="{{ px }}{{ p.url }}">{{ p.title }}</a>{% endif %}</li>{% endfor %}
+          </ul>
+        </td>
+        <td id="contents">{% block contents %}{% endblock %}        </td>
+      </tr>
+    </table>
+{% endblock %}

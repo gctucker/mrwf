@@ -1,0 +1,15 @@
+{% extends "nav_layout.html" %}
+
+{% block contents %}
+          <h2>{% block browse_title %}{% endblock %}</h2>{% block browse_header %}{% endblock %}{% if page.object_list %}
+          <div class="element">
+            <ul class="plain">{% for it in page.object_list %}
+              <li>{% block browse_it %}{% endblock %}              </li>{% endfor %}
+            </ul>
+          </div>{% if page.paginator.num_pages > 1 %}
+          <div class="element paginator">{% if page.has_previous %}
+            <a href="{{ px }}{{ url }}?page={{ page.previous_page_number }}">&lt;-&nbsp;</a>{% endif %}
+            <span class="current_page">{{ page.number }}&nbsp;/&nbsp;{{ page.paginator.num_pages }}</span>{% if page.has_next %}
+            <a href="{{ px }}{{ url }}?page={{ page.next_page_number }}">&nbsp;-&gt;</a>{% endif %}
+          </div>{% endif %}{% endif %}{% block browse_footer %}{% endblock %}
+{% endblock %}

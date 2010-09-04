@@ -1,0 +1,15 @@
+{% extends "cams/common_event.html" %}
+
+{% block special_event %}{% if ev.etype %}
+              <tr><td class="key">event type</td><td class="value">{{ ev.etype }}</td></tr>{% endif %}{% if ev.age_min %}
+              <tr><td class="key">age min</td><td class="value">{{ ev.age_min }}</td></tr>{% endif %}{% if ev.age_max %}
+              <tr><td class="key">age max</td><td class="value">{{ ev.age_max }}</td></tr>{% endif %}{% endblock %}
+
+{% block event_extra %}{% if ev.image %}
+          <div class="element"><img src="{{ ev.image.url }}" /></div>{% endif %}{% endblock %}
+
+{% block staff_edit %}
+            <div class="cmd"><a href="{{ px }}admin/cams/fairevent/{{ ev.id }}/">&lt;edit&gt;</a></div>{% endblock %}
+
+{% block event_footer %}
+          <div class="back"><a href="{{ px }}cams/prog/">&lt;&lt;&nbsp;back to the programme</a></div>{% endblock %}

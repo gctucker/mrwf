@@ -1,0 +1,7 @@
+{% extends "cams/show_all.html" %}
+
+{% block browse_title %}Preparation events{% endblock %}
+
+{% block browse_it %}
+                <a href="{{ px }}{{ url }}{{ it.event.id }}/">{{ it.event.date }}: {{ it.event }}{% if it.role %} (as {{ it.role }}){% endif %}</a>
+{% endblock %}

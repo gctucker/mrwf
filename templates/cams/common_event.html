@@ -1,0 +1,45 @@
+{% extends "browser.html" %}
+
+{% block browse_title %}{{ ev.name }}{% endblock %}
+
+{% block browse_header %}
+          <div class="element">{% if ev.description %}
+            <table class="details">
+              <tr><td class="key">event owner</td><td class="value"><a href="{{ px }}abook/person/{{ ev.owner.person.id }}/">{{ ev.owner }}</a></td></tr>{% if ev.org %}
+              <tr><td class="key">organisation</td><td class="value"><a href="{{ px }}abook/org/{{ ev.org.id }}/">{{ ev.org.name }}</a></td></tr>{% endif %}{% if ev.location %}
+              <tr><td class="key">location</td><td class="value">{{ ev.location }}</td>{% endif %}{% if ev.date %}
+              <tr><td class="key">date</td><td class="value">{{ ev.date }}</td></tr>{% endif %}{% if ev.end_date %}
+              <tr><td class="key">end date</td><td class="value">{{ ev.end_date }}</td></tr>{% endif %}{% if ev.time %}
+              <tr><td class="key">time</td><td class="value">{{ ev.time }}</td></tr>{% endif %}{% if ev.end_time %}
+              <tr><td class="key">until</td><td class="value">{{ ev.end_time }}</td></tr>{% endif %}{% block special_event %}{% endblock %}
+            </table>
+            <div class="textblock description">
+{{ ev.description|linebreaksbr }}
+            </div>{% endif %}{% block event_extra %}{% endblock %}{% if user.is_staff %}{% block staff_edit %}{% endblock %}{% endif %}
+          </div>{% endblock %}
+
+{% block browse_it %}
+                <table class="cmt-block">
+                  <tr class="cmt-title">
+                    <td class="cmt-author">
+                      <a href="{{ px }}abook/person/{{ it.author.person.id }}/">{{ it.author }}</a>
+                    </td>
+                    <td class="cmt-time">{{ it.time }}</td>
+                  </tr>
+                  <tr>
+                    <td class="cmt-message" colspan="2">
+{{ it.text|linebreaksbr }}
+                    </td>
+                  </tr>
+                </table>
+{% endblock %}
+
+{% block browse_footer %}{% if form %}
+          <div>
+            <form action="{{ px }}{{ url }}cmt/" method="post">
+              {% csrf_token %}
+              <p>{{ form.content }}</p>
+              <p><input type="submit" value="post a comment" /></p>
+            </form>
+          </div>{% else %}
+          <p>Sorry you cannot post comments as you are not an actor for this event.</p>{% endif %}{% block event_footer %}{% endblock %}{% endblock %}

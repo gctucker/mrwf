@@ -1,0 +1,13 @@
+{% extends "abook/detail.html" %}
+
+{% block detail_name %}
+            <h2>{{ person.first_name }} {{ person.last_name }}</h2>
+            <table class="details separator">
+              <tr><td class="key">first name</td><td class="value">{{ person.first_name }}</td></tr>{% if person.middle_name %}
+              <tr><td class="key">middle name</td><td class="value">{{ person.middle_name }}</td></tr>{% endif %}{% if person.last_name %}
+              <tr><td class="key">last name</td><td class="value">{{ person.last_name }}</td></tr>{% endif %}{% if person.nickname %}
+              <tr><td class="key">nickname</td><td class="value">{{ person.nickname }}</td></tr>{% endif %}
+            </table>{% endblock %}
+
+{% block detail_edit %}
+          <div class="cmd"><a href="{{ px }}admin/abook/person/{{ person.id }}/">&lt;edit&gt;</a></div>{% endblock%}
