@@ -81,10 +81,11 @@ INSTALLED_APPS = (
 # -----------------------------------------------------------------------------
 # site-dependent configuration (site.conf)
 
+import os
 from ConfigParser import SafeConfigParser
 
 conf = SafeConfigParser ()
-conf.read ('site.conf')
+conf.read (os.environ['SITE_CONF'])
 
 if conf.has_section ('database'):
     default = {}
@@ -126,3 +127,8 @@ if conf.has_section ('extra'):
             admin_name = v
         elif k == 'admin_email' and admin_name:
             ADMINS += ((admin_name, v), )
+
+# -----------------------------------------------------------------------------
+
+LOGIN_URL = URL_PREFIX + 'accounts/login'
+LOGIN_REDIRECT_URL = URL_PREFIX
