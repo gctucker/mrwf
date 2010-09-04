@@ -1,0 +1,185 @@
+body
+{
+  font-family: verdana, sans-serif;
+  padding: 0 0 0 0;
+  border-spacing: 0px 0px;
+  margin: 10px 0 0 10px;
+  background-color: #FFFFFF;
+  color: #686868;
+}
+
+h1
+{
+  font-size: 1.4em;
+  margin: 0 0 10px 0;
+  color: #C30000;
+}
+
+h2
+{
+  font-size: 1.1em;
+  margin: 0 0 5px 0;
+  color: #C30000;
+}
+
+h3
+{
+  font-size: 1.0em;
+  margin: 0 0 0 0;
+  color: #C30000;
+}
+
+table
+{
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+
+a {text-decoration: none}
+a:link    {color: #20A000}
+a:visited {color: #20A000}
+a:active  {color: #20A000}
+a:hover   {text-decoration: underline; color: #C30000}
+
+input[type=text], input[type=password], textarea, select
+{
+  border: 1px solid #848080;
+  padding: 2px 3px 2px 3px;
+}
+
+.textblock
+{
+  text-align: left;
+  width: 580px;
+  padding: 0 0 0 0;
+  margin: 0 0 0 0;
+}
+
+.description
+{
+  padding: 8px 5px 15px 5px;
+  font-size: 0.9em;
+  background-color: #F8F8F8;
+}
+
+.separator
+{
+  border-style: none none dotted none;
+  border-width: 1px;
+}
+
+div.element
+{
+  padding: 0 0 8px 0;
+}
+
+div.cmd
+{
+  padding: 5px 0 5px 0;
+  font-size: 0.8em;
+}
+
+div.back
+{
+  font-size: 0.8em;
+}
+
+td#contents
+{
+  padding: 3px 10px 3px 10px;
+  vertical-align: top;
+}
+
+td#navbar
+{
+  width: 15%;
+  padding: 3px 10px 3px 10px;
+  vertical-align: top;
+  border-style: none solid none none;
+  border-width: 1px;
+  border-color: #E0E0E0;
+}
+
+ul#navlist
+{
+  list-style-type: square;
+  list-style-position: outside;
+  margin: 0 0 0 5px;
+  padding: 0 0 0 0;
+  line-height: 160%;
+}
+
+ul.plain
+{
+  list-style-type: none;
+  list-style-position: outside;
+  margin: 0 0 0 0;
+  padding: 0 0 0 0;
+}
+
+.current_page
+{
+  font-weight:bold;
+  font-size: 0.9em;
+}
+
+.current_nav
+{
+  color: #C30000;
+}
+
+/* detail table */
+
+table.details
+{
+  width: 100%;
+  margin: 2px 0 8px 0;
+}
+
+td.key
+{
+  padding: 0 8px 0 0;
+  width: 120px;
+  border-style: none dotted none none;
+  border-width: 1px;
+  border-color: #E0E0E0;
+}
+
+td.value
+{
+  padding: 0 0 0 8px;
+}
+
+/* comment table */
+
+table.cmt-block
+{
+  border-width: 0;
+  border-style: none;
+}
+
+tr.cmt-title
+{
+  font-size: 0.8em;
+  background-color: #F0F0F0;
+}
+
+td.cmt-author
+{
+  padding: 3px 0 2px 5px;
+  text-align: left;
+}
+
+td.cmt-time
+{
+  padding: 3px 5px 2px 0;
+  text-align: right;
+}
+
+td.cmt-message
+{
+  width: 590px;
+  padding: 8px 0 12px 0;
+  font-size: 0.9em;
+  text-align: left;
+}
