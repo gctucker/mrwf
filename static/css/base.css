@@ -183,3 +183,21 @@ td.cmt-message
   font-size: 0.9em;
   text-align: left;
 }
+
+/* application forms */
+
+table.apply
+{
+  text-align: left;
+}
+
+td.apply-title
+{
+  padding: 15px 0 3px 0;
+}
+
+td.apply-notes
+{
+  padding: 0 0 12px 0;
+  font-size: 0.9em;
+}

@@ -3,7 +3,7 @@ from django.db.models import (CharField, DateField,
                               PositiveIntegerField, PositiveSmallIntegerField,
                               ForeignKey, OneToOneField,
                               ImageField)
-from cams.models import Item, Event, Fair
+from cams.models import Item, Event, Fair, EventApplication
 
 class FairEventType (models.Model):
     name = CharField (max_length = 63)
@@ -25,6 +25,18 @@ class FairEvent (Event):
 
 
 class StallEvent (FairEvent):
-    n_spaces = PositiveSmallIntegerField (default = 0)
-    n_tables = PositiveSmallIntegerField (default = 0)
-    main_contact = CharField (max_length = 63, blank = True)
+    contact_choices = ((0, 'telephone'), (1, 'email'), (2, 'website'))
+    n_spaces = PositiveSmallIntegerField (default = 1, verbose_name =
+                                          "Number of spaces")
+    n_tables = PositiveSmallIntegerField (default = 0, verbose_name =
+                                          "Number of tables")
+    main_contact = PositiveSmallIntegerField (choices = contact_choices,
+                                              blank = True, null = True,
+                                              help_text =
+                                          "Main contact used in the programme")
+
+
+class StallApplication (EventApplication):
+    @property
+    def stall (self):
+        return self.event

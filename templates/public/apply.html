@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block body %}
+      <form method="post" action="{{ px }}public/apply/">
+        {% csrf_token %}
+        <table class="apply">
+          <tr><td class="apply-title" colspan="2"><h2>Stallholder</h2></td></tr>
+          {{ form.p.as_table }}
+          <tr><td class="apply-title" colspan="2"><h2>Address and Contact details</h2></td></tr>
+          {{ form.c.as_table }}
+          <tr><td class="apply-title" colspan="2"><h2>Stall details</h2></td></tr>
+          <tr>
+            <th><label for="id_name">Name of your stall:</label></th>
+            <td>{{ form.s.name.errors }}{{ form.s.name }}</td>
+          </tr>
+          <tr>
+            <th>
+              <label for="id_description">
+                Brief description of<br />
+                what will be happening<br />
+                on your stall:<br />
+              </label>
+            </th>
+            <td>{{ form.s.description.errors }}{{ form.s.description }}</td>
+          </tr>
+          <tr>
+            <td colspan="2" class="apply-notes">
+              Please note that this description may be used to search in the programme on the Mill Road Winter Fair website.
+            </td>
+          </tr>
+          <tr>
+            <th>
+              <label for="id_n_spaces">Spaces to rent:</label>
+            </th>
+            <td>{{ form.s.n_spaces.errors }}{{ form.s.n_spaces }}</td>
+          </tr>
+          <tr>
+            <td colspan="2" class="apply-notes">
+              Minimum 1 space, Maximum 3 spaces<br />
+              A space is approximately 2m x 1m<br />
+              Price: £20 per space
+            </td>
+          </tr>
+          <tr>
+            <th>
+              <label for="id_n_tables">Tables to rent:</label>
+            </th>
+            <td>{{ form.s.n_tables.errors }}{{ form.s.n_tables }}</td>
+          </tr>
+          <tr>
+            <td colspan="2" class="apply-notes">
+              Maximum 3 tables<br />
+              Please put 0 if you plan to bring your own tables<br />
+              Size of the tables we rent: same size as a space (2m x 1m)<br />
+              Price: £5 per rented table
+            </td>
+          </tr>
+          <tr>
+            <th><label for="id_main_contact">Main contact:</label></th>
+            <td>{{ form.s.main_contact.errors }}{{ form.s.main_contact }}</td>
+          </tr>
+          <tr>
+            <td colspan="2" class="apply-notes">
+              Would you like to include one of your contact details on the programme of the Fair?<br />
+              If so, please state which one.
+            </td>
+          </tr>
+        </table>
+        <p><input type="submit" value="apply" /></p>
+      </form>
+{% endblock %}

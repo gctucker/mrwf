@@ -10,5 +10,8 @@ urlpatterns = patterns ('extra.public',
  (r'prog/(?P<fair_year>\d+)/$', 'prog.fair'),
  (r'prog/(?P<fair_year>\d+)/(?P<event_id>\d+)/$', 'prog.event'),
  (r'prog/(?P<fair_year>\d+)/categories/$', 'prog.cats'),
- (r'prog/(?P<fair_year>\d+)/search$', 'prog.search')
+ (r'prog/(?P<fair_year>\d+)/search$', 'prog.search'),
+ (r'apply/$', 'apply.post'),
+ (r'apply/stallholder/$', 'apply.stallholder'),
+ (r'application/$', 'apply.application')
 )

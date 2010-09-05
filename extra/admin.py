@@ -6,10 +6,12 @@ from cams.admin import (PersonAdmin, OrganisationAdmin, MemberAdmin,
                         GroupAdmin, FairAdmin, ParticipantAdmin, EventAdmin,
                         ActorAdmin, EventCommentAdmin,
                         ApplicationTypeAdmin, EventApplicationAdmin)
-from mrwf.extra.models import (FairEventType, FairEvent, StallEvent)
+from mrwf.extra.models import (FairEventType, FairEvent, StallEvent,
+                               StallApplication)
 
 class FairEventAdmin (EventAdmin):
-    fieldsets = (('Event', {'fields': ('name',
+    fieldsets = (('Event', {'fields': ('status',
+                                       'name',
                                        'description',
                                        ('date', 'end_date'),
                                        ('time', 'end_time'),
@@ -37,10 +39,11 @@ admin.site.register (Participant, ParticipantAdmin)
 admin.site.register (Event, EventAdmin)
 admin.site.register (Actor, ActorAdmin)
 admin.site.register (EventComment, EventCommentAdmin)
-admin.site.register (ApplicationType, ApplicationTypeAdmin)
+#admin.site.register (ApplicationType, ApplicationTypeAdmin)
 admin.site.register (EventApplication, EventApplicationAdmin)
 
 # -- extra admin --
 admin.site.register (FairEvent, FairEventAdmin)
 admin.site.register (FairEventType)
 admin.site.register (StallEvent, StallEventAdmin)
+admin.site.register (StallApplication, EventApplicationAdmin)
