@@ -1,9 +1,11 @@
 from django.contrib import admin
 from cams.models import (Person, Organisation, Member, Group, Fair, Role,
-                         Participant, Event, Actor, EventComment)
+                         Participant, Event, Actor, EventComment,
+                         ApplicationType, EventApplication)
 from cams.admin import (PersonAdmin, OrganisationAdmin, MemberAdmin,
                         GroupAdmin, FairAdmin, ParticipantAdmin, EventAdmin,
-                        ActorAdmin, EventCommentAdmin)
+                        ActorAdmin, EventCommentAdmin,
+                        ApplicationTypeAdmin, EventApplicationAdmin)
 from mrwf.extra.models import (FairEventType, FairEvent, StallEvent)
 
 class FairEventAdmin (EventAdmin):
@@ -35,6 +37,8 @@ admin.site.register (Participant, ParticipantAdmin)
 admin.site.register (Event, EventAdmin)
 admin.site.register (Actor, ActorAdmin)
 admin.site.register (EventComment, EventCommentAdmin)
+admin.site.register (ApplicationType, ApplicationTypeAdmin)
+admin.site.register (EventApplication, EventApplicationAdmin)
 
 # -- extra admin --
 admin.site.register (FairEvent, FairEventAdmin)
