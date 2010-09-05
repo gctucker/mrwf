@@ -1,9 +1,8 @@
 from django.conf.urls.defaults import *
 from django.contrib import admin
 from settings import DEBUG, STATIC_ROOT
-#from cams import abook, mgmt
-#from cams.abook import urls
-#from cams.mgmt import urls, public_urls
+from mrwf import extra
+from mrwf.extra import public_urls
 
 admin.autodiscover()
 
@@ -14,9 +13,9 @@ urlpatterns = patterns ('',
  (r'^accounts/logout/', 'django.contrib.auth.views.logout',
   {'template_name': 'logout.html'}),
  (r'^admin/doc/', include('django.contrib.admindocs.urls')),
- (r'^admin/', include (admin.site.urls))#,
+ (r'^admin/', include (admin.site.urls)),
 # (r'^abook/', include (abook.urls)),
-# (r'^public/', include (mgmt.public_urls)),
+ (r'^public/', include (extra.public_urls))
 # (r'^cams/', include (mgmt.urls)),
 # (r'^profile/$', 'cams.mgmt.views.profile')
 )
