@@ -10,9 +10,9 @@ from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.shortcuts import render_to_response, get_object_or_404
 from django.conf import settings
 from cams.libcams import CAMS_VERSION, Page, get_user_pages
-from cams.models import (Member, PersonContact, MemberContact, Event, Actor,
-                         OrganisationContact, Fair, Participant, Group, Role,
-                         Comment)
+from cams.models import (Person, Member, PersonContact, MemberContact,
+                         OrganisationContact, Event, Actor, Fair, Participant,
+                         Group, Role, EventComment)
 from mrwf.extra.models import (FairEvent)
 
 from django import VERSION
@@ -172,7 +172,7 @@ def add_common_tpl (request, tpl_vars, cpage, obj_list = None, n = 20):
         tpl_vars['page'] = page
 
 def get_comments (ev):
-    comments = Comment.objects.filter (event = ev)
+    comments = EventComment.objects.filter (event = ev)
     comments = comments.order_by ('-time')
     return comments
 
@@ -286,8 +286,8 @@ def post_event_cmt (request, event_id, view):
             return HttpResponseForbidden ("you are not allowed to post here",
                                           mimetype = 'text/plain')
 
-    cmt = Comment (author = part, event = ev,
-                   text = form.cleaned_data['content'])
+    cmt = EventComment (author = part, event = ev,
+                        text = form.cleaned_data['content'])
     cmt.save ()
     return HttpResponseRedirect (reverse (view, args = [event_id]))
 
