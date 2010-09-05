@@ -1,4 +1,8 @@
 #!/usr/bin/env python
+
+import os
+os.environ['SITE_CONF'] = 'site.conf'
+
 from django.core.management import execute_manager
 try:
     import settings # Assumed to be in the same directory.
