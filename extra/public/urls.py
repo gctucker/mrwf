@@ -1,6 +1,6 @@
 from django.conf.urls.defaults import *
 
-urlpatterns = patterns ('extra.public_views',
+urlpatterns = patterns ('extra.public.views',
  (r'^$', 'index'),
  (r'prog/$', 'all_fairs'),
  (r'prog/current/$', 'current'),

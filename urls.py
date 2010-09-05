@@ -2,7 +2,7 @@ from django.conf.urls.defaults import *
 from django.contrib import admin
 from settings import DEBUG, STATIC_ROOT
 from mrwf import extra
-from mrwf.extra import public_urls
+from mrwf.extra.public import urls
 
 admin.autodiscover()
 
@@ -15,7 +15,7 @@ urlpatterns = patterns ('',
  (r'^admin/doc/', include('django.contrib.admindocs.urls')),
  (r'^admin/', include (admin.site.urls)),
 # (r'^abook/', include (abook.urls)),
- (r'^public/', include (extra.public_urls))
+ (r'^public/', include (extra.public.urls))
 # (r'^cams/', include (mgmt.urls)),
 # (r'^profile/$', 'cams.mgmt.views.profile')
 )
