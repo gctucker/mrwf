@@ -186,15 +186,6 @@ def search_obj (request, fair):
 
 # -----------------------------------------------------------------------------
 
-def index (request):
-    try:
-        fair = Fair.objects.get (current = True)
-    except Fair.DoesNotExist:
-        fair = None
-    return render_to_response ('cams/public.html',
-                               {'page_title': 'Public Information',
-                                'fair': fair})
-
 def all_fairs (request):
     impl = getDOMImplementation ()
     doc = impl.createDocument (None, 'fairs', None)
