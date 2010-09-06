@@ -173,7 +173,7 @@ def add_common_tpl (request, tpl_vars, cpage, obj_list = None, n = 20):
 
 def get_comments (ev):
     comments = EventComment.objects.filter (event = ev)
-    comments = comments.order_by ('-time')
+    comments = comments.order_by ('-created')
     return comments
 
 def get_form_if_actor (request, event_id):
