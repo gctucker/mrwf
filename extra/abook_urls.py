@@ -1,4 +1,6 @@
 from django.conf.urls.defaults import *
+from mrwf import extra
+from mrwf.extra import views
 
 urlpatterns = patterns ('mrwf.extra.views',
  (r'^$', 'search'),

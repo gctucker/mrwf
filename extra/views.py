@@ -1,4 +1,5 @@
 import datetime
+import urllib
 from django import forms
 from django.db.models.query import Q
 from django.http import (HttpResponse, HttpResponseRedirect,
@@ -9,15 +10,13 @@ from django.core.urlresolvers import reverse
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.shortcuts import render_to_response, get_object_or_404
 from django.conf import settings
-from cams.libcams import CAMS_VERSION, Page, get_user_pages
-from cams.models import (Person, Member, PersonContact, MemberContact,
-                         OrganisationContact, Event, Actor, Fair, Participant,
-                         Group, Role, EventComment)
+from cams.libcams import CAMS_VERSION, Page, get_user_pages, str2list
+from cams.models import (Person, Member, Organisation, PersonContact,
+                         MemberContact, OrganisationContact, Event, Actor,
+                         Fair, Participant, Group, Role, EventComment)
 from mrwf.extra.models import (FairEvent)
 
 from django import VERSION
-
-# ToDo: move to libcams.py
 
 PAGE_LIST = [
     Page ('home',    '',                   'welcome',      Page.OPEN),

@@ -7,7 +7,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.conf import settings
 from cams.models import (Person, Contact, PersonContact, Organisation,
                          Fair, Participant)
-from extra.models import StallEvent, StallApplication
+from mrwf.extra.models import StallEvent, StallApplication
 
 class PersonForm (forms.ModelForm):
     last_name = forms.CharField (max_length = 127, required = True)

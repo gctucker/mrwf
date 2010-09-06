@@ -2,14 +2,15 @@ from django.conf.urls.defaults import *
 from django.contrib import admin
 from settings import DEBUG, STATIC_ROOT
 from mrwf import extra
-from mrwf.extra.public import urls
+from mrwf.extra import views
 from mrwf.extra import cams_urls
 from mrwf.extra import abook_urls
+from mrwf.extra.public import urls
 
 admin.autodiscover()
 
 urlpatterns = patterns ('',
- (r'^$', 'extra.views.home'),
+ (r'^$', 'mrwf.extra.views.home'),
  (r'^accounts/login/', 'django.contrib.auth.views.login',
   {'template_name': 'login.html'}),
  (r'^accounts/logout/', 'django.contrib.auth.views.logout',
@@ -19,7 +20,7 @@ urlpatterns = patterns ('',
  (r'^abook/', include (extra.abook_urls)),
  (r'^public/', include (extra.public.urls)),
  (r'^cams/', include (extra.cams_urls)),
- (r'^profile/$', 'extra.views.profile')
+ (r'^profile/$', 'mrwf.extra.views.profile')
 )
 
 if DEBUG and STATIC_ROOT:
