@@ -1,0 +1,10 @@
+{% extends "browser.html" %}
+
+{% block browse_header %}{% block detail_name %}{% endblock %}
+          <div>{% if not contacts %}
+            <span class="search-no-contact">Sorry, no contact details</span></p>{% else %}{% for c in contacts %}
+{% include "abook/details.html" %}{% endfor %}{% endif %}
+          </div>{% if user.is_staff %}{% block detail_edit %}{% endblock %}{% endif %}{% endblock %}
+
+{% block browse_footer %}
+<div class="back"><a href="{{ px }}abook/?{{ urlmatch }}">&lt;&lt;&nbsp;back to the search</a></div>{% endblock %}

@@ -39,6 +39,17 @@ class CommentForm (forms.Form):
     content = forms.CharField (widget = forms.Textarea (attrs = attrs))
 
 
+def add_common_tpl_vars (request, tpl_vars, cpage, obj_list = None, n = 20):
+    tpl_vars['px'] = settings.URL_PREFIX
+    tpl_vars['user'] = request.user
+    # ToDo: rename pages -> nav (avoid confusion with page in paginator)
+    tpl_vars['pages'] = get_user_pages (PAGE_LIST, request.user)
+    tpl_vars['current_page'] = cpage
+
+    if obj_list:
+        page = get_page (request, obj_list, n)
+        tpl_vars['page'] = page
+
 # -----------------------------------------------------------------------------
 # Address Book views
 
@@ -70,77 +81,89 @@ def search_all (request, match):
 
     return {'people': people, 'orgs': orgs}
 
-def render_common (request, template, tpl_vars = {}):
+class PaginatorStub:
+    def __init__ (self):
+        self.object_list = []
+
+    def add_list (self, items, type_name):
+        for it in items:
+            it['type'] = type_name
+        self.object_list += items
+
+    @property
+    def num_pages (self):
+        if len (self.object_list):
+            return 1
+        else:
+            return 0
+
+def add_common_tpl_vars_abook (request, tpl_vars, obj_list = None, n = 20):
     if 'match' in request.GET:
         match = request.GET['match']
     else:
         match = ''
 
     if match:
-        found = search_all (request, match)
-        # ToDo: get the url directly encoded from instead of re-encoding it ?
+        # ToDo: get the url directly encoded instead of re-encoding it ?
         urlmatch = urllib.urlencode ((('match', match), ))
-        people = found['people']
-        orgs = found['orgs']
     else:
         urlmatch = ''
-        people = None
-        orgs = None
 
-    form = SearchForm ({'match': match})
-
-    tpl_vars['pages'] = get_user_pages (PAGE_LIST, request.user)
-    tpl_vars['current_page'] = 'abook'
-    tpl_vars['form'] = form
+    add_common_tpl_vars (request, tpl_vars, 'abook', obj_list, n)
     tpl_vars['urlmatch'] = urlmatch
-    tpl_vars['people'] = people
-    tpl_vars['orgs'] = orgs
-    tpl_vars['px'] = settings.URL_PREFIX
     tpl_vars['page_title'] = 'Address Book'
-    tpl_vars['user'] = request.user
 
-    return render_to_response (template, tpl_vars)
+    return match
 
 # -----------------------------------------------------------------------------
 
 @login_required
 def search (request):
-    return render_common (request, 'abook/search.html')
+    tpl_vars = {}
+    match = add_common_tpl_vars_abook (request, tpl_vars)
+
+    if match:
+        found = search_all (request, match)
+        people = list (found['people'])
+        for p in people:
+            p['contacts'] = PersonContact.objects.filter (person = p['id'])
+        orgs = list (found['orgs'])
+        for o in orgs:
+            o['contacts'] = OrganisationContact.objects.filter (org = o['id'])
+        results = PaginatorStub ()
+        results.add_list (people, 'person')
+        results.add_list (orgs, 'org')
+    else:
+        results = None
+
+    form = SearchForm ({'match': match})
+    tpl_vars['form'] = form
+    tpl_vars['page'] = results
+
+    return render_to_response ('abook/search.html', tpl_vars)
 
 @login_required
 def person (request, person_id):
-    try:
-        person = Person.objects.get (pk = person_id)
-    except Person.DoesNotExist:
-        raise Http404
-
+    person = get_object_or_404 (Person, pk = person_id)
     contacts = PersonContact.objects.filter (person = person)
-
-    # workaround until better member contact support is implemented
-    if not contacts:
-        member = Member.objects.filter (person = person)
-        if member:
-            contacts = MemberContact.objects.filter (member = member[0])
-
-    tpl_vars = {'person': person, 'contacts': contacts}
-
-    return render_common (request, 'abook/person.html', tpl_vars)
+    members = Member.objects.filter (person = person)
+    tpl_vars = {'person': person, 'contacts': contacts, 'members': members,
+                'url': 'abook/person/%d/' % person.id}
+    add_common_tpl_vars_abook (request, tpl_vars, members, 10)
+    return render_to_response ('abook/person.html', tpl_vars)
 
 @login_required
 def org (request, org_id):
-    try:
-        org = Organisation.objects.get (pk = org_id)
-    except Organisation.DoesNotExist:
-        raise Http404
-
+    org = get_object_or_404 (Organisation, pk = org_id)
     contacts = OrganisationContact.objects.filter (org = org)
-
-    tpl_vars = {'org': org, 'contacts': contacts}
-
-    return render_common (request, 'abook/org.html', tpl_vars)
+    members = Member.objects.filter (organisation = org)
+    tpl_vars = {'org': org, 'contacts': contacts, 'members': members,
+                'url': 'abook/org/%d/' % org.id}
+    add_common_tpl_vars_abook (request, tpl_vars, members, 10)
+    return render_to_response ('abook/org.html', tpl_vars)
 
 # -----------------------------------------------------------------------------
-# CAMS views
+# Managment views
 
 def get_page (request, list, n):
     pagin = Paginator (list, n)
@@ -160,7 +183,7 @@ def get_page (request, list, n):
 
     return page
 
-def add_common_tpl (request, tpl_vars, cpage, obj_list = None, n = 20):
+def add_common_tpl_vars (request, tpl_vars, cpage, obj_list = None, n = 20):
     tpl_vars['px'] = settings.URL_PREFIX
     tpl_vars['user'] = request.user
     tpl_vars['pages'] = get_user_pages (PAGE_LIST, request.user)
@@ -209,7 +232,7 @@ def get_show_all (request):
 @login_required
 def home (request):
     tpl_vars = {'page_title': 'Home'}
-    add_common_tpl (request, tpl_vars, 'home')
+    add_common_tpl_vars (request, tpl_vars, 'home')
     return render_to_response ('home.html', tpl_vars)
 
 @login_required
@@ -234,7 +257,7 @@ def profile (request):
     tpl_vars = {'page_title': 'User Profile', 'part': part, 'roles': roles,
                 'contact': contact, 'django_version': django_version,
                 'cams_version': cams_version}
-    add_common_tpl (request, tpl_vars, 'profile')
+    add_common_tpl_vars (request, tpl_vars, 'profile')
     return render_to_response ('profile.html', tpl_vars)
 
 @login_required
@@ -252,7 +275,7 @@ def participants (request):
     groups = groups.order_by ('name')
     tpl_vars = {'page_title': 'Participants', 'url': 'cams/participants/',
                 'show_all': show_all}
-    add_common_tpl (request, tpl_vars, 'parts', groups)
+    add_common_tpl_vars (request, tpl_vars, 'parts', groups)
     return render_to_response ('cams/participants.html', tpl_vars)
 
 @login_required
@@ -262,7 +285,7 @@ def group (request, group_id):
     roles = roles.order_by ('participant__person__last_name')
     tpl_vars = {'page_title': 'Group members', 'group': group,
                 'url': 'cams/participants/group/%d/' % group.id}
-    add_common_tpl (request, tpl_vars, 'parts', roles)
+    add_common_tpl_vars (request, tpl_vars, 'parts', roles)
     return render_to_response ('cams/group.html', tpl_vars)
 
 @login_required
@@ -307,7 +330,7 @@ def preparation (request):
     # ToDo: filter past events and add option to see them
     tpl_vars = {'page_title': 'Preparation', 'url': 'cams/prep/',
                 'show_all': show_all}
-    add_common_tpl (request, tpl_vars, 'prep', acts)
+    add_common_tpl_vars (request, tpl_vars, 'prep', acts)
     return render_to_response (tpl, tpl_vars)
 
 @login_required
@@ -316,7 +339,7 @@ def prep_event (request, event_id):
     form = get_form_if_actor (request, event_id)
     tpl_vars = {'page_title': 'Event', 'ev': ev, 'form': form,
                 'url': 'cams/prep/%d/' % ev.id}
-    add_common_tpl (request, tpl_vars, 'prep', get_comments (ev), 4)
+    add_common_tpl_vars (request, tpl_vars, 'prep', get_comments (ev), 4)
     return render_to_response ('cams/prep_event.html', tpl_vars,
                                context_instance = RequestContext (request),)
 
@@ -330,7 +353,7 @@ def programme (request):
     prog = FairEvent.objects.filter (fair = fair)
     prog = prog.order_by ('name')
     tpl_vars = {'page_title': 'Programme', 'url': 'cams/prog/'}
-    add_common_tpl (request, tpl_vars, 'prog', prog)
+    add_common_tpl_vars (request, tpl_vars, 'prog', prog)
     return render_to_response ('cams/programme.html', tpl_vars)
 
 @login_required
@@ -339,7 +362,7 @@ def prog_event (request, event_id):
     form = get_form_if_actor (request, event_id)
     tpl_vars = {'page_title': 'Fair Event', 'ev': ev, 'form': form,
                 'url': 'cams/prog/%d/' % ev.id}
-    add_common_tpl (request, tpl_vars, 'prog', get_comments (ev), 4)
+    add_common_tpl_vars (request, tpl_vars, 'prog', get_comments (ev), 4)
     return render_to_response ('cams/prog_event.html', tpl_vars,
                                context_instance = RequestContext (request))
 
@@ -351,7 +374,7 @@ def prog_event_cmt (request, event_id):
 def fairs (request):
     fair = get_object_or_404 (Fair, current = True)
     tpl_vars = {'page_title': 'Fairs', 'fair': fair}
-    add_common_tpl (request, tpl_vars, 'fairs')
+    add_common_tpl_vars (request, tpl_vars, 'fairs')
     return render_to_response ('cams/fairs.html', tpl_vars)
 
 @login_required

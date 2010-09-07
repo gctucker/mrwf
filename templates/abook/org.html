@@ -1,7 +1,19 @@
-{% extends "abook/detail.html" %}
+{% extends "abook/common_contacts.html" %}
 
-{% block detail_name %}
-            <h2>{{ org.name }}</h2>{% endblock %}
+{% block browse_title %}{{ org.name }}{% endblock %}
+
+{% block browse_it %}
+                <div class="element">
+                  <div class="search-member">
+                    <a href="{{ px }}abook/person/{{ it.person.id }}/?{{ urlmatch }}">{{ it.person.first_name }} {{ it.person.middle_name }} {{ it.person.last_name }}</a>
+                  </div>
+                  <div class="search-preview">
+                    {% if it.contact %}{{ it.contact }}{% else %}
+                    {% if it.person.contact %}{{ it.person.contact }}{% else %}
+                    <span class="search-no-contact">No contact details</span>{% endif %}{% endif %}
+                  </div>
+                </div>
+{% endblock %}
 
 {% block detail_edit %}
           <div class="cmd"><a href="{{ px }}admin/cams/organisation/{{ org.id }}/">&lt;edit&gt;</a></div>{% endblock%}

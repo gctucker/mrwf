@@ -1,13 +1,29 @@
-{% extends "abook/detail.html" %}
+{% extends "abook/common_contacts.html" %}
+
+{% block browse_title %}{{ person.first_name }} {{ person.last_name }}{% endblock %}
 
 {% block detail_name %}
-            <h2>{{ person.first_name }} {{ person.last_name }}</h2>
+          <div class="element">
             <table class="details separator">
               <tr><td class="key">first name</td><td class="value">{{ person.first_name }}</td></tr>{% if person.middle_name %}
               <tr><td class="key">middle name</td><td class="value">{{ person.middle_name }}</td></tr>{% endif %}{% if person.last_name %}
               <tr><td class="key">last name</td><td class="value">{{ person.last_name }}</td></tr>{% endif %}{% if person.nickname %}
               <tr><td class="key">nickname</td><td class="value">{{ person.nickname }}</td></tr>{% endif %}
-            </table>{% endblock %}
+            </table>
+          </div>{% endblock %}
+
+{% block browse_it %}
+                <div class="element">
+                  <div class="search-member">
+                    Member of <a href="{{ px }}abook/org/{{ it.organisation.id }}/?{{ urlmatch }}">{{ it.organisation }}</a>
+                  </div>
+                  <div class="search-preview">
+                    {% if it.contact %}{{ it.contact }}{% else %}
+                    {% if it.organisation.contact %}{{ it.organisation.contact }}
+                    {% else %}<span class="search-no-contact">No contact details</span>{% endif %}{% endif %}
+                  </div>
+                </div>
+{% endblock %}
 
 {% block detail_edit %}
           <div class="cmd"><a href="{{ px }}admin/cams/person/{{ person.id }}/">&lt;edit&gt;</a></div>{% endblock%}

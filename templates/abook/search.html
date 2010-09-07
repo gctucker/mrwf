@@ -1,19 +1,20 @@
-{% extends "nav_layout.html" %}
+{% extends "browser.html" %}
 
-{% block contents %}
-          <div class="searchbox element">
+{% block browse_header %}
+          <div class="element">
             <form action="{{ px }}abook/" method="get">
               {{ form.match }}
               <input type="submit" value="search in the Address Book" />
             </form>
-          </div>{% block detail %}{% endblock %}{% if match and not people and not orgs %}
-          <div class="element">No match, sorry.</div>{% else %}{% if people %}
-          <div class="element">
-            <h2>{{ people.count }} {% ifequal people.count 1 %}Person{% else %}People{% endifequal %} found</h2>{% for p in people %}
-            <a href="{{ px }}abook/person/{{ p.id }}/?{{ urlmatch }}">{{ p.first_name }} {{ p.last_name }}</a><br />{% endfor %}
-          </div>{% endif %}{% if orgs %}
-          <div class="element">
-            <h2>{{ orgs.count }} Organisation{{ orgs.count|pluralize }} found</h2>{% for o in orgs %}
-            <a href="{{ px }}abook/org/{{ o.id }}/?{{ urlmatch }}">{{ o.name }}</a><br />{% endfor %}
-          </div>{% endif %}{% endif %}
+          </div>{% block detail %}{% endblock %}{% if not page.object_list and urlmatch %}
+          <div class="element">No match, sorry.</div>{% endif %}{% endblock %}
+
+{% block browse_it %}
+                <a href="{{ px }}abook/{{ it.type }}/{{ it.id }}/?{{ urlmatch }}">{% if it.type = "person" %}
+                  {{ it.first_name }} {{ it.middle_name }} {{ it.last_name }}{% else %}{% if it.type = "org" %}
+                  {{ it.name }}{% endif %}{% endif %}
+                </a>
+                <div class="search-preview">
+                  {% if not it.contacts %}<span class="search-no-contact">No contact details</span>{% else %}{{ it.contacts|first }}{% endif %}
+                </div>
 {% endblock %}

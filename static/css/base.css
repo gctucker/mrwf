@@ -84,6 +84,27 @@ div.back
   font-size: 0.8em;
 }
 
+ul.plain
+{
+  list-style-type: none;
+  list-style-position: outside;
+  margin: 0 0 0 0;
+  padding: 0 0 0 0;
+}
+
+.current_page
+{
+  font-weight: bold;
+  font-size: 0.9em;
+}
+
+.current_nav
+{
+  color: #C30000;
+}
+
+/* navigation layout */
+
 td#contents
 {
   padding: 3px 10px 3px 10px;
@@ -109,23 +130,25 @@ ul#navlist
   line-height: 160%;
 }
 
-ul.plain
+/* search */
+
+div.search-preview
 {
-  list-style-type: none;
-  list-style-position: outside;
-  margin: 0 0 0 0;
-  padding: 0 0 0 0;
+  padding: 5px 0 15px 15px;
+  font-size: 0.75em;
 }
 
-.current_page
+.search-no-contact
 {
-  font-weight:bold;
+  font-style: italic;
+  color: #AAAAAA;
+}
+
+.search-member
+{
   font-size: 0.9em;
-}
-
-.current_nav
-{
-  color: #C30000;
+  padding: 2px 0 2px 5px;
+  background-color: #F0F0F0;
 }
 
 /* detail table */
@@ -134,6 +157,7 @@ table.details
 {
   width: 100%;
   margin: 2px 0 8px 0;
+  font-size: 0.9em;
 }
 
 td.key
