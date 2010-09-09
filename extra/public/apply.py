@@ -21,7 +21,8 @@ class PersonContactForm (forms.ModelForm):
     line_1 = forms.CharField (max_length = 63, required = True)
     town = forms.CharField (max_length = 63, required = True)
     postcode = forms.CharField (max_length = 15, required = True)
-    email = forms.EmailField (max_length = 127, required = True)
+    email = forms.EmailField (max_length = 127, required = True,
+                              help_text = Contact.email_help_text)
 
     class Meta:
         model = PersonContact

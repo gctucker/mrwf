@@ -210,6 +210,16 @@ td.cmt-message
 
 /* application forms */
 
+ul.errorlist
+{
+  font-size: 0.9em;
+  color: #C30000;
+  list-style-type: none;
+  list-style-position: outside;
+  margin: 0 0 0 0;
+  padding: 8px 0 0 0;
+}
+
 table.apply
 {
   text-align: left;
@@ -223,5 +233,10 @@ td.apply-title
 td.apply-notes
 {
   padding: 0 0 12px 0;
+  font-size: 0.9em;
+}
+
+.apply-help
+{
   font-size: 0.9em;
 }
