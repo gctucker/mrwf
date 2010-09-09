@@ -28,12 +28,19 @@ class FairEvent (Event):
 
 
 class StallEvent (FairEvent):
-    contact_choices = ((0, 'telephone'), (1, 'email'), (2, 'website'))
+    TELEPHONE = 0
+    EMAIL = 1
+    WEBSITE = 2
+
+    xcontact = ((TELEPHONE, 'telephone'),
+                (EMAIL, 'email'),
+                (WEBSITE, 'website'))
+
     n_spaces = PositiveSmallIntegerField (default = 1, verbose_name =
                                           "Number of spaces")
     n_tables = PositiveSmallIntegerField (default = 0, verbose_name =
                                           "Number of tables")
-    main_contact = PositiveSmallIntegerField (choices = contact_choices,
+    main_contact = PositiveSmallIntegerField (choices = xcontact,
                                               blank = True, null = True,
                                               help_text =
                                           "Main contact used in the programme")
