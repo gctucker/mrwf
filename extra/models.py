@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 from django.db.models import (CharField, DateField,
                               PositiveIntegerField, PositiveSmallIntegerField,
                               ForeignKey, OneToOneField,
@@ -50,3 +51,19 @@ class StallApplication (EventApplication):
     @property
     def stall (self):
         return self.event
+
+
+class Listener (models.Model):
+    STALL_APPLICATION_RECEIVED = 0
+    STALL_APPLICATION_ACCEPTED = 1
+    STALL_APPLICATION_REJECTED = 2
+
+    xtrigger = ((STALL_APPLICATION_RECEIVED, 'stall application received'),
+                (STALL_APPLICATION_ACCEPTED, 'stall application accepted'),
+                (STALL_APPLICATION_REJECTED, 'stall application rejected'))
+
+    trigger = PositiveSmallIntegerField (choices = xtrigger)
+    user = ForeignKey (User)
+
+    def __unicode__ (self):
+        return "%s upon %s" % (self.user, Listener.xtrigger[self.trigger][1])

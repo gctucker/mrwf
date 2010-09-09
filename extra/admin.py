@@ -7,7 +7,7 @@ from cams.admin import (PersonAdmin, OrganisationAdmin, MemberAdmin,
                         ActorAdmin, EventCommentAdmin,
                         ApplicationTypeAdmin, EventApplicationAdmin)
 from mrwf.extra.models import (FairEventType, FairEvent, StallEvent,
-                               StallApplication)
+                               StallApplication, Listener)
 
 class FairEventAdmin (EventAdmin):
     fieldsets = (('Event', {'fields': ('status',
@@ -28,6 +28,10 @@ class StallEventAdmin (FairEventAdmin):
     fieldsets = stall_fs + FairEventAdmin.fieldsets
 
 
+class ListenerAdmin (admin.ModelAdmin):
+    list_display = ['user', 'trigger']
+
+
 # -- CAMS admin --
 admin.site.register (Person, PersonAdmin)
 admin.site.register (Organisation, OrganisationAdmin)
@@ -46,3 +50,4 @@ admin.site.register (FairEvent, FairEventAdmin)
 admin.site.register (FairEventType)
 admin.site.register (StallEvent, StallEventAdmin)
 admin.site.register (StallApplication, EventApplicationAdmin)
+admin.site.register (Listener, ListenerAdmin)
