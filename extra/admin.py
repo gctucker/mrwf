@@ -20,7 +20,6 @@ class FairEventAdmin (EventAdmin):
                                        'owner')}),
                  ('Programme info', {'fields': ('fair', 'etype', 'image',
                                            ('age_min', 'age_max'))}))
-    raw_id_fields = ['org', 'owner', 'fair']
 
 
 class StallEventAdmin (FairEventAdmin):

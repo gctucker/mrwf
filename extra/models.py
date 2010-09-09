@@ -11,6 +11,9 @@ class FairEventType (models.Model):
     def __unicode__ (self):
         return self.name
 
+    class Meta:
+        ordering=['name']
+
 
 class FairEvent (Event):
     event = OneToOneField (Event, parent_link = True)
