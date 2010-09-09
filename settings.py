@@ -3,9 +3,9 @@
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 STATIC_ROOT = ''
-ADMINS = () # (loaded from site.conf)
+ADMINS = () # (loaded from local_settings)
 MANAGERS = ADMINS
-DATABASES = {} # (loaded from site.conf)
+DATABASES = {} # (loaded from local_settings)
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -32,20 +32,20 @@ USE_L10N = True
 
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
-#MEDIA_ROOT = (loaded from site.conf)
+#MEDIA_ROOT = (loaded from local_settings)
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
 # Examples: "http://media.lawrence.com", "http://example.com/media/"
-#MEDIA_URL = (loaded from site.conf)
+#MEDIA_URL = (loaded from local_settings)
 
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
 # trailing slash.
 # Examples: "http://foo.com/media/", "/media/".
-#ADMIN_MEDIA_PREFIX = (loaded from site.conf)
+#ADMIN_MEDIA_PREFIX = (loaded from local_settings)
 
 # Make this unique, and don't share it with anybody.
-#SECRET_KEY = (loaded from site.conf)
+#SECRET_KEY = (loaded from local_settings)
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -64,7 +64,7 @@ MIDDLEWARE_CLASSES = (
 
 ROOT_URLCONF = 'mrwf.urls'
 
-TEMPLATE_DIRS = () # (loaded from site.conf)
+TEMPLATE_DIRS = () # (loaded from local_settings)
 
 INSTALLED_APPS = (
     'django.contrib.auth',
@@ -78,57 +78,5 @@ INSTALLED_APPS = (
     'mrwf.extra'
 )
 
-# -----------------------------------------------------------------------------
-# site-dependent configuration (site.conf)
-
-import os
-from ConfigParser import SafeConfigParser
-
-conf = SafeConfigParser ()
-conf.read (os.environ['SITE_CONF'])
-
-if conf.has_section ('database'):
-    default = {}
-    db_conf = conf.items ('database')
-    for (k, v) in db_conf:
-        default[k.upper ()] = v
-    DATABASES = {'default': default}
-
-if conf.has_section ('paths'):
-    paths = conf.items ('paths')
-    for (k, v) in paths:
-        if k == 'python':
-            import sys
-            sys.path.append (v)
-        elif k == 'url_prefix':
-            URL_PREFIX = v
-        elif k == 'path_prefix':
-            PATH_PREFIX = v
-        elif k == 'media_root':
-            MEDIA_ROOT = v
-        elif k == 'media_url':
-            MEDIA_URL = v
-        elif k == 'admin_media_prefix':
-            ADMIN_MEDIA_PREFIX = v
-        elif k == 'templates':
-            TEMPLATE_DIRS += (v, )
-        elif k == 'static_root':
-            STATIC_ROOT = v
-
-if conf.has_section ('extra'):
-    extras = conf.items ('extra')
-    admin_name = ''
-    for (k, v) in extras:
-        if k == 'secret_key':
-            SECRET_KEY = v
-        elif k == 'debug':
-            DEBUG = (v == 'true')
-        elif k == 'admin_name':
-            admin_name = v
-        elif k == 'admin_email' and admin_name:
-            ADMINS += ((admin_name, v), )
-
-# -----------------------------------------------------------------------------
-
-LOGIN_URL = URL_PREFIX + 'accounts/login'
-LOGIN_REDIRECT_URL = URL_PREFIX
+# site-dependent settings
+import local_settings
