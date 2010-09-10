@@ -20,7 +20,8 @@ urlpatterns = patterns ('',
  (r'^abook/', include (extra.abook_urls)),
  (r'^public/', include (extra.public.urls)),
  (r'^cams/', include (extra.cams_urls)),
- (r'^profile/$', 'mrwf.extra.views.profile')
+ (r'^profile/$', 'mrwf.extra.views.profile'),
+ (r'^profile/email_test/$', 'mrwf.extra.views.email_test')
 )
 
 if DEBUG and STATIC_ROOT:

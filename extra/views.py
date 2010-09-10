@@ -7,13 +7,15 @@ from django.http import (HttpResponse, HttpResponseRedirect,
 from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
+from django.core.mail import send_mail
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.shortcuts import render_to_response, get_object_or_404
 from django.conf import settings
 from cams.libcams import CAMS_VERSION, Page, get_user_pages, str2list
 from cams.models import (Person, Member, Organisation, PersonContact,
                          MemberContact, OrganisationContact, Event, Actor,
-                         Fair, Participant, Group, Role, EventComment)
+                         Fair, Participant, Group, Role, EventComment,
+                         get_user_email)
 from mrwf.extra.models import (FairEvent)
 
 from django import VERSION
@@ -259,6 +261,21 @@ def profile (request):
                 'cams_version': cams_version}
     add_common_tpl_vars (request, tpl_vars, 'profile')
     return render_to_response ('profile.html', tpl_vars)
+
+@login_required
+def email_test (request):
+    email = get_user_email (request.user)
+    if email:
+        send_mail ("CAMS e-mail test", "Your email is properly configured.",
+                   "no-reply@mangoz.org", [email])
+        all_good = True
+    else:
+        all_good = False
+
+    tpl_vars = {'page_title': 'Email test', 'all_good': all_good,
+                'email': email}
+    add_common_tpl_vars (request, tpl_vars, 'profile')
+    return render_to_response ('email_test.html', tpl_vars)
 
 @login_required
 def participants (request):
