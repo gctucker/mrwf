@@ -4,7 +4,7 @@ from django.db.models import (CharField, DateField,
                               PositiveIntegerField, PositiveSmallIntegerField,
                               ForeignKey, OneToOneField,
                               ImageField)
-from cams.models import Item, Event, Fair, EventApplication
+from cams.models import PersonContact, Item, Event, Fair, EventApplication
 
 class FairEventType (models.Model):
     name = CharField (max_length = 63)
@@ -46,11 +46,41 @@ class StallEvent (FairEvent):
                                               help_text =
                                           "Main contact used in the programme")
 
+    def get_main_contact_value (self):
+        p = self.event.owner.person
+        c = PersonContact.objects.filter (person = p)
 
-class StallApplication (EventApplication):
+        if c.count () > 0:
+            if self.main_contact == StallEvent.TELEPHONE:
+                value = c[0].telephone
+            elif self.main_contact == StallEvent.EMAIL:
+                value = c[0].email
+            elif self.main_contact == StallEvent.WEBSITE:
+                value = c[0].website
+
+        if not value:
+            value = '[not provided]'
+
+        return value
+
+
+class FairEventApplication (EventApplication):
+    STALLHOLDER = 0
+    PERFORMER = 1
+    ADVERTISER = 2
+    SPONSOR = 3
+    VOLUNTEER = 4
+    STEWARD = 5
+
+    xtypes = ((STALLHOLDER, 'stallholder'), (PERFORMER, 'performer'),
+              (ADVERTISER, 'advertiser'), (SPONSOR, 'sponsor'),
+              (VOLUNTEER, 'volunteer'), (STEWARD, 'steward'))
+
+    subtype = PositiveSmallIntegerField (choices = xtypes)
+
     @property
-    def stall (self):
-        return self.event
+    def type_name (self):
+        return xtypes[self.subtype][1]
 
 
 class Listener (models.Model):

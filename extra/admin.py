@@ -1,13 +1,10 @@
 from django.contrib import admin
 from cams.models import (Person, Organisation, Member, Group, Fair, Role,
-                         Participant, Event, Actor, EventComment,
-                         ApplicationType, EventApplication)
+                         Participant, Event, Actor, EventComment)
 from cams.admin import (PersonAdmin, OrganisationAdmin, MemberAdmin,
                         GroupAdmin, FairAdmin, ParticipantAdmin, EventAdmin,
-                        ActorAdmin, EventCommentAdmin,
-                        ApplicationTypeAdmin, EventApplicationAdmin)
-from mrwf.extra.models import (FairEventType, FairEvent, StallEvent,
-                               StallApplication, Listener)
+                        ActorAdmin, EventCommentAdmin)
+from mrwf.extra.models import (FairEventType, FairEvent, StallEvent, Listener)
 
 class FairEventAdmin (EventAdmin):
     fieldsets = (('Event', {'fields': ('status',
@@ -42,12 +39,9 @@ admin.site.register (Participant, ParticipantAdmin)
 admin.site.register (Event, EventAdmin)
 admin.site.register (Actor, ActorAdmin)
 admin.site.register (EventComment, EventCommentAdmin)
-#admin.site.register (ApplicationType, ApplicationTypeAdmin)
-admin.site.register (EventApplication, EventApplicationAdmin)
 
 # -- extra admin --
 admin.site.register (FairEvent, FairEventAdmin)
 admin.site.register (FairEventType)
 admin.site.register (StallEvent, StallEventAdmin)
-admin.site.register (StallApplication, EventApplicationAdmin)
 admin.site.register (Listener, ListenerAdmin)

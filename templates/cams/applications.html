@@ -1,0 +1,10 @@
+{% extends "nav_layout.html" %}
+
+{% block contents %}
+          <div class="element">Categories:</div>
+          <div class="element">
+            <ul class="plain">{% for cat_id, cat_name in cats %}
+              <li><a href="{{ px }}cams/application/{{ cat_id }}/">{{ cat_name }}</a></li>{% endfor %}
+            </ul>
+          </div>
+{% endblock %}

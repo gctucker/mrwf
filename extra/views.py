@@ -16,7 +16,7 @@ from cams.models import (Person, Member, Organisation, PersonContact,
                          MemberContact, OrganisationContact, Event, Actor,
                          Fair, Participant, Group, Role, EventComment,
                          get_user_email)
-from mrwf.extra.models import (FairEvent)
+from mrwf.extra.models import (FairEvent, StallEvent, FairEventApplication)
 
 from django import VERSION
 
@@ -24,10 +24,11 @@ PAGE_LIST = [
     Page ('home',    '',                   'welcome',      Page.OPEN),
     Page ('profile', 'profile/',           'user profile', Page.OPEN),
     Page ('abook',   'abook/',             'address book', Page.OPEN),
-    Page ('parts',   'cams/participants/', 'participants', Page.OPEN),
+    Page ('parts',   'cams/participant/',  'participants', Page.OPEN),
     Page ('prep',    'cams/prep/',         'preparation',  Page.OPEN),
     Page ('prog',    'cams/prog/',         'programme',    Page.OPEN),
-    Page ('fairs',   'cams/fairs/',        'winter fairs', Page.OPEN),
+    Page ('appli',   'cams/application/',  'applications', Page.ADMIN),
+    Page ('fairs',   'cams/fair/',         'winter fairs', Page.OPEN),
     Page ('admin',   'admin/',             'admin',        Page.ADMIN),
     Page ('logout',  'accounts/logout/',   'log out',      Page.OPEN)]
 
@@ -294,7 +295,7 @@ def participants (request):
     fair = get_object_or_404 (Fair, current = True)
     groups = groups.filter (Q (fair = fair) | Q (fair__isnull = True))
     groups = groups.order_by ('name')
-    tpl_vars = {'page_title': 'Participants', 'url': 'cams/participants/',
+    tpl_vars = {'page_title': 'Participants', 'url': 'cams/participant/',
                 'show_all': show_all}
     add_common_tpl_vars (request, tpl_vars, 'parts', groups)
     return render_to_response ('cams/participants.html', tpl_vars)
@@ -305,7 +306,7 @@ def group (request, group_id):
     roles = Role.objects.filter (group = group)
     roles = roles.order_by ('participant__person__last_name')
     tpl_vars = {'page_title': 'Group members', 'group': group,
-                'url': 'cams/participants/group/%d/' % group.id}
+                'url': 'cams/participant/group/%d/' % group.id}
     add_common_tpl_vars (request, tpl_vars, 'parts', roles)
     return render_to_response ('cams/group.html', tpl_vars)
 
@@ -390,6 +391,46 @@ def prog_event (request, event_id):
 @login_required
 def prog_event_cmt (request, event_id):
     return post_event_cmt (request, event_id, prog_event)
+
+@login_required
+def applications (request):
+    applis = FairEventApplication.objects.all ()
+    cats = FairEventApplication.xtypes
+    tpl_vars = {'page_title': 'Applications', 'cats': cats}
+    add_common_tpl_vars (request, tpl_vars, 'appli')
+    return render_to_response ('cams/applications.html', tpl_vars)
+
+@login_required
+def appli_type (request, type_id):
+    type_id = int (type_id)
+    applis = FairEventApplication.objects.filter (subtype = type_id)
+    type_name = FairEventApplication.xtypes[type_id][1]
+    tpl_vars = {'page_title': 'Applications: %ss' % type_name,
+                'applis': applis, 'type_id': type_id}
+    add_common_tpl_vars (request, tpl_vars, 'appli', applis)
+    template = "cams/appli_list.html"
+    return render_to_response (template, tpl_vars)
+
+@login_required
+def appli_detail (request, type_id, appli_id):
+    type_id = int (type_id)
+    appli_id = int (appli_id)
+    appli = get_object_or_404 (FairEventApplication, pk = appli_id)
+
+    if appli.subtype != type_id:
+        raise Http404
+
+    if type_id == FairEventApplication.STALLHOLDER:
+        detail = get_object_or_404 (StallEvent, pk = appli.event.id)
+    else:
+        detail = None
+
+    tpl_vars = {'page_title': 'Application', 'type_id': type_id,
+                'appli': appli, 'detail': detail}
+    add_common_tpl_vars (request, tpl_vars, 'appli')
+    type_name = FairEventApplication.xtypes[type_id][1]
+    template = "cams/appli_%s.html" % type_name
+    return render_to_response (template, tpl_vars)
 
 @login_required
 def fairs (request):

@@ -1,0 +1,23 @@
+{% extends "nav_layout.html" %}
+
+{% block contents %}
+          <h2>{{ appli.event.name }}</h2>
+          <table class="details">
+            <tr><td class="key">posted</td><td class="value">{{ appli.created }}</td></tr>
+            <tr>
+              <td class="key">person</td>
+              <td class="value"><a href="{{ px }}abook/person/{{ appli.participant.person.id }}/">{{ appli.participant.person }}</a></td>
+            </tr>
+            <tr><td class="key">spaces</td><td class="value">{{ detail.n_spaces }}</td></tr>
+            <tr><td class="key">tables</td><td class="value">{{ detail.n_tables }}</td></tr>
+            <tr><td class="key">chosen contact</td><td class="value">{{ detail.get_main_contact_value }}</td></tr>
+            <tr><td class="key"></td><td class="value"></td></tr>
+            <tr><td class="key"></td><td class="value"></td></tr>
+          </table>
+          <div class="textblock description">
+{{ appli.event.description|linebreaksbr }}
+          </div>
+          <div class="element cmd">
+            <a href="{{ px }}cams/application/{{ type_id }}/">&lt;&lt;&nbsp;back</a>
+          </div>
+{% endblock %}

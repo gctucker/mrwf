@@ -1,0 +1,11 @@
+{% extends "browser.html" %}
+
+{% block browse_title %}{% endblock %}
+
+{% block browse_it %}
+              <a href="{{ px }}cams/application/{{ type_id }}/{{ it.id }}/">{{ it }}</a>
+{% endblock %}
+
+{% block browse_footer %}
+          <div class="back"><a href="{{ px }}cams/application/">&lt;&lt;&nbsp;back to all applications</a></p>
+{% endblock %}
