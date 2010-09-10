@@ -7,7 +7,7 @@ from django.core.mail import send_mail
 from django.shortcuts import render_to_response, get_object_or_404
 from django.conf import settings
 from cams.models import (Person, Contact, PersonContact, Organisation,
-                         Fair, Participant)
+                         Fair, Participant, get_user_email)
 from mrwf.extra.models import StallEvent, StallApplication, Listener
 
 class PersonForm (forms.ModelForm):
@@ -162,17 +162,9 @@ def post (request):
         trigger = Listener.STALL_APPLICATION_RECEIVED
         listeners = Listener.objects.filter (trigger = trigger)
         for l in listeners:
-            u = l.user
-            if u.email:
-                rcpts.append (u.email)
-            else:
-                part = Participant.objects.get (user = u)
-                p = part.person
-                contacts = PersonContact.objects.filter (person = p)
-                for c in contacts:
-                    if c.email:
-                        rcpts.append (c.email)
-                        break
+            email = get_user_email (l.user)
+            if email:
+                rcpts.append (email)
         form.save (rcpts)
         return HttpResponseRedirect (reverse (application))
 
