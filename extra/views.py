@@ -266,9 +266,13 @@ def profile (request):
 def email_test (request):
     email = get_user_email (request.user)
     if email:
-        send_mail ("CAMS e-mail test", "Your email is properly configured.",
-                   "no-reply@mangoz.org", [email])
-        all_good = True
+        try:
+            send_mail ("CAMS e-mail test",
+                       "Your email is properly configured.",
+                       "no-reply@mangoz.org", [email])
+            all_good = True
+        except smtplib.SMTPException:
+            all_good = False
     else:
         all_good = False
 
