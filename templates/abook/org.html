@@ -8,9 +8,8 @@
                     <a href="{{ px }}abook/person/{{ it.person.id }}/?{{ urlmatch }}">{{ it.person.first_name }} {{ it.person.middle_name }} {{ it.person.last_name }}</a>
                   </div>
                   <div class="search-preview">
-                    {% if it.contact %}{{ it.contact }}{% else %}
-                    {% if it.person.contact %}{{ it.person.contact }}{% else %}
-                    <span class="search-no-contact">No contact details</span>{% endif %}{% endif %}
+                    {% if it.contact %}{{ it.contact }}</span>{% else %}
+                    <span class="search-no-contact">No member contact details{% endif %}</span>&nbsp;&nbsp;<span class="cmd"><a href="{{ px }}admin/cams/member/{{ it.id }}">&lt;edit&gt;</a>
                   </div>
                 </div>
 {% endblock %}
