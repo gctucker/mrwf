@@ -47,16 +47,19 @@ class StallEvent (FairEvent):
                                           "Main contact used in the programme")
 
     def get_main_contact_value (self):
-        p = self.event.owner.person
-        c = PersonContact.objects.filter (person = p)
+        value = None
 
-        if c.count () > 0:
-            if self.main_contact == StallEvent.TELEPHONE:
-                value = c[0].telephone
-            elif self.main_contact == StallEvent.EMAIL:
-                value = c[0].email
-            elif self.main_contact == StallEvent.WEBSITE:
-                value = c[0].website
+        if self.main_contact:
+            p = self.event.owner.person
+            c = PersonContact.objects.filter (person = p)
+
+            if c.count () > 0:
+                if self.main_contact == StallEvent.TELEPHONE:
+                    value = c[0].telephone
+                elif self.main_contact == StallEvent.EMAIL:
+                    value = c[0].email
+                elif self.main_contact == StallEvent.WEBSITE:
+                    value = c[0].website
 
         if not value:
             value = '[not provided]'
