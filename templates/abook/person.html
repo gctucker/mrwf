@@ -17,11 +17,7 @@
                   <div class="search-member">
                     Member of <a href="{{ px }}abook/org/{{ it.organisation.id }}/?{{ urlmatch }}">{{ it.organisation }}</a>
                   </div>
-                  <div class="search-preview">
-                    {% if it.contact %}{{ it.contact }}{% else %}
-                    {% if it.organisation.contact %}{{ it.organisation.contact }}
-                    {% else %}<span class="search-no-contact">No contact details</span>{% endif %}{% endif %}
-                  </div>
+                  {% include "abook/member_preview.html" %}
                 </div>
 {% endblock %}
 
