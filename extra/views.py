@@ -26,11 +26,11 @@ PAGE_LIST = [
     Page ('home',    '',                   'welcome',      Page.OPEN),
     Page ('profile', 'profile/',           'user profile', Page.OPEN),
     Page ('abook',   'abook/',             'address book', Page.OPEN),
-    Page ('parts',   'cams/participant/',  'participants', Page.OPEN),
-    Page ('prep',    'cams/prep/',         'preparation',  Page.OPEN),
+#    Page ('parts',   'cams/participant/',  'participants', Page.OPEN),
+#    Page ('prep',    'cams/prep/',         'preparation',  Page.OPEN),
     Page ('prog',    'cams/prog/',         'programme',    Page.OPEN),
     Page ('appli',   'cams/application/',  'applications', Page.ADMIN),
-    Page ('fairs',   'cams/fair/',         'winter fairs', Page.OPEN),
+#    Page ('fairs',   'cams/fair/',         'winter fairs', Page.OPEN),
     Page ('admin',   'admin/',             'admin',        Page.ADMIN),
     Page ('logout',  'accounts/logout/',   'log out',      Page.OPEN)]
 
@@ -252,7 +252,7 @@ def profile (request):
 
     part.person.title_str ()
 
-    tpl_vars = {'page_title': 'Profile', 'person': part.person,
+    tpl_vars = {'page_title': 'User Profile', 'person': part.person,
                 'contact': c}
     add_common_tpl_vars (request, tpl_vars, 'profile')
     return render_to_response ('profile.html', tpl_vars)
