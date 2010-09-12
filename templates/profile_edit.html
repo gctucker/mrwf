@@ -8,7 +8,6 @@
               <table class="apply">
                 <tr><td class="apply-title" colspan="3"><h3>User information</h3></td></tr>
                 <tr><th>{{ f_user.username.label_tag }}*</th><td>{{ f_user.username.errors }}{{ f_user.username }}</td></tr>
-                <tr><td colspan="2"><span style="font-size: 0.8em"><a href="password/">change password&nbsp&gt;&gt;</a></span></td></tr>
                 <tr><th>{{ f_user.email.label_tag }}</th><td>{{ f_user.email.errors }}{{ f_user.email }}</td></tr>
                 <tr><td colspan="3" style="font-size: 0.9em">Set this optional email address to receive automatic notifications instead of the main address below.</td></tr>
                 <tr><td class="apply-title" colspan="3"><h3>Personal information</h3></td></tr>{% for f in p_form %}

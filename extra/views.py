@@ -310,7 +310,7 @@ def password (request):
 
         if f_passwd.is_valid ():
             f_passwd.save ()
-            return HttpResponseRedirect (reverse (profile_edit))
+            return HttpResponseRedirect (reverse (profile))
     else:
         f_passwd = PasswordChangeForm (request.user)
 
