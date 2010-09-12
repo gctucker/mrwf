@@ -27,6 +27,13 @@ class FairEvent (Event):
     age_min = PositiveIntegerField (blank = True, null = True)
     age_max = PositiveIntegerField (blank = True, null = True)
 
+    def save (self, *args, **kwargs):
+        if not self.fair:
+            self.fair = Fair.objects.get (current = True)
+        if not self.date:
+            self.date = self.fair.date
+        super (FairEvent, self).save (args, kwargs)
+
 
 class StallEvent (FairEvent):
     TELEPHONE = 0
