@@ -62,6 +62,12 @@ input[type=text], input[type=password], textarea, select
   background-color: #F8F8F8;
 }
 
+.notice
+{
+  color: #C30000;
+  font-style: italic;
+}
+
 .separator
 {
   border-style: none none dotted none;

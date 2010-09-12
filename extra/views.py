@@ -2,7 +2,7 @@ import datetime
 import urllib
 from django import forms
 from django.db.models.query import Q
-from django.http import (HttpResponse, HttpResponseRedirect,
+from django.http import (HttpResponse, HttpResponseRedirect, Http404,
                          HttpResponseForbidden)
 from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
@@ -13,7 +13,7 @@ from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.shortcuts import render_to_response, get_object_or_404
 from django.conf import settings
 from cams.libcams import CAMS_VERSION, Page, get_user_pages, str2list
-from cams.models import (Person, Member, Organisation, PersonContact,
+from cams.models import (Record, Person, Member, Organisation, PersonContact,
                          MemberContact, OrganisationContact, Event, Actor,
                          Fair, Participant, Group, Role, EventComment,
                          get_user_email)
@@ -429,6 +429,8 @@ def prep_event_cmt (request, event_id):
 def programme (request):
     fair = get_object_or_404 (Fair, current = True)
     prog = FairEvent.objects.filter (fair = fair)
+    if not request.user.is_staff:
+        prog = prog.filter (status = Record.ACTIVE)
     prog = prog.order_by ('name')
     tpl_vars = {'page_title': 'Programme', 'url': 'cams/prog/'}
     add_common_tpl_vars (request, tpl_vars, 'prog', prog)
@@ -437,6 +439,8 @@ def programme (request):
 @login_required
 def prog_event (request, event_id):
     ev = get_object_or_404 (FairEvent, pk = event_id)
+    if (not request.user.is_staff) and (ev.status != Record.ACTIVE):
+        raise Http404
     form = get_form_if_actor (request, event_id)
     tpl_vars = {'page_title': 'Fair Event', 'ev': ev, 'form': form,
                 'url': 'cams/prog/%d/' % ev.id}

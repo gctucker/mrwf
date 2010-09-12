@@ -3,5 +3,7 @@
 {% block browse_title %}Programme: events on the day of the fair{% endblock %}
 
 {% block browse_it %}
-                <a href="{{ px }}{{ url }}{{ it.id }}/">{{ it.name }}</a>
+                <a href="{{ px }}{{ url }}{{ it.id }}/">
+                  {{ it.name }}{% if it.status_str == "new" %} (not confirmed){% else %}{% if it.status_str == "disabled" %} (cancelled){% endif %}{% endif %}
+                </a>
 {% endblock %}

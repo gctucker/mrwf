@@ -2,7 +2,9 @@
 
 {% block browse_title %}{{ ev.name }}{% endblock %}
 
-{% block browse_header %}
+{% block browse_header %}{% if ev.status_str == "new" %}
+          <p class="notice">THIS EVENT HAS NOT BEEN CONFIRMED</p>{% else %}{% if ev.status_str == "disabled" %}
+          <p class="notice">THIS EVENT WAS CANCELLED</p>{% endif %}{% endif %}
           <div class="element">{% if ev.description %}
             <table class="details">
               <tr><td class="key">event owner</td><td class="value"><a href="{{ px }}abook/person/{{ ev.owner.person.id }}/">{{ ev.owner }}</a></td></tr>{% if ev.org %}
