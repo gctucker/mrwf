@@ -6,6 +6,10 @@
             <tr><td class="key">first name</td><td class="value">{{ person.first_name }}</td></tr>{% if person.middle_name %}
             <tr><td class="key">middle name</td><td class="value">{{ person.middle_name }}</td></tr>{% endif %}
             <tr><td class="key">last name</td><td class="value">{{ person.last_name }}</td></tr>
+          <table class="details separator">
+            <tr><td class="key">user name</td><td class="value">{{ user.username }}</td></tr>{% if user.email %}
+            <tr><td class="key">user email</td><td class="value">{{ user.email }}</td></tr>{% endif %}
+          </table>
           <table>{% if contact %}{% with contact as c %}
 {% include "abook/details.html" %}{% endwith %}{% else %}
           <p>No contact details.</p>{% endif %}
