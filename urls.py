@@ -21,6 +21,8 @@ urlpatterns = patterns ('',
  (r'^public/', include (extra.public.urls)),
  (r'^cams/', include (extra.cams_urls)),
  (r'^profile/$', 'mrwf.extra.views.profile'),
+ (r'^profile/edit/$', 'mrwf.extra.views.profile_edit'),
+ (r'^profile/edit/password/$', 'mrwf.extra.views.password'),
  (r'^profile/email_test/$', 'mrwf.extra.views.email_test')
 )
 

@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse
 from django.core.mail import send_mail
 from django.shortcuts import render_to_response, get_object_or_404
 from django.conf import settings
-from cams.models import (Fair, Participant, Application, get_user_email)
+from cams.models import Fair, Participant, Application, get_user_email
 from mrwf.extra.models import StallEvent, FairEventApplication, Listener
 from mrwf.extra.forms import PersonForm, PersonContactForm, StallForm
 

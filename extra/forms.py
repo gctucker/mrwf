@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.auth.models import User
 from cams.models import Person, Contact, PersonContact
 from mrwf.extra.models import StallEvent
 
@@ -16,6 +17,12 @@ def check_ibounds (data, name, imin, imax):
         raise forms.ValidationError ("Invalid value for %s" % name)
 
 
+class UserNameForm (forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['username', 'email']
+
+
 class PersonForm (forms.ModelForm):
     last_name = forms.CharField (max_length = 127, required = True)
 
@@ -29,7 +36,8 @@ class PersonContactForm (forms.ModelForm):
     town = forms.CharField (max_length = 63, required = True)
     postcode = forms.CharField (max_length = 15, required = True)
     email = forms.EmailField (max_length = 127, required = True,
-                              help_text = Contact.email_help_text)
+                              help_text = Contact.email_help_text,
+                              label = "E-mail address")
 
     class Meta:
         model = PersonContact

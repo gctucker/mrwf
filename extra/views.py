@@ -6,6 +6,7 @@ from django.http import (HttpResponse, HttpResponseRedirect,
                          HttpResponseForbidden)
 from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import PasswordChangeForm
 from django.core.urlresolvers import reverse
 from django.core.mail import send_mail
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
@@ -17,6 +18,7 @@ from cams.models import (Person, Member, Organisation, PersonContact,
                          Fair, Participant, Group, Role, EventComment,
                          get_user_email)
 from mrwf.extra.models import (FairEvent, StallEvent, FairEventApplication)
+from mrwf.extra.forms import UserNameForm, PersonForm, PersonContactForm
 
 from django import VERSION
 
@@ -241,13 +243,49 @@ def home (request):
 @login_required
 def profile (request):
     part = get_object_or_404 (Participant, user = request.user)
-    roles = Role.objects.filter (participant = part)
     contacts = PersonContact.objects.filter (person = part.person)
 
-    if contacts:
-        contact = contacts[0]
+    if contacts.count () > 0:
+        c = contacts[0]
     else:
-        contact = None
+        c = None
+
+    part.person.title_str ()
+
+    tpl_vars = {'page_title': 'Profile', 'person': part.person,
+                'contact': c}
+    add_common_tpl_vars (request, tpl_vars, 'profile')
+    return render_to_response ('profile.html', tpl_vars)
+
+@login_required
+def profile_edit (request):
+    part = get_object_or_404 (Participant, user = request.user)
+    person = part.person
+    contacts = PersonContact.objects.filter (person = person)
+
+    if request.method == 'POST':
+        u_form = UserNameForm (request.POST, instance = request.user)
+        p_form = PersonForm (request.POST, instance = person)
+
+        if contacts.count () > 0:
+            c_form = PersonContactForm (request.POST, instance = contacts[0])
+        else:
+            c_form = PersonContactForm (request.POST)
+
+        if u_form.is_valid () and p_form.is_valid () and c_form.is_valid ():
+            u_form.save ()
+            p_form.save ()
+            c_form.save ()
+            return HttpResponseRedirect (reverse (profile))
+
+    else:
+        u_form = UserNameForm (instance = request.user)
+        p_form = PersonForm (instance = person)
+
+        if contacts.count () > 0:
+            c_form = PersonContactForm (instance = contacts[0])
+        else:
+            c_form = PersonContactForm ()
 
     if request.user.is_staff:
         django_version = "v%d.%d.%d" % (VERSION[0], VERSION[1], VERSION[2])
@@ -257,11 +295,29 @@ def profile (request):
         django_version = None
         cams_version = None
 
-    tpl_vars = {'page_title': 'User Profile', 'part': part, 'roles': roles,
-                'contact': contact, 'django_version': django_version,
+    tpl_vars = {'page_title': 'User Profile', 'part': part,
+                'f_user': u_form, 'c_form': c_form,
+                'p_form': p_form, 'django_version': django_version,
                 'cams_version': cams_version}
     add_common_tpl_vars (request, tpl_vars, 'profile')
-    return render_to_response ('profile.html', tpl_vars)
+    return render_to_response ('profile_edit.html', tpl_vars,
+                               context_instance = RequestContext(request))
+
+@login_required
+def password (request):
+    if request.method == 'POST':
+        f_passwd = PasswordChangeForm (request.user, request.POST)
+
+        if f_passwd.is_valid ():
+            f_passwd.save ()
+            return HttpResponseRedirect (reverse (profile_edit))
+    else:
+        f_passwd = PasswordChangeForm (request.user)
+
+    tpl_vars = {'page_title': 'Change password', 'f_passwd': f_passwd}
+    add_common_tpl_vars (request, tpl_vars, 'profile')
+    return render_to_response ('password.html', tpl_vars,
+                               context_instance = RequestContext (request))
 
 @login_required
 def email_test (request):

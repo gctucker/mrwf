@@ -1,14 +1,14 @@
 {% extends "nav_layout.html" %}
 
 {% block contents %}
-          <div class="element">
-            First name: {{ part.person.first_name }}<br />
-            Last name: {{ part.person.last_name }}<br />
-          </div>
+          <table class="details separator">{% if person.title != null %}
+            <tr><td class="key">title</td><td class="value">{{ person.title_str }}</td></tr>{% endif %}
+            <tr><td class="key">first name</td><td class="value">{{ person.first_name }}</td></tr>{% if person.middle_name %}
+            <tr><td class="key">middle name</td><td class="value">{{ person.middle_name }}</td></tr>{% endif %}
+            <tr><td class="key">last name</td><td class="value">{{ person.last_name }}</td></tr>
+          <table>{% if contact %}{% with contact as c %}
+{% include "abook/details.html" %}{% endwith %}{% else %}
+          <p>No contact details.</p>{% endif %}
           <div class="cmd"><a href="{{ px }}profile/email_test/">&lt;email test&gt;</a></div>
-          </div>
-          <p style="font-size: 0.7em">{% if django_version %}
-            Django {{ django_version }}<br />{% endif %}{% if cams_version %}
-            CAMS {{ cams_version }}<br />{% endif %}
-          </p>
+          <div class="cmd"><a href="{{ px }}profile/edit/">edit profile or change password&nbsp;&gt;&gt;</a></div>
 {% endblock %}
