@@ -3,8 +3,8 @@ from xml.dom.minidom import getDOMImplementation
 from django.http import HttpResponse, Http404
 from django.db.models.query import Q
 from django.shortcuts import render_to_response, get_object_or_404
-from cams.models import (Person, Organisation, OrganisationContact, Event,
-                         Fair)
+from cams.models import (Record, Person, Organisation, OrganisationContact,
+                         Event, Fair)
 from cams.libcams import str2list
 from mrwf.extra.models import FairEvent, FairEventType
 
@@ -29,6 +29,7 @@ def add_fevent_ele (doc, root, tag, fev):
 
 def fair_obj (fair):
     f_events = FairEvent.objects.filter (fair = fair)
+    f_events = f_events.filter (status = Record.ACTIVE)
     f_events = f_events.order_by ('event__organisationcontact__line1')
     f_events = f_events.order_by ('event__time')
 
