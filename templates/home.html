@@ -4,6 +4,12 @@
           <div class="textblock">
             Please use the links on the left hand side to navigate through the
             site.  This is what you will find in each section:
+
+            <p>
+              <h2>User Profile</h2> Check and edit your personal details, email
+              address, user name and password.
+            </p>
+
             <p>
               <h2>Address Book</h2> Search for contact details of various
               people and organisations related to the Mill Road Winter Fair.
@@ -13,26 +19,34 @@
               belong to.  This is where you will find the list of stewards,
               stall holders, advertisers, volunteers ...
             </p>
+<!--
             <p>
               <h2>Preparation</h2> Track all the events and meetings that
               happen around the Fair.  All the messages exchanged regarding the
               preparation and events on the Day of the Fair are logged here, as
               well as invoices.
             </p>
+-->
             <p>
               <h2>Programme</h2> Manage the programme of events on the Day of
               the Fair.
-            </p>
+            </p>{% if user.is_staff %}
+            <p>
+              <h2>Applications</h2> List the applications received on-line.
+              <span style="font-style: italic">(work in progress)</span>
+            </p>{% endif %}
+<!--
             <p>
               <h2>Fairs</h2> This is a list of all the Fairs which lets you
               look back at previous ones as well as start thinking about the
               future ones.
             <p>
+-->
             </p>{% if user.is_staff %}
             <p>
               <h2>Admin</h2> You are an administrator user so you have access
               to the Django administration.  It allows you to edit parts of the
-              information that is not manageable through this interface.
+              information that are not manageable through this interface.
             </p>{% endif %}
           </div>
 {% endblock %}
