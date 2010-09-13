@@ -2,20 +2,21 @@
 
 {% block contents %}
           <div class="textblock">
+            <h2>Welcome the the MRWF-CAMS.</h2>
+            <p>
             Please use the links on the left hand side to navigate through the
             site.  This is what you will find in each section:
-
+            </p>
             <p>
-              <h2>User Profile</h2> Check and edit your personal details, email
+              <h3>User Profile</h3> Check and edit your personal details, email
               address, user name and password.
             </p>
-
             <p>
-              <h2>Address Book</h2> Search for contact details of various
+              <h3>Address Book</h3> Search for contact details of various
               people and organisations related to the Mill Road Winter Fair.
             </p>
             <p>
-              <h2>Participants</h2> Manage participants and the groups they
+              <h3>Participants</h3> Manage participants and the groups they
               belong to.  This is where you will find the list of stewards,
               stall holders, advertisers, volunteers ...
             </p>
@@ -28,11 +29,11 @@
             </p>
 -->
             <p>
-              <h2>Programme</h2> Manage the programme of events on the Day of
+              <h3>Programme</h3> Manage the programme of events on the Day of
               the Fair.
             </p>{% if user.is_staff %}
             <p>
-              <h2>Applications</h2> List the applications received on-line.
+              <h3>Applications</h3> List the applications received on-line.
               <span style="font-style: italic">(work in progress)</span>
             </p>{% endif %}
 <!--
@@ -44,7 +45,7 @@
 -->
             </p>{% if user.is_staff %}
             <p>
-              <h2>Admin</h2> You are an administrator user so you have access
+              <h3>Admin</h3> You are an administrator user so you have access
               to the Django administration.  It allows you to edit parts of the
               information that are not manageable through this interface.
             </p>{% endif %}
