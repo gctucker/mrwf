@@ -1,6 +1,6 @@
 {% extends "abook/common_contacts.html" %}
 
-{% block browse_title %}{{ org.name }}{% endblock %}
+{% block browse_title %}{{ org.name }}{% if org.nickname %} ({{ org.nickname }}){% endif %}{% endblock %}
 
 {% block browse_it %}
                 <div class="element">
