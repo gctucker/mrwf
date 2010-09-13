@@ -66,6 +66,7 @@ def search_people (keywords):
                                 Q (middle_name__icontains = kw) |
                                 Q (last_name__icontains = kw) |
                                 Q (nickname__icontains = kw))
+        people = people.filter (status = Record.ACTIVE)
 
     return people.values ('first_name', 'middle_name',
                           'last_name', 'nickname', 'id')
@@ -76,6 +77,7 @@ def search_orgs (keywords):
     for kw in keywords:
         orgs = orgs.filter (Q (name__icontains = kw) |
                             Q (nickname__icontains = kw))
+        orgs = orgs.filter (status = Record.ACTIVE)
 
     return orgs.values ('name', 'nickname', 'id')
 
