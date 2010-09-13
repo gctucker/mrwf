@@ -264,7 +264,8 @@ def profile_edit (request):
     contacts = PersonContact.objects.filter (person = person)
 
     if request.method == 'POST':
-        u_form = UserNameForm (request.POST, instance = request.user)
+        u_form = UserNameForm (request.POST, instance = request.user,
+                               prefix = 'user')
         p_form = PersonForm (request.POST, instance = person)
 
         if contacts.count () > 0:
@@ -279,7 +280,7 @@ def profile_edit (request):
             return HttpResponseRedirect (reverse (profile))
 
     else:
-        u_form = UserNameForm (instance = request.user)
+        u_form = UserNameForm (instance = request.user, prefix = 'user')
         p_form = PersonForm (instance = person)
 
         if contacts.count () > 0:
