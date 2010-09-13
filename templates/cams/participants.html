@@ -1,13 +1,6 @@
-{% extends "cams/show_all.html" %}
+{% extends "browser.html" %}
 
 {% block browse_title %}Groups{% endblock %}
 
 {% block browse_it %}<a href="{{ px }}{{ url }}group/{{ it.id }}/">{{ it.name }}</a></li>
-{% endblock %}
-
-{% block browse_footer %}
-          <div class="element">
-            <h2>Applications</h2>
-            <p>To do...</p>
-          </div>
 {% endblock %}

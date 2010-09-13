@@ -341,19 +341,11 @@ def email_test (request):
 
 @login_required
 def participants (request):
-    show_all = get_show_all (request)
-
-    if show_all:
-        groups = Group.objects.all ()
-    else:
-        part = get_object_or_404 (Participant, user = request.user)
-        groups = part.group_set
-
+    groups = Group.objects.all ()
     fair = get_object_or_404 (Fair, current = True)
     groups = groups.filter (Q (fair = fair) | Q (fair__isnull = True))
     groups = groups.order_by ('name')
-    tpl_vars = {'page_title': 'Participants', 'url': 'cams/participant/',
-                'show_all': show_all}
+    tpl_vars = {'page_title': 'Participants', 'url': 'cams/participant/'}
     add_common_tpl_vars (request, tpl_vars, 'parts', groups)
     return render_to_response ('cams/participants.html', tpl_vars)
 
