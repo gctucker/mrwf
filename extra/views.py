@@ -154,6 +154,7 @@ def person (request, person_id):
     person = get_object_or_404 (Person, pk = person_id)
     contacts = PersonContact.objects.filter (person = person)
     members = Member.objects.filter (person = person)
+    members = members.filter (status = Record.ACTIVE)
     tpl_vars = {'person': person, 'contacts': contacts, 'members': members,
                 'url': 'abook/person/%d/' % person.id}
     add_common_tpl_vars_abook (request, tpl_vars, members, 10)
@@ -164,6 +165,7 @@ def org (request, org_id):
     org = get_object_or_404 (Organisation, pk = org_id)
     contacts = OrganisationContact.objects.filter (org = org)
     members = Member.objects.filter (organisation = org)
+    members = members.filter (status = Record.ACTIVE)
     tpl_vars = {'org': org, 'contacts': contacts, 'members': members,
                 'url': 'abook/org/%d/' % org.id}
     add_common_tpl_vars_abook (request, tpl_vars, members, 10)
