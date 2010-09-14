@@ -18,15 +18,15 @@ class FairEventAdmin (EventAdmin):
     prog_event_fields = ('Programme info', {'fields': ('etype', 'image',
                                            ('age_min', 'age_max'))})
 
-    fieldsets = (event_fields, prog_event_fields)
+    fieldsets = [event_fields, prog_event_fields]
 
 
 class StallEventAdmin (FairEventAdmin):
     stall_fields = ('Stall info', {'fields': (('n_spaces', 'n_tables'),
                                               'main_contact')})
 
-    fieldsets = (FairEventAdmin.event_fields, stall_fields,
-                 FairEventAdmin.prog_event_fields)
+    fieldsets = [FairEventAdmin.event_fields, stall_fields,
+                 FairEventAdmin.prog_event_fields]
 
 
 class ListenerAdmin (admin.ModelAdmin):
