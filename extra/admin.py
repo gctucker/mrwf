@@ -7,22 +7,26 @@ from cams.admin import (PersonAdmin, OrganisationAdmin, MemberAdmin,
 from mrwf.extra.models import (FairEventType, FairEvent, StallEvent, Listener)
 
 class FairEventAdmin (EventAdmin):
-    fieldsets = (('Event', {'fields': ('status',
-                                       'name',
-                                       'description',
-                                       ('date', 'end_date'),
-                                       ('time', 'end_time'),
-                                       'org',
-                                       'location',
-                                       'owner')}),
-                 ('Programme info', {'fields': ('fair', 'etype', 'image',
-                                           ('age_min', 'age_max'))}))
+    event_fields = ('Event', {'fields': ('status',
+                                         'name',
+                                         'description',
+                                         ('time', 'end_time'),
+                                         'owner',
+                                         'org',
+                                         'location')})
+
+    prog_event_fields = ('Programme info', {'fields': ('etype', 'image',
+                                           ('age_min', 'age_max'))})
+
+    fieldsets = (event_fields, prog_event_fields)
 
 
 class StallEventAdmin (FairEventAdmin):
-    stall_fs = (('Stall info', {'fields': (('n_spaces', 'n_tables'),
-                                           'main_contact')}), )
-    fieldsets = stall_fs + FairEventAdmin.fieldsets
+    stall_fields = ('Stall info', {'fields': (('n_spaces', 'n_tables'),
+                                              'main_contact')})
+
+    fieldsets = (FairEventAdmin.event_fields, stall_fields,
+                 FairEventAdmin.prog_event_fields)
 
 
 class ListenerAdmin (admin.ModelAdmin):
