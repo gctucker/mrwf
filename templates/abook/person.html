@@ -16,8 +16,8 @@
                 <div class="element">
                   <div class="search-member">
                     Member of <a href="{{ px }}abook/org/{{ it.organisation.id }}/?{{ urlmatch }}">{{ it.organisation }}</a>
-                  </div>
-                  {% include "abook/member_preview.html" %}
+                  </div>{% with it.organisation as other %}
+{% include "abook/member_preview.html" %}{% endwith %}
                 </div>
 {% endblock %}
 
