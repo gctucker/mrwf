@@ -15,7 +15,7 @@
 {% block browse_it %}
                 <div class="element">
                   <div class="search-member">
-                    Member of <a href="{{ px }}abook/org/{{ it.organisation.id }}/?{{ urlmatch }}">{{ it.organisation }}</a>
+                    Member of <a href="{{ px }}abook/org/{{ it.organisation.id }}/?{{ urlmatch }}">{{ it.organisation }}{% if it.organisation.nickname %} ({{ it.organisation.nickname }}){% endif %}</a>
                   </div>{% with it.organisation as other %}
 {% include "abook/member_preview.html" %}{% endwith %}
                 </div>
