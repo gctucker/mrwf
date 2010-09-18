@@ -15,7 +15,7 @@ from django.conf import settings
 from cams.libcams import CAMS_VERSION, Page, get_user_pages, str2list
 from cams.models import (Record, Person, Member, Organisation, PersonContact,
                          MemberContact, OrganisationContact, Event, Actor,
-                         Fair, Participant, Group, Role, EventComment,
+                         Fair, Player, Group, Role, EventComment,
                          get_user_email)
 from mrwf.extra.models import (FairEvent, StallEvent, FairEventApplication)
 from mrwf.extra.forms import UserNameForm, PersonForm, PersonContactForm
@@ -211,11 +211,11 @@ def get_form_if_actor (request, event_id):
     if request.user.is_staff:
         return CommentForm ()
 
-    part = get_object_or_404 (Participant, user = request.user)
+    player = get_object_or_404 (Player, user = request.user)
     ev = get_object_or_404 (Event, pk = event_id)
 
     try:
-        actor = Actor.objects.get (participant = part, event = ev)
+        actor = Actor.objects.get (person = player.person, event = ev)
         form = CommentForm ()
     except Actor.DoesNotExist:
         form = None
@@ -246,25 +246,23 @@ def home (request):
 
 @login_required
 def profile (request):
-    part = get_object_or_404 (Participant, user = request.user)
-    contacts = PersonContact.objects.filter (person = part.person)
+    player = get_object_or_404 (Player, user = request.user)
+    person = player.person
+    contacts = PersonContact.objects.filter (person = person)
 
     if contacts.count () > 0:
         c = contacts[0]
     else:
         c = None
 
-    part.person.title_str ()
-
-    tpl_vars = {'page_title': 'User Profile', 'person': part.person,
-                'contact': c}
+    tpl_vars = {'page_title': 'User Profile', 'person': person, 'contact': c}
     add_common_tpl_vars (request, tpl_vars, 'profile')
     return render_to_response ('profile.html', tpl_vars)
 
 @login_required
 def profile_edit (request):
-    part = get_object_or_404 (Participant, user = request.user)
-    person = part.person
+    player = get_object_or_404 (Player, user = request.user)
+    person = player.person
     contacts = PersonContact.objects.filter (person = person)
 
     if request.method == 'POST':
@@ -276,6 +274,7 @@ def profile_edit (request):
             c_form = PersonContactForm (request.POST, instance = contacts[0])
         else:
             c_form = PersonContactForm (request.POST)
+            c_form.instance.person = person
 
         if u_form.is_valid () and p_form.is_valid () and c_form.is_valid ():
             u_form.save ()
@@ -300,7 +299,7 @@ def profile_edit (request):
         django_version = None
         cams_version = None
 
-    tpl_vars = {'page_title': 'User Profile', 'part': part,
+    tpl_vars = {'page_title': 'User Profile',
                 'f_user': u_form, 'c_form': c_form,
                 'p_form': p_form, 'django_version': django_version,
                 'cams_version': cams_version}
@@ -357,7 +356,7 @@ def participants (request):
 def group (request, group_id):
     group = get_object_or_404 (Group, pk = group_id)
     roles = Role.objects.filter (group = group)
-    roles = roles.order_by ('participant__person__last_name')
+    roles = roles.order_by ('person__last_name')
     tpl_vars = {'page_title': 'Group members', 'group': group,
                 'url': 'cams/participant/group/%d/' % group.id}
     add_common_tpl_vars (request, tpl_vars, 'parts', roles)
@@ -375,15 +374,15 @@ def post_event_cmt (request, event_id, view):
                                         mimetype = 'text/plain')
 
     ev = get_object_or_404 (Event, pk = event_id)
-    part = get_object_or_404 (Participant, user = request.user)
+    player = get_object_or_404 (Player, user = request.user)
     if not request.user.is_staff:
         try:
-            actor = Actor.objects.get (participant = part, event = ev)
+            actor = Actor.objects.get (person = player.person, event = ev)
         except Actor.DoesNotExist:
             return HttpResponseForbidden ("you are not allowed to post here",
                                           mimetype = 'text/plain')
 
-    cmt = EventComment (author = part, event = ev,
+    cmt = EventComment (author = player, event = ev,
                         text = form.cleaned_data['content'])
     cmt.save ()
     return HttpResponseRedirect (reverse (view, args = [event_id]))
@@ -397,8 +396,8 @@ def preparation (request):
         acts = acts.order_by ('date', 'time')
         tpl = 'cams/prep_all.html'
     else:
-        part = get_object_or_404 (Participant, user = request.user)
-        acts = Actor.objects.filter (participant = part)
+        player = get_object_or_404 (Player, user = request.user)
+        acts = Actor.objects.filter (person = player.person)
         acts = acts.order_by ('event__date', 'event__time')
         tpl = 'cams/preparation.html'
 

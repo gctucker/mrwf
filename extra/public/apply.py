@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse
 from django.core.mail import send_mail
 from django.shortcuts import render_to_response, get_object_or_404
 from django.conf import settings
-from cams.models import Record, Fair, Participant, Application, get_user_email
+from cams.models import Record, Fair, Application, get_user_email
 from mrwf.extra.models import StallEvent, FairEventApplication, Listener
 from mrwf.extra.forms import PersonForm, PersonContactForm, StallForm
 
@@ -22,27 +22,23 @@ class StallApplicationForm ():
 
     def save (self, rcpts):
         # save personal details
-        self.p.instance.status = 0
-        self.p.save ()
+        person = self.p.instance
+        person.status = 0
+        person.save ()
 
         # save contact details
         self.c.instance.status = 0
-        self.c.instance.person = self.p.instance
+        self.c.instance.person = person
         self.c.save ()
-
-        # save participant
-        part = Participant (person = self.p.instance)
-        part.status = 0
-        part.save ()
 
         # save stall event
         self.s.instance.status = Record.NEW
-        self.s.instance.owner = part
+        self.s.instance.owner = self.p.instance
         self.s.save ()
 
         # save application
         ea = FairEventApplication ()
-        ea.participant = part
+        ea.person = person
         ea.status = Application.PENDING
         ea.event = self.s.instance
         ea.subtype = FairEventApplication.STALLHOLDER
@@ -63,9 +59,9 @@ class StallApplicationForm ():
             main_contact = "unknown (%d)" % stall.main_contact
 
         if rcpts:
-            subject = "Stallholder application - %s" % part.person
+            subject = "Stallholder application - %s" % person
             msg = "Date:         %s\n" % ea.created
-            msg += "Person:       %s\n" % part.person
+            msg += "Person:       %s\n" % person
             msg += "Line 1:       %s\n" % contact.line_1
             msg += "Line 2:       %s\n" % contact.line_2
             msg += "Line 3:       %s\n" % contact.line_3

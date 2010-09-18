@@ -7,7 +7,7 @@
           <p class="notice">THIS EVENT WAS CANCELLED</p>{% endif %}{% endif %}
           <div class="element">{% if ev.description %}
             <table class="details">
-              <tr><td class="key">event owner</td><td class="value"><a href="{{ px }}abook/person/{{ ev.owner.person.id }}/">{{ ev.owner }}</a></td></tr>{% if ev.org %}
+              <tr><td class="key">event owner</td><td class="value"><a href="{{ px }}abook/person/{{ ev.owner.id }}/">{{ ev.owner }}</a></td></tr>{% if ev.org %}
               <tr><td class="key">organisation</td><td class="value"><a href="{{ px }}abook/org/{{ ev.org.id }}/">{{ ev.org.name }}</a></td></tr>{% endif %}{% if ev.location %}
               <tr><td class="key">location</td><td class="value">{{ ev.location }}</td>{% endif %}{% if ev.date %}
               <tr><td class="key">date</td><td class="value">{{ ev.date }}</td></tr>{% endif %}{% if ev.end_date %}

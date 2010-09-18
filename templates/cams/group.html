@@ -3,8 +3,8 @@
 {% block browse_title %}Group: {{ group.name }}{% endblock %}
 
 {% block browse_it %}
-                <a href="{{ px }}abook/person/{{ it.participant.person.id }}/">
-                  {{ it.participant.person.first_name }} {{ it.participant.person.middle_name }} {{ it.participant.person.last_name }}{% if it.role %}
+                <a href="{{ px }}abook/person/{{ it.person.id }}/">
+                  {{ it.person.first_name }} {{ it.person.middle_name }} {{ it.person.last_name }}{% if it.role %}
                   &nbsp;({{ it.role }}){% endif %}
                 </a>
 {% endblock %}
