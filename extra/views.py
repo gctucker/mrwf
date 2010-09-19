@@ -500,18 +500,18 @@ def export_group (request, group_id):
     group = get_object_or_404 (Group, pk = group_id)
     contacts = []
     members = group.members.all ()
-    members = members.order_by ('person__last_name')
+    members = members.order_by ('last_name')
 
     for it in members:
         ctype = ''
         org_name = ''
-        c = PersonContact.objects.filter (person = it.person)
+        c = PersonContact.objects.filter (person = it)
         if c:
             c = c[0]
             ctype = 'person'
 
         if not c:
-            member = Member.objects.filter (person = it.person)
+            member = Member.objects.filter (person = it)
             if member:
                 member = member[0]
                 org_name = member.organisation.name
@@ -528,7 +528,7 @@ def export_group (request, group_id):
                         ctype = 'org'
 
         if c:
-            contacts.append ((it.person, ctype, org_name, c))
+            contacts.append ((it, ctype, org_name, c))
 
     response = HttpResponse (mimetype = 'text/csv')
     response.write ("first_name,middle_name,last_name,contact_type,org," +
