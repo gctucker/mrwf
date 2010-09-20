@@ -8,10 +8,10 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.conf import settings
 from cams.models import Record, Fair, Application, get_user_email
 from mrwf.extra.models import StallEvent, FairEventApplication, Listener
-from mrwf.extra.forms import PersonForm, PersonContactForm, StallForm
+from mrwf.extra.forms import PersonForm, ContactForm, StallForm
 
 class StallApplicationForm ():
-    def __init__ (self, p = PersonForm (), c = PersonContactForm (),
+    def __init__ (self, p = PersonForm (), c = ContactForm (),
                   s = StallForm ()):
         self.p = p
         self.c = c

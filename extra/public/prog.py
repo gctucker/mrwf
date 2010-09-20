@@ -3,8 +3,7 @@ from xml.dom.minidom import getDOMImplementation
 from django.http import HttpResponse, Http404
 from django.db.models.query import Q
 from django.shortcuts import render_to_response, get_object_or_404
-from cams.models import (Record, Person, Organisation, OrganisationContact,
-                         Event, Fair)
+from cams.models import Record, Person, Organisation, Contact, Event, Fair
 from cams.libcams import str2list
 from mrwf.extra.models import FairEvent, FairEventType
 
@@ -104,7 +103,7 @@ def event_obj (fair, fevent):
         root.appendChild (org_ele)
         org_ele.setAttribute ('name', event.org.name)
 
-        contacts = OrganisationContact.objects.filter (org = event.org)
+        contacts = Contact.objects.filter (org = event.org)
 
         if contacts.count () > 0:
             contact = contacts[0]

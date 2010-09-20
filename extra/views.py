@@ -13,12 +13,11 @@ from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.shortcuts import render_to_response, get_object_or_404
 from django.conf import settings
 from cams.libcams import CAMS_VERSION, Page, get_user_pages, str2list
-from cams.models import (Record, Person, Member, Organisation, PersonContact,
-                         MemberContact, OrganisationContact, Event, Actor,
-                         Fair, Player, Group, Role, EventComment,
+from cams.models import (Record, Person, Member, Organisation, Contact, Event,
+                         Actor, Fair, Player, Group, Role, EventComment,
                          get_user_email)
 from mrwf.extra.models import (FairEvent, StallEvent, FairEventApplication)
-from mrwf.extra.forms import UserNameForm, PersonForm, PersonContactForm
+from mrwf.extra.forms import UserNameForm, PersonForm, ContactForm
 
 from django import VERSION
 
@@ -133,10 +132,10 @@ def search (request):
         found = search_all (request, match)
         people = list (found['people'])
         for p in people:
-            p['contacts'] = PersonContact.objects.filter (person = p['id'])
+            p['contacts'] = Contact.objects.filter (object = p['id'])
         orgs = list (found['orgs'])
         for o in orgs:
-            o['contacts'] = OrganisationContact.objects.filter (org = o['id'])
+            o['contacts'] = Contact.objects.filter (object = o['id'])
         results = PaginatorStub ()
         results.add_list (people, 'person')
         results.add_list (orgs, 'org')
@@ -152,7 +151,7 @@ def search (request):
 @login_required
 def person (request, person_id):
     person = get_object_or_404 (Person, pk = person_id)
-    contacts = PersonContact.objects.filter (person = person)
+    contacts = Contact.objects.filter (object = person)
     members = Member.objects.filter (person = person)
     members = members.filter (status = Record.ACTIVE)
     tpl_vars = {'person': person, 'contacts': contacts, 'members': members,
@@ -163,7 +162,7 @@ def person (request, person_id):
 @login_required
 def org (request, org_id):
     org = get_object_or_404 (Organisation, pk = org_id)
-    contacts = OrganisationContact.objects.filter (org = org)
+    contacts = Contact.objects.filter (object = org)
     members = Member.objects.filter (organisation = org)
     members = members.filter (status = Record.ACTIVE)
     tpl_vars = {'org': org, 'contacts': contacts, 'members': members,
@@ -505,7 +504,7 @@ def export_group (request, group_id):
     for it in members:
         ctype = ''
         org_name = ''
-        c = PersonContact.objects.filter (person = it)
+        c = Contact.objects.filter (object = it)
         if c:
             c = c[0]
             ctype = 'person'
@@ -515,14 +514,13 @@ def export_group (request, group_id):
             if member:
                 member = member[0]
                 org_name = member.organisation.name
-                c = MemberContact.objects.filter (member = member)
+                c = Contact.objects.filter (object = member)
                 if c:
                     c = c[0]
                     ctype = 'member'
 
                 if not c:
-                    c = OrganisationContact.objects.filter (
-                        org = member.organisation)
+                    c = Contact.objects.filter (object = member.organisation)
                     if c:
                         c = c[0]
                         ctype = 'org'

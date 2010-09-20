@@ -4,7 +4,7 @@ from django.db.models import (CharField, DateField,
                               PositiveIntegerField, PositiveSmallIntegerField,
                               ForeignKey, OneToOneField,
                               ImageField)
-from cams.models import PersonContact, Item, Event, Fair, EventApplication
+from cams.models import Contact, Item, Event, Fair, EventApplication
 
 class FairEventType (models.Model):
     name = CharField (max_length = 63)
@@ -58,7 +58,7 @@ class StallEvent (FairEvent):
 
         if self.main_contact:
             p = self.event.owner.person
-            c = PersonContact.objects.filter (person = p)
+            c = Contact.objects.filter (object = p)
 
             if c.count () > 0:
                 if self.main_contact == StallEvent.TELEPHONE:
