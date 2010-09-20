@@ -247,7 +247,7 @@ def home (request):
 def profile (request):
     player = get_object_or_404 (Player, user = request.user)
     person = player.person
-    contacts = PersonContact.objects.filter (person = person)
+    contacts = Contact.objects.filter (object = person)
 
     if contacts.count () > 0:
         c = contacts[0]
@@ -262,7 +262,7 @@ def profile (request):
 def profile_edit (request):
     player = get_object_or_404 (Player, user = request.user)
     person = player.person
-    contacts = PersonContact.objects.filter (person = person)
+    contacts = Contact.objects.filter (object = person)
 
     if request.method == 'POST':
         u_form = UserNameForm (request.POST, instance = request.user,
@@ -270,9 +270,9 @@ def profile_edit (request):
         p_form = PersonForm (request.POST, instance = person)
 
         if contacts.count () > 0:
-            c_form = PersonContactForm (request.POST, instance = contacts[0])
+            c_form = ContactForm (request.POST, instance = contacts[0])
         else:
-            c_form = PersonContactForm (request.POST)
+            c_form = ContactForm (request.POST)
             c_form.instance.person = person
 
         if u_form.is_valid () and p_form.is_valid () and c_form.is_valid ():
@@ -286,9 +286,9 @@ def profile_edit (request):
         p_form = PersonForm (instance = person)
 
         if contacts.count () > 0:
-            c_form = PersonContactForm (instance = contacts[0])
+            c_form = ContactForm (instance = contacts[0])
         else:
-            c_form = PersonContactForm ()
+            c_form = ContactForm ()
 
     if request.user.is_staff:
         django_version = "v%d.%d.%d" % (VERSION[0], VERSION[1], VERSION[2])

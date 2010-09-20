@@ -103,7 +103,7 @@ def event_obj (fair, fevent):
         root.appendChild (org_ele)
         org_ele.setAttribute ('name', event.org.name)
 
-        contacts = Contact.objects.filter (org = event.org)
+        contacts = Contact.objects.filter (object = event.org)
 
         if contacts.count () > 0:
             contact = contacts[0]
@@ -148,10 +148,10 @@ def search_obj (request, fair):
 
     for l in get_list (request, 'location'):
         fe = fe.filter (Q (event__location__icontains = l)
-                | Q (event__org__organisationcontact__line_1__icontains = l)
-                | Q (event__org__organisationcontact__line_2__icontains = l)
-                | Q (event__org__organisationcontact__line_3__icontains = l)
-                | Q (event__org__organisationcontact__postcode__icontains = l))
+                        | Q (event__org__contact__line_1__icontains = l)
+                        | Q (event__org__contact__line_2__icontains = l)
+                        | Q (event__org__contact__line_3__icontains = l)
+                        | Q (event__org__contact__postcode__icontains = l))
 
     hour = get_pos_int (request, 'hour')
     if (hour >= 0) and (hour < 24):

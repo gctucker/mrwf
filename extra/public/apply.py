@@ -28,7 +28,7 @@ class StallApplicationForm ():
 
         # save contact details
         self.c.instance.status = 0
-        self.c.instance.person = person
+        self.c.instance.object = person
         self.c.save ()
 
         # save stall event
@@ -97,7 +97,7 @@ def post (request):
         return post_error ("ERROR: %s instead of POST" % request.method)
 
     form = StallApplicationForm (PersonForm (request.POST),
-                                 PersonContactForm (request.POST),
+                                 ContactForm (request.POST),
                                  StallForm (request.POST))
 
     if not form.is_valid ():
