@@ -12,5 +12,7 @@
               <tr><td class="key">telephone</td><td class="value">{{ c.telephone }}</td></tr>{% endif %}{% if c.mobile %}
               <tr><td class="key">mobile</td><td class="value">{{ c.mobile }}</td></tr>{% endif %}{% if c.email %}
               <tr><td class="key">e-mail</td><td class="value"><a href="mailto:{{ c.email }}">{{ c.email }}</a></td></tr>{% endif %}{% if c.website %}
-              <tr><td class="key">website</td><td class="value"><a href="{{ c.website }}">{{ c.website }}</a></td></tr>{% endif %}
+              <tr><td class="key">website</td><td class="value"><a href="{{ c.website }}">{{ c.website }}</a></td></tr>{% endif %}{% if c.addr_order %}
+              <tr><td class="key">order</td><td class="value">{{ c.addr_order }}</td></tr>{% endif %}{% if c.addr_suborder %}
+              <tr><td class="key">sub-order</td><td class="value">{{ c.addr_suborder }}</td></tr>{% endif %}
             </table>
