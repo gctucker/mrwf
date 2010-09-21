@@ -34,10 +34,6 @@ PAGE_LIST = [
     Page ('logout',  'accounts/logout/',   'log out',      Page.OPEN)]
 
 
-class SearchForm (forms.Form):
-    match = forms.CharField (required = True, max_length = 64)
-
-
 class CommentForm (forms.Form):
     attrs = {'cols': '80', 'rows': '5'}
     content = forms.CharField (widget = forms.Textarea (attrs = attrs))
@@ -80,7 +76,7 @@ def search_orgs (keywords):
 
     return orgs.values ('name', 'nickname', 'id')
 
-def search_all (request, match):
+def search_all (request, match, opt_contact):
     keywords = str2list (match)
     people = search_people (keywords)
     orgs = search_orgs (keywords)
@@ -103,33 +99,42 @@ class PaginatorStub:
         else:
             return 0
 
-def add_common_tpl_vars_abook (request, tpl_vars, obj_list = None, n = 20):
-    if 'match' in request.GET:
-        match = request.GET['match']
-    else:
-        match = ''
 
-    if match:
-        # ToDo: get the url directly encoded instead of re-encoding it ?
-        urlmatch = urllib.urlencode ((('match', match), ))
-    else:
-        urlmatch = ''
+class SearchHelper:
+    def __init__ (self, request):
+        self.form = SearchHelper.SearchForm (request.GET)
+        if self.form.is_valid ():
+            self.match = self.form.cleaned_data['match']
+            self.opt_contacts = self.form.cleaned_data['opt_contacts']
+            self.urlmatch = urllib.urlencode ((('match', self.match),
+                                               ('opt_contacts',
+                                                self.opt_contacts)))
+        else:
+            self.match = ''
+            self.urlmatch = ''
+            self.opt_contacts = False
 
+    class SearchForm (forms.Form):
+        match = forms.CharField (required = True, max_length = 64)
+        opt_contacts = forms.BooleanField (required = False,
+                                           label = "search contacts")
+
+
+def add_common_tpl_vars_abook (request, tpl_vars, ctx, obj_list = None, n=20):
     add_common_tpl_vars (request, tpl_vars, 'abook', obj_list, n)
-    tpl_vars['urlmatch'] = urlmatch
     tpl_vars['page_title'] = 'Address Book'
-
-    return match
+    tpl_vars['urlmatch'] = ctx.urlmatch
 
 # -----------------------------------------------------------------------------
 
 @login_required
 def search (request):
+    ctx = SearchHelper (request)
     tpl_vars = {}
-    match = add_common_tpl_vars_abook (request, tpl_vars)
+    add_common_tpl_vars_abook (request, tpl_vars, ctx)
 
-    if match:
-        found = search_all (request, match)
+    if ctx.match:
+        found = search_all (request, ctx.match, ctx.opt_contacts)
         people = list (found['people'])
         for p in people:
             p['contacts'] = Contact.objects.filter (object = p['id'])
@@ -142,8 +147,7 @@ def search (request):
     else:
         results = None
 
-    form = SearchForm ({'match': match})
-    tpl_vars['form'] = form
+    tpl_vars['form'] = ctx.form
     tpl_vars['page'] = results
 
     return render_to_response ('abook/search.html', tpl_vars)
@@ -154,9 +158,10 @@ def person (request, person_id):
     contacts = Contact.objects.filter (object = person)
     members = Member.objects.filter (person = person)
     members = members.filter (status = Record.ACTIVE)
+    ctx = SearchHelper (request)
     tpl_vars = {'person': person, 'contacts': contacts, 'members': members,
                 'url': 'abook/person/%d/' % person.id}
-    add_common_tpl_vars_abook (request, tpl_vars, members, 10)
+    add_common_tpl_vars_abook (request, tpl_vars, ctx, members, 10)
     return render_to_response ('abook/person.html', tpl_vars)
 
 @login_required
@@ -165,9 +170,10 @@ def org (request, org_id):
     contacts = Contact.objects.filter (object = org)
     members = Member.objects.filter (organisation = org)
     members = members.filter (status = Record.ACTIVE)
+    ctx = SearchHelper (request)
     tpl_vars = {'org': org, 'contacts': contacts, 'members': members,
                 'url': 'abook/org/%d/' % org.id}
-    add_common_tpl_vars_abook (request, tpl_vars, members, 10)
+    add_common_tpl_vars_abook (request, tpl_vars, ctx, members, 10)
     return render_to_response ('abook/org.html', tpl_vars)
 
 # -----------------------------------------------------------------------------

@@ -5,6 +5,7 @@
             <form action="{{ px }}abook/" method="get">
               {{ form.match }}
               <input type="submit" value="search in the Address Book" />
+              {{ form.opt_contacts }}<span style="font-size: 0.8em">{{ form.opt_contacts.label }}</span>
             </form>
           </div>{% block detail %}{% endblock %}{% if not page.object_list and urlmatch %}
           <div class="element">No match, sorry.</div>{% endif %}{% endblock %}
