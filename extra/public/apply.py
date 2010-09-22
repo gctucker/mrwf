@@ -28,7 +28,7 @@ class StallApplicationForm ():
 
         # save contact details
         self.c.instance.status = 0
-        self.c.instance.object = person
+        self.c.instance.obj = person
         self.c.save ()
 
         # save stall event

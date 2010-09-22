@@ -103,7 +103,7 @@ def event_obj (fair, fevent):
         root.appendChild (org_ele)
         org_ele.setAttribute ('name', event.org.name)
 
-        contacts = Contact.objects.filter (object = event.org)
+        contacts = Contact.objects.filter (obj = event.org)
 
         if contacts.count () > 0:
             contact = contacts[0]

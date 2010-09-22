@@ -172,7 +172,7 @@ def search (request):
 
             contacts = list (search_contacts (keywords))
             for c in contacts:
-                obj_id = c.object_id
+                obj_id = c.obj_id
                 obj = Contactable.objects.get (pk = obj_id)
                 # ToDo: transform (cast) a Contactable to its subclass...
                 if obj.type == Contactable.ORGANISATION:
@@ -194,11 +194,11 @@ def search (request):
             o_list = list (search_orgs (keywords))
 
             for p in p_list:
-                c = Contact.objects.filter (object = p)
+                c = Contact.objects.filter (obj = p)
                 append_person (people, p, c)
 
             for o in o_list:
-                c = Contact.objects.filter (object = o)
+                c = Contact.objects.filter (obj = o)
                 append_org (orgs, o, c)
 
         results = PaginatorStub ()
@@ -215,7 +215,7 @@ def search (request):
 @login_required
 def person (request, person_id):
     person = get_object_or_404 (Person, pk = person_id)
-    contacts = Contact.objects.filter (object = person)
+    contacts = Contact.objects.filter (obj = person)
     members = Member.objects.filter (person = person)
     members = members.filter (status = Record.ACTIVE)
     ctx = SearchHelper (request)
@@ -227,7 +227,7 @@ def person (request, person_id):
 @login_required
 def org (request, org_id):
     org = get_object_or_404 (Organisation, pk = org_id)
-    contacts = Contact.objects.filter (object = org)
+    contacts = Contact.objects.filter (obj = org)
     members = Member.objects.filter (organisation = org)
     members = members.filter (status = Record.ACTIVE)
     ctx = SearchHelper (request)
@@ -313,7 +313,7 @@ def home (request):
 def profile (request):
     player = get_object_or_404 (Player, user = request.user)
     person = player.person
-    contacts = Contact.objects.filter (object = person)
+    contacts = Contact.objects.filter (obj = person)
 
     if contacts.count () > 0:
         c = contacts[0]
@@ -328,7 +328,7 @@ def profile (request):
 def profile_edit (request):
     player = get_object_or_404 (Player, user = request.user)
     person = player.person
-    contacts = Contact.objects.filter (object = person)
+    contacts = Contact.objects.filter (obj = person)
 
     if request.method == 'POST':
         u_form = UserNameForm (request.POST, instance = request.user,
@@ -570,7 +570,7 @@ def export_group (request, group_id):
     for it in members:
         ctype = ''
         org_name = ''
-        c = Contact.objects.filter (object = it)
+        c = Contact.objects.filter (obj = it)
         if c:
             c = c[0]
             ctype = 'person'
@@ -580,13 +580,13 @@ def export_group (request, group_id):
             if member:
                 member = member[0]
                 org_name = member.organisation.name
-                c = Contact.objects.filter (object = member)
+                c = Contact.objects.filter (obj = member)
                 if c:
                     c = c[0]
                     ctype = 'member'
 
                 if not c:
-                    c = Contact.objects.filter (object = member.organisation)
+                    c = Contact.objects.filter (obj = member.organisation)
                     if c:
                         c = c[0]
                         ctype = 'org'

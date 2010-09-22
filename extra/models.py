@@ -58,7 +58,7 @@ class StallEvent (FairEvent):
 
         if self.main_contact:
             p = self.event.owner.person
-            c = Contact.objects.filter (object = p)
+            c = Contact.objects.filter (obj = p)
 
             if c.count () > 0:
                 if self.main_contact == StallEvent.TELEPHONE:
