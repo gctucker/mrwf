@@ -195,10 +195,20 @@ def search (request):
 
             for p in p_list:
                 c = Contact.objects.filter (obj = p)
+                if c.count () == 0:
+                    m = Member.objects.filter (person = p)
+                    if m.count () > 0:
+                        c = Contact.objects.filter (obj = m[0])
+
                 append_person (people, p, c)
 
             for o in o_list:
                 c = Contact.objects.filter (obj = o)
+                if c.count () == 0:
+                    m = Member.objects.filter (organisation = o)
+                    if m.count () > 0:
+                        c = Contact.objects.filter (obj = m[0])
+
                 append_org (orgs, o, c)
 
         results = PaginatorStub ()
