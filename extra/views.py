@@ -166,6 +166,10 @@ def search (request):
         orgs = []
 
         if ctx.opt_contacts:
+            # Note: There may be several matching contacts related to the same
+            # person/org, so that person/org will be in the results several
+            # times (with a different contact preview though)
+
             contacts = list (search_contacts (keywords))
             for c in contacts:
                 obj_id = c.object_id
