@@ -13,9 +13,9 @@ from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.shortcuts import render_to_response, get_object_or_404
 from django.conf import settings
 from cams.libcams import CAMS_VERSION, Page, get_user_pages, str2list
-from cams.models import (Record, Person, Member, Organisation, Contact, Event,
-                         Actor, Fair, Player, Group, Role, EventComment,
-                         get_user_email)
+from cams.models import (Record, Contactable, Person, Member, Organisation,
+                         Contact, Event, Actor, Fair, Player, Group, Role,
+                         EventComment, get_user_email)
 from mrwf.extra.models import (FairEvent, StallEvent, FairEventApplication)
 from mrwf.extra.forms import UserNameForm, PersonForm, ContactForm
 
@@ -63,8 +63,7 @@ def search_people (keywords):
                                 Q (nickname__icontains = kw))
         people = people.filter (status = Record.ACTIVE)
 
-    return people.values ('first_name', 'middle_name',
-                          'last_name', 'nickname', 'id')
+    return people
 
 def search_orgs (keywords):
     orgs = Organisation.objects.all ()
@@ -74,14 +73,42 @@ def search_orgs (keywords):
                             Q (nickname__icontains = kw))
         orgs = orgs.filter (status = Record.ACTIVE)
 
-    return orgs.values ('name', 'nickname', 'id')
+    return orgs
 
-def search_all (request, match, opt_contact):
-    keywords = str2list (match)
-    people = search_people (keywords)
-    orgs = search_orgs (keywords)
+def search_contacts (keywords):
+    contacts = Contact.objects.all ()
 
-    return {'people': people, 'orgs': orgs}
+    for kw in keywords:
+        contacts = contacts.filter (Q (line_1__icontains = kw) |
+                                    Q (line_2__icontains = kw) |
+                                    Q (line_3__icontains = kw) |
+                                    Q (town__icontains = kw) |
+                                    Q (postcode__icontains = kw) |
+                                    Q (country__icontains = kw) |
+                                    Q (email__icontains = kw) |
+                                    Q (website__icontains = kw) |
+                                    Q (telephone__icontains = kw) |
+                                    Q (mobile__icontains = kw) |
+                                    Q (fax__icontains = kw) |
+                                    Q (addr_order__icontains = kw) |
+                                    Q (addr_suborder__icontains = kw))
+        contacts = contacts.filter (status = Record.ACTIVE)
+
+    return contacts
+
+def append_person (list, p, c):
+    list.append ({'first_name': p.first_name,
+                  'middle_name': p.middle_name,
+                  'last_name': p.last_name,
+                  'nickname': p.nickname,
+                  'id': p.id,
+                  'contacts': c})
+
+def append_org (list, o, c):
+    list.append ({'name': o.name,
+                  'nickname': o.nickname,
+                  'id': o.id,
+                  'contacts': c})
 
 class PaginatorStub:
     def __init__ (self):
@@ -117,7 +144,7 @@ class SearchHelper:
     class SearchForm (forms.Form):
         match = forms.CharField (required = True, max_length = 64)
         opt_contacts = forms.BooleanField (required = False,
-                                           label = "search contacts")
+                                           label = "search within contacts")
 
 
 def add_common_tpl_vars_abook (request, tpl_vars, ctx, obj_list = None, n=20):
@@ -134,13 +161,42 @@ def search (request):
     add_common_tpl_vars_abook (request, tpl_vars, ctx)
 
     if ctx.match:
-        found = search_all (request, ctx.match, ctx.opt_contacts)
-        people = list (found['people'])
-        for p in people:
-            p['contacts'] = Contact.objects.filter (object = p['id'])
-        orgs = list (found['orgs'])
-        for o in orgs:
-            o['contacts'] = Contact.objects.filter (object = o['id'])
+        keywords = str2list (ctx.match)
+        people = []
+        orgs = []
+
+        if ctx.opt_contacts:
+            contacts = list (search_contacts (keywords))
+            for c in contacts:
+                obj_id = c.object_id
+                obj = Contactable.objects.get (pk = obj_id)
+                # ToDo: transform (cast) a Contactable to its subclass...
+                if obj.type == Contactable.ORGANISATION:
+                    o = Organisation.objects.get (pk = obj_id)
+                    append_org (orgs, o, (c,))
+                else:
+                    if obj.type == Contactable.PERSON:
+                        p = Person.objects.get (pk = obj_id)
+                    elif obj.type == Contactable.MEMBER:
+                        m = Member.objects.get (pk = obj_id)
+                        p = Person.objects.get (pk = m.person)
+                    else:
+                        p = None
+
+                    if p:
+                        append_person (people, p, (c,))
+        else:
+            p_list = list (search_people (keywords))
+            o_list = list (search_orgs (keywords))
+
+            for p in p_list:
+                c = Contact.objects.filter (object = p)
+                append_person (people, p, c)
+
+            for o in o_list:
+                c = Contact.objects.filter (object = o)
+                append_org (orgs, o, c)
+
         results = PaginatorStub ()
         results.add_list (people, 'person')
         results.add_list (orgs, 'org')
