@@ -6,6 +6,10 @@ from django.db.models import (CharField, DateField,
                               ImageField)
 from cams.models import Contact, Item, Event, Fair, EventApplication
 
+# for temporary fix with the event contacts
+from django.db.models import EmailField, URLField, IntegerField
+from cams.models import Contact
+
 class FairEventType (models.Model):
     name = CharField (max_length = 63)
 
@@ -26,6 +30,27 @@ class FairEvent (Event):
     image = ImageField (upload_to = 'img', blank = True, null = True)
     age_min = PositiveIntegerField (blank = True, null = True)
     age_max = PositiveIntegerField (blank = True, null = True)
+
+    # Temporary fix to get a practical solution for the event contact details.
+    # This can be used to override the organisation contact details.
+    line_1 = CharField (max_length = 63, blank = True)
+    line_2 = CharField (max_length = 63, blank = True)
+    line_3 = CharField (max_length = 63, blank = True)
+    town = CharField (max_length = 63, blank = True)
+    postcode = CharField (max_length = 15, blank = True)
+    country = CharField (max_length = 63, blank = True)
+    email = EmailField (blank = True, max_length = 127, help_text =
+                        Contact.email_help_text, verbose_name = "E-mail")
+    website = URLField (max_length = 255, verify_exists = False, blank = True,
+                        help_text = Contact.website_help_text)
+    telephone = CharField (max_length = 127, blank = True)
+    mobile = CharField (max_length = 127, blank = True)
+    fax = CharField (max_length = 31, blank = True)
+    addr_order = IntegerField ("Order", blank = True, default = 0, help_text =
+                               "Order of the premises on Mill Road.")
+    addr_suborder = IntegerField ("Sub-order", blank = True, default = 0,
+                                  help_text =
+                     "Order of the premises on side streets around Mill Road.")
 
     def save (self, *args, **kwargs):
         if not self.fair:

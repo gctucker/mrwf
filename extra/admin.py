@@ -6,6 +6,10 @@ from cams.admin import (PersonAdmin, OrganisationAdmin, MemberAdmin,
                         ActorAdmin, EventCommentAdmin)
 from mrwf.extra.models import (FairEventType, FairEvent, StallEvent, Listener)
 
+# temporary fix for the event contacts
+from cams.admin import ContactInline
+
+
 class FairEventAdmin (EventAdmin):
     event_fields = ('Event', {'fields': ('status',
                                          'name',
@@ -18,7 +22,8 @@ class FairEventAdmin (EventAdmin):
     prog_event_fields = ('Programme info', {'fields': ('etype', 'image',
                                            ('age_min', 'age_max'))})
 
-    fieldsets = [event_fields, prog_event_fields]
+
+    fieldsets = [event_fields, prog_event_fields] + ContactInline.fieldsets
 
 
 class StallEventAdmin (FairEventAdmin):
@@ -26,7 +31,7 @@ class StallEventAdmin (FairEventAdmin):
                                               'main_contact')})
 
     fieldsets = [FairEventAdmin.event_fields, stall_fields,
-                 FairEventAdmin.prog_event_fields]
+                 FairEventAdmin.prog_event_fields] + ContactInline.fieldsets
 
 
 class ListenerAdmin (admin.ModelAdmin):
