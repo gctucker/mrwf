@@ -61,9 +61,8 @@ def search_people (keywords):
                                 Q (middle_name__icontains = kw) |
                                 Q (last_name__icontains = kw) |
                                 Q (nickname__icontains = kw))
-        people = people.filter (status = Record.ACTIVE)
 
-    return people
+    return people.filter (status = Record.ACTIVE)
 
 def search_orgs (keywords):
     orgs = Organisation.objects.all ()
@@ -71,9 +70,8 @@ def search_orgs (keywords):
     for kw in keywords:
         orgs = orgs.filter (Q (name__icontains = kw) |
                             Q (nickname__icontains = kw))
-        orgs = orgs.filter (status = Record.ACTIVE)
 
-    return orgs
+    return orgs.filter (status = Record.ACTIVE)
 
 def search_contacts (keywords):
     contacts = Contact.objects.all ()
@@ -92,9 +90,8 @@ def search_contacts (keywords):
                                     Q (fax__icontains = kw) |
                                     Q (addr_order__icontains = kw) |
                                     Q (addr_suborder__icontains = kw))
-        contacts = contacts.filter (status = Record.ACTIVE)
 
-    return contacts
+    return contacts.filter (status = Record.ACTIVE)
 
 def append_person (list, p, c):
     list.append ({'first_name': p.first_name,
