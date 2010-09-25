@@ -24,6 +24,7 @@ class FairEventAdmin (EventAdmin):
 
 
     fieldsets = [event_fields, prog_event_fields] + ContactInline.fieldsets
+    ordering = ('name', )
 
 
 class StallEventAdmin (FairEventAdmin):
