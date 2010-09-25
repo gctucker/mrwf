@@ -4,7 +4,7 @@ from django.db.models import (CharField, DateField,
                               PositiveIntegerField, PositiveSmallIntegerField,
                               ForeignKey, OneToOneField,
                               ImageField)
-from settings import IMG_MAX_D, IMG_MAX_d
+from mrwf.settings import IMG_MAX_D, IMG_MAX_d
 from cams.models import Contact, Item, Event, Fair, EventApplication
 from mrwf.extra import imaging
 
