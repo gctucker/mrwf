@@ -78,5 +78,9 @@ INSTALLED_APPS = (
     'mrwf.extra'
 )
 
+
+IMG_MAX_D = 800
+IMG_MAX_d = 600
+
 # site-dependent settings
 import local_settings

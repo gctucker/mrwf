@@ -4,7 +4,9 @@ from django.db.models import (CharField, DateField,
                               PositiveIntegerField, PositiveSmallIntegerField,
                               ForeignKey, OneToOneField,
                               ImageField)
+from settings import IMG_MAX_D, IMG_MAX_d
 from cams.models import Contact, Item, Event, Fair, EventApplication
+from mrwf.extra import imaging
 
 # for temporary fix with the event contacts
 from django.db.models import EmailField, URLField, IntegerField
@@ -57,6 +59,8 @@ class FairEvent (Event):
             self.fair = Fair.objects.get (current = True)
         if not self.date:
             self.date = self.fair.date
+        if self.image:
+            imaging.scale_down (self.image, IMG_MAX_D, IMG_MAX_d)
         super (FairEvent, self).save (args, kwargs)
 
 
