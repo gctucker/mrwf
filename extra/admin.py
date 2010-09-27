@@ -22,8 +22,11 @@ class FairEventAdmin (EventAdmin):
     prog_event_fields = ('Programme info', {'fields': ('etype', 'image',
                                            ('age_min', 'age_max'))})
 
+    contact_mode = ('Contact mode', {'fields': ('ignore_org_c', )})
 
-    fieldsets = [event_fields, prog_event_fields] + ContactInline.fieldsets
+
+    fieldsets = [event_fields, prog_event_fields, contact_mode] \
+                + ContactInline.fieldsets
     ordering = ('name', )
 
 

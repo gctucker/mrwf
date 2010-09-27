@@ -5,6 +5,9 @@
               <tr><td class="key">age min</td><td class="value">{{ ev.age_min }}</td></tr>{% endif %}{% if ev.age_max %}
               <tr><td class="key">age max</td><td class="value">{{ ev.age_max }}</td></tr>{% endif %}{% endblock %}
 
+{% block extra_event_details %}{% with ev.get_composite_contact as c %}
+{% include "abook/details.html" %}{% endwith %}{% endblock %}
+
 {% block event_extra %}{% if ev.image %}
           <div class="element"><img src="{{ ev.image.url }}" /></div>{% endif %}{% endblock %}
 

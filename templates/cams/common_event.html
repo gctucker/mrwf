@@ -14,7 +14,7 @@
               <tr><td class="key">end date</td><td class="value">{{ ev.end_date }}</td></tr>{% endif %}{% if ev.time %}
               <tr><td class="key">time</td><td class="value">{{ ev.time }}</td></tr>{% endif %}{% if ev.end_time %}
               <tr><td class="key">until</td><td class="value">{{ ev.end_time }}</td></tr>{% endif %}{% block special_event %}{% endblock %}
-            </table>
+            </table>{% block extra_event_details %}{% endblock %}
             <div class="textblock description">
 {{ ev.description|linebreaksbr }}
             </div>{% endif %}{% block event_extra %}{% endblock %}{% if user.is_staff %}{% block staff_edit %}{% endblock %}{% endif %}

@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.db.models import (CharField, DateField,
+from django.db.models import (CharField, DateField, BooleanField,
                               PositiveIntegerField, PositiveSmallIntegerField,
                               ForeignKey, OneToOneField,
                               ImageField)
@@ -55,6 +55,8 @@ class FairEvent (Event):
     addr_suborder = IntegerField ("Sub-order", blank = True, default = 0,
                                   help_text =
                      "Order of the premises on side streets around Mill Road.")
+    ignore_org_c = BooleanField (default = False, verbose_name =
+                                 "Ignore organisation contacts")
 
     def save (self, *args, **kwargs):
         if not self.fair:
@@ -64,6 +66,35 @@ class FairEvent (Event):
         if self.image:
             imaging.scale_down (self.image, IMG_MAX_D, IMG_MAX_d)
         super (FairEvent, self).save (args, kwargs)
+
+    # WORKAROUND to make the event contacts more flexible
+    def get_composite_contact (self):
+        c = {}
+
+        attrs = ['line_1', 'line_2', 'line_3', 'postcode', 'country',
+                 'email', 'website', 'telephone', 'mobile', 'fax',
+                 'addr_order', 'addr_suborder']
+
+        if self.ignore_org_c:
+            for att in attrs:
+                c[att] = getattr (self, att, '')
+        else:
+            if self.org:
+                org_c = Contact.objects.filter (obj = self.org)
+                if org_c.count () > 0:
+                    org_c = org_c[0]
+                else:
+                    org_c = None
+
+            for att in attrs:
+                value = getattr (self, att, '')
+
+                if org_c and not value:
+                    value = getattr (org_c, att, '')
+
+                c[att] = value
+
+        return c
 
 
 class StallEvent (FairEvent):
