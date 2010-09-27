@@ -14,6 +14,7 @@ def scale_down (img_field, max_D, max_d):
 
         if (format != "JPEG") and (format != "PNG") and (format != "GIF"):
             format = "JPEG"
+            file_name = os.path.splitext (file_name)[0] + ".jpeg"
             save = True
         else:
             save = False
