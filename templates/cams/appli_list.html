@@ -3,7 +3,10 @@
 {% block browse_title %}{% endblock %}
 
 {% block browse_it %}
-              <a href="{{ px }}cams/application/{{ type_id }}/{{ it.id }}/">{{ it }}</a>
+              <a href="{{ px }}cams/application/{{ type_id }}/{{ it.id }}/">
+                <span{% if it.status_str = "Pending" %} style="font-style: italic"{% endif %}>{{ it.event.name }}</span>
+              </a>
+              <div class="search-preview">{{ it.status_str }}, {{ it.event.owner }}</div>
 {% endblock %}
 
 {% block browse_footer %}

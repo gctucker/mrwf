@@ -3,6 +3,7 @@
 {% block contents %}
           <h2>{{ appli.event.name }}</h2>
           <table class="details">
+            <tr><td class="key">status</td><td class="value">{{ appli.status_str }}</td></tr>
             <tr><td class="key">posted</td><td class="value">{{ appli.created }}</td></tr>
             <tr>
               <td class="key">person</td>
@@ -11,13 +12,16 @@
             <tr><td class="key">spaces</td><td class="value">{{ detail.n_spaces }}</td></tr>
             <tr><td class="key">tables</td><td class="value">{{ detail.n_tables }}</td></tr>
             <tr><td class="key">chosen contact</td><td class="value">{{ detail.get_main_contact_value }}</td></tr>
-            <tr><td class="key"></td><td class="value"></td></tr>
-            <tr><td class="key"></td><td class="value"></td></tr>
           </table>
           <div class="textblock description">
 {{ appli.event.description|linebreaksbr }}
           </div>
           <div class="element cmd">
+            <a href="{{ px }}admin/extra/stallevent/{{ appli.event.id }}/">&lt;edit&gt;</a>{% if appli.status_str = "Pending" %}
+            <p>
+              <a href="?action=accept">&lt;accept&gt;</a>
+              <a href="?action=reject">&lt;reject&gt;</a>
+            </p>{% endif %}
             <a href="{{ px }}cams/application/{{ type_id }}/">&lt;&lt;&nbsp;back</a>
           </div>
 {% endblock %}

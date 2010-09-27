@@ -3,8 +3,11 @@
 {% block contents %}
           <div class="element">Categories:</div>
           <div class="element">
-            <ul class="plain">{% for cat_id, cat_name in cats %}
-              <li><a href="{{ px }}cams/application/{{ cat_id }}/">{{ cat_name }}</a></li>{% endfor %}
+            <ul class="plain">{% for cat_type, cat_stats in cats %}
+              <li>
+                <a href="{{ px }}cams/application/{{ cat_type.id }}/">{{ cat_type.name }}</a>{% if cat_stats.pending %} ({{ cat_stats.pending }}){% endif %}
+                <div class="search-preview">Pending: {{ cat_stats.pending }} Accepted: {{ cat_stats.accepted }} Rejected: {{ cat_stats.rejected }} Total: {{ cat_stats.total }}</div>
+              </li>{% endfor %}
             </ul>
           </div>
 {% endblock %}

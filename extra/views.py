@@ -15,7 +15,7 @@ from django.conf import settings
 from cams.libcams import CAMS_VERSION, Page, get_user_pages, str2list
 from cams.models import (Record, Contactable, Person, Member, Organisation,
                          Contact, Event, Actor, Fair, Player, Group, Role,
-                         EventComment, get_user_email)
+                         Application, EventComment, get_user_email)
 from mrwf.extra.models import (FairEvent, StallEvent, FairEventApplication)
 from mrwf.extra.forms import UserNameForm, PersonForm, ContactForm
 
@@ -523,7 +523,16 @@ def prog_event_cmt (request, event_id):
 @login_required
 def applications (request):
     applis = FairEventApplication.objects.all ()
-    cats = FairEventApplication.xtypes
+    cats = []
+    for cat_id, cat_name in FairEventApplication.xtypes:
+        cat_type = {'id': cat_id, 'name': cat_name}
+        applis = FairEventApplication.objects.filter (subtype = cat_id)
+        pending = applis.filter (status = Application.PENDING)
+        accepted = applis.filter (status = Application.ACCEPTED)
+        rejected = applis.filter (status = Application.REJECTED)
+        stats = {'pending': pending.count (), 'accepted': accepted.count (),
+                 'rejected': rejected.count (), 'total': applis.count ()}
+        cats.append ((cat_type, stats))
     tpl_vars = {'page_title': 'Applications', 'cats': cats}
     add_common_tpl_vars (request, tpl_vars, 'appli')
     return render_to_response ('cams/applications.html', tpl_vars)
@@ -534,8 +543,9 @@ def appli_type (request, type_id):
     applis = FairEventApplication.objects.filter (subtype = type_id)
     type_name = FairEventApplication.xtypes[type_id][1]
     tpl_vars = {'page_title': 'Applications: %ss' % type_name,
+                'url': 'cams/application/%d/' % type_id,
                 'applis': applis, 'type_id': type_id}
-    add_common_tpl_vars (request, tpl_vars, 'appli', applis)
+    add_common_tpl_vars (request, tpl_vars, 'appli', applis, 10)
     template = "cams/appli_list.html"
     return render_to_response (template, tpl_vars)
 
@@ -544,6 +554,17 @@ def appli_detail (request, type_id, appli_id):
     type_id = int (type_id)
     appli_id = int (appli_id)
     appli = get_object_or_404 (FairEventApplication, pk = appli_id)
+
+    if 'action' in request.GET:
+        action = request.GET['action']
+        if action == 'accept':
+            appli.status = Application.ACCEPTED
+            appli.save ()
+        elif action == 'reject':
+            appli.status = Application.REJECTED
+            appli.save ()
+        else:
+            raise Http404
 
     if appli.subtype != type_id:
         raise Http404

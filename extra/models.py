@@ -5,10 +5,11 @@ from django.db.models import (CharField, DateField,
                               ForeignKey, OneToOneField,
                               ImageField)
 from mrwf.settings import IMG_MAX_D, IMG_MAX_d
-from cams.models import Contact, Item, Event, Fair, EventApplication
+from cams.models import (Record, Contact, Item, Event, Fair,
+                         Application, EventApplication)
 from mrwf.extra import imaging
 
-# for temporary fix with the event contacts
+# WORKAROUND for temporary fix with the event contacts
 from django.db.models import EmailField, URLField, IntegerField
 from cams.models import Contact
 
@@ -33,6 +34,7 @@ class FairEvent (Event):
     age_min = PositiveIntegerField (blank = True, null = True)
     age_max = PositiveIntegerField (blank = True, null = True)
 
+    # WORKAROUND
     # Temporary fix to get a practical solution for the event contact details.
     # This can be used to override the organisation contact details.
     line_1 = CharField (max_length = 63, blank = True)
@@ -105,21 +107,29 @@ class StallEvent (FairEvent):
 
 class FairEventApplication (EventApplication):
     STALLHOLDER = 0
-    PERFORMER = 1
-    ADVERTISER = 2
-    SPONSOR = 3
-    VOLUNTEER = 4
-    STEWARD = 5
+    ADVERTISER = 1
+    SPONSOR = 2
+    OTHER = 3
 
-    xtypes = ((STALLHOLDER, 'stallholder'), (PERFORMER, 'performer'),
-              (ADVERTISER, 'advertiser'), (SPONSOR, 'sponsor'),
-              (VOLUNTEER, 'volunteer'), (STEWARD, 'steward'))
+    xtypes = ((STALLHOLDER, 'stallholder'), (ADVERTISER, 'advertiser'),
+              (SPONSOR, 'sponsor'), (OTHER, 'other'))
 
     subtype = PositiveSmallIntegerField (choices = xtypes)
 
     @property
     def type_name (self):
         return xtypes[self.subtype][1]
+
+    def save (self, *args, **kwargs):
+        if (self.status == Application.REJECTED):
+            print ("application rejected")
+            self.event.status = Record.DISABLED
+            self.event.save ()
+        elif (self.status == Application.PENDING):
+            print ("application accepted")
+            self.event.status = Record.NEW
+            self.event.save ()
+        super (FairEventApplication, self).save (args, kwargs)
 
 
 class Listener (models.Model):
