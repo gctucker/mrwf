@@ -5,7 +5,7 @@ from django.db.models.query import Q
 from django.shortcuts import render_to_response, get_object_or_404
 from cams.models import Record, Person, Organisation, Contact, Event, Fair
 from cams.libcams import str2list
-from mrwf.extra.models import FairEvent, FairEventType
+from mrwf.extra.models import FairEvent, FairEventCategory
 
 def add_date_ele (doc, root, tag, date):
     ele = doc.createElement (tag)
@@ -220,18 +220,19 @@ def current_event (request, event_id):
     return event_obj (event)
 
 def cats (request, fair_year):
+    # ToDo: review names of categories, types etc.
     impl = getDOMImplementation ()
     doc = impl.createDocument (None, 'categories', None)
     root = doc.documentElement
 
-    etypes_ele = doc.createElement ('event_types')
-    root.appendChild (etypes_ele)
-    etypes = FairEventType.objects.all ()
+    ecats_ele = doc.createElement ('event_types')
+    root.appendChild (ecats_ele)
+    ecats = FairEventCategory.objects.all ()
 
-    for it in etypes:
+    for it in ecats:
         ele = doc.createElement ('type')
-        etypes_ele.appendChild (ele)
-        ele.setAttribute ('name', it.name)
+        ecats_ele.appendChild (ele)
+        ele.setAttribute ('name', it.word)
 
     return HttpResponse (doc.toprettyxml ('  ', '\n', 'utf-8'),
                          mimetype = 'application/xml')
