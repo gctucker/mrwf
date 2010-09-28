@@ -99,10 +99,11 @@ def event_obj (fevent):
     c = fevent.get_composite_contact ()
     addr_ele = doc.createElement ('address')
 
-    for it in ['line_1', 'line_2', 'line_3', 'town', 'postcode', 'website']:
+    for it in ['line_1', 'line_2', 'line_3', 'town', 'postcode', 'website',
+               'addr_order', 'addr_suborder']:
         value = c[it]
         if value:
-            addr_ele.setAttribute (it, value)
+            addr_ele.setAttribute (it, str (value))
             has_address = True
 
     if has_address:
