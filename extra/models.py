@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import (CharField, DateField, BooleanField,
                               PositiveIntegerField, PositiveSmallIntegerField,
-                              ForeignKey, OneToOneField,
+                              ForeignKey, OneToOneField, ManyToManyField,
                               ImageField)
 from mrwf.settings import IMG_MAX_D, IMG_MAX_d
 from cams.models import (Record, Contact, Item, Event, Fair,
@@ -23,10 +23,22 @@ class FairEventType (models.Model):
         ordering = ['name']
 
 
+class FairEventCategory (models.Model):
+    word = CharField (max_length = 31)
+
+    def __unicode__ (self):
+        return self.word
+
+    class Meta:
+        verbose_name_plural = 'Fair event categories'
+
+
 class FairEvent (Event):
     event = OneToOneField (Event, parent_link = True)
     etype = ForeignKey (FairEventType, blank = True, null = True,
                         verbose_name = "Listing")
+    categories = ManyToManyField (FairEventCategory)
+
     # Bug fix to clear the image (file) field in admin:
     # http://code.djangoproject.com/ticket/7048
     # http://code.djangoproject.com/ticket/4979
