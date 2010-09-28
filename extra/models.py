@@ -37,7 +37,7 @@ class FairEvent (Event):
     event = OneToOneField (Event, parent_link = True)
     etype = ForeignKey (FairEventType, blank = True, null = True,
                         verbose_name = "Listing")
-    categories = ManyToManyField (FairEventCategory)
+    categories = ManyToManyField (FairEventCategory, null = True, blank = True)
 
     # Bug fix to clear the image (file) field in admin:
     # http://code.djangoproject.com/ticket/7048
