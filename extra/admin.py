@@ -22,10 +22,9 @@ class FairEventAdmin (EventAdmin):
     prog_event_fields = ('Programme info', {'fields': ('etype', 'image',
                                            ('age_min', 'age_max'))})
 
-    contact_mode = ('Contact mode', {'fields': ('ignore_org_c', )})
+    contact_mode_fields = ('Contact mode', {'fields': ('ignore_org_c', )})
 
-
-    fieldsets = [event_fields, prog_event_fields, contact_mode] \
+    fieldsets = [event_fields, prog_event_fields, contact_mode_fields] \
                 + ContactInline.fieldsets
     ordering = ('name', )
 
@@ -55,6 +54,6 @@ admin.site.register (Player, PlayerAdmin)
 
 # -- extra admin --
 admin.site.register (FairEvent, FairEventAdmin)
-#admin.site.register (FairEventType)
+admin.site.register (FairEventType)
 admin.site.register (StallEvent, StallEventAdmin)
 admin.site.register (Listener, ListenerAdmin)
