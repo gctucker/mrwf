@@ -25,7 +25,7 @@ PAGE_LIST = [
     Page ('home',    '',                   'welcome',      Page.OPEN),
     Page ('profile', 'profile/',           'user profile', Page.OPEN),
     Page ('abook',   'abook/',             'address book', Page.OPEN),
-    Page ('parts',   'cams/participant/',  'participants', Page.OPEN),
+    Page ('parts',   'cams/participant/',  'groups',       Page.OPEN),
 #    Page ('prep',    'cams/prep/',         'preparation',  Page.OPEN),
     Page ('prog',    'cams/prog/',         'programme',    Page.OPEN),
     Page ('appli',   'cams/application/',  'applications', Page.ADMIN),
