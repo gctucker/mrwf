@@ -116,6 +116,10 @@ class PaginatorStub:
             it['type'] = type_name
         self.object_list += items
 
+    def limit_list (self, max_objects):
+        if len (self.object_list) > max_objects:
+            self.object_list = self.object_list[:max_objects]
+
     @property
     def num_pages (self):
         if len (self.object_list):
@@ -187,8 +191,8 @@ def search (request):
                     if p:
                         append_person (people, p, (c,))
         else:
-            p_list = list (search_people (keywords))
-            o_list = list (search_orgs (keywords))
+            p_list = list (search_people (keywords))[:30]
+            o_list = list (search_orgs (keywords))[:30]
 
             for p in p_list:
                 c = Contact.objects.filter (obj = p)
@@ -211,6 +215,7 @@ def search (request):
         results = PaginatorStub ()
         results.add_list (people, 'person')
         results.add_list (orgs, 'org')
+        results.limit_list (40)
     else:
         results = None
 
