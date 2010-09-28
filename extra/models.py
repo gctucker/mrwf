@@ -165,11 +165,9 @@ class FairEventApplication (EventApplication):
 
     def save (self, *args, **kwargs):
         if (self.status == Application.REJECTED):
-            print ("application rejected")
             self.event.status = Record.DISABLED
             self.event.save ()
         elif (self.status == Application.PENDING):
-            print ("application accepted")
             self.event.status = Record.NEW
             self.event.save ()
         super (FairEventApplication, self).save (args, kwargs)
