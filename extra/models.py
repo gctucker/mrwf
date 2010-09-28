@@ -71,7 +71,7 @@ class FairEvent (Event):
     def get_composite_contact (self):
         c = {}
 
-        attrs = ['line_1', 'line_2', 'line_3', 'postcode', 'country',
+        attrs = ['line_1', 'line_2', 'line_3', 'postcode', 'town', 'country',
                  'email', 'website', 'telephone', 'mobile', 'fax',
                  'addr_order', 'addr_suborder']
 

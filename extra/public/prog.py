@@ -45,10 +45,7 @@ def fair_obj (fair):
     return HttpResponse (doc.toprettyxml ('  ', '\n', 'utf-8'),
                          mimetype = 'application/xml')
 
-def event_obj (fair, fevent):
-    #if fevent.fair != fair:
-    #    print ("wrong fair!")
-
+def event_obj (fevent):
     event = fevent.event
 
     impl = getDOMImplementation ()
@@ -86,7 +83,7 @@ def event_obj (fair, fevent):
         desc_txt = doc.createTextNode (event.description)
         desc_ele.appendChild (desc_txt)
 
-    if event.date != fair.date:
+    if event.date != event.fair.date:
         add_date_ele (doc, root, 'date', event.date)
 
     if event.time:
@@ -98,21 +95,18 @@ def event_obj (fair, fevent):
     if event.end_time:
         add_time_ele (doc, root, 'end_time', event.end_time)
 
-    if event.org:
-        org_ele = doc.createElement ('organisation')
-        root.appendChild (org_ele)
-        org_ele.setAttribute ('name', event.org.name)
+    # WORKAROUND
+    c = fevent.get_composite_contact ()
+    addr_ele = doc.createElement ('address')
 
-        contacts = Contact.objects.filter (obj = event.org)
+    for it in ['line_1', 'line_2', 'line_3', 'town', 'postcode', 'website']:
+        value = c[it]
+        if value:
+            addr_ele.setAttribute (it, value)
+            has_address = True
 
-        if contacts.count () > 0:
-            contact = contacts[0]
-            org_ele.setAttribute ('line_1', contact.line_1)
-            org_ele.setAttribute ('line_2', contact.line_2)
-            org_ele.setAttribute ('line_3', contact.line_3)
-            org_ele.setAttribute ('town', contact.town)
-            org_ele.setAttribute ('postcode', contact.postcode)
-            org_ele.setAttribute ('website', contact.website)
+    if has_address:
+        root.appendChild (addr_ele)
 
     return HttpResponse (doc.toprettyxml ('  ', '\n', 'utf-8'),
                          mimetype = 'application/xml')
@@ -212,12 +206,16 @@ def current (request):
 def event (request, fair_year, event_id):
     fair = get_object_or_404 (Fair, date__year = fair_year)
     event = get_object_or_404 (FairEvent, pk = event_id)
-    return event_obj (fair, event)
+    if (not event.fair) or (event.fair != fair):
+        raise Http404
+    return event_obj (event)
 
 def current_event (request, event_id):
     fair = get_object_or_404 (Fair, current = True)
     event = get_object_or_404 (FairEvent, pk = event_id)
-    return event_obj (fair, event)
+    if (not event.fair) or (event.fair != fair):
+        raise Http404
+    return event_obj (event)
 
 def cats (request, fair_year):
     impl = getDOMImplementation ()
