@@ -185,6 +185,7 @@ def all_fairs (request):
     impl = getDOMImplementation ()
     doc = impl.createDocument (None, 'fairs', None)
     root = doc.documentElement
+    root.setAttribute ("api_version", "1.0")
 
     for fair in Fair.objects.all ():
         ele = doc.createElement ('fair')
