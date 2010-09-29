@@ -163,8 +163,9 @@ def search_obj (request, fair):
                         & (Q (age_max__isnull = True)
                            | Q (age_max__gte = age)))
 
-    for t in get_list (request, 'type'):
-        fe = fe.filter (Q (etype__name__icontains = t))
+    if 'type' in request.GET:
+        etype = request.GET['type']
+        fe = fe.filter (categories__word = etype)
 
     for w in get_list (request, 'desc'):
         fe = fe.filter (Q (event__name__icontains = w)
