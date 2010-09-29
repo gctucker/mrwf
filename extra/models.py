@@ -97,6 +97,8 @@ class FairEvent (Event):
                     org_c = org_c[0]
                 else:
                     org_c = None
+            else:
+                org_c = None
 
             for att in attrs:
                 value = getattr (self, att, '')
