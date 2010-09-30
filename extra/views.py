@@ -12,7 +12,8 @@ from django.core.mail import send_mail
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.shortcuts import render_to_response, get_object_or_404
 from django.conf import settings
-from cams.libcams import CAMS_VERSION, Page, get_user_pages, str2list
+from cams.libcams import (CAMS_VERSION, Page, get_user_pages, str2list,
+                          CSVFileResponse)
 from cams.models import (Record, Contactable, Person, Member, Organisation,
                          Contact, Event, Actor, Fair, Player, Group, Role,
                          Application, EventComment, get_user_email)
@@ -607,8 +608,7 @@ def export_group (request, group_id):
         if c:
             c = c[0]
             ctype = 'person'
-
-        if not c:
+        else:
             member = Member.objects.filter (person = it)
             if member:
                 member = member[0]
@@ -617,8 +617,7 @@ def export_group (request, group_id):
                 if c:
                     c = c[0]
                     ctype = 'member'
-
-                if not c:
+                else:
                     c = Contact.objects.filter (obj = member.organisation)
                     if c:
                         c = c[0]
@@ -627,26 +626,24 @@ def export_group (request, group_id):
         if c:
             contacts.append ((it, ctype, org_name, c))
 
-    response = HttpResponse (mimetype = 'text/csv')
-    response.write ("first_name,middle_name,last_name,contact_type,org," +
-                    "line_1,line_2,line_3,town,postcode,country," +
-                    "telephone,mobile,fax,order,suborder,email,website\n")
+    csv = CSVFileResponse (('first_name', 'middle_name', 'last_name',
+                            'contact_type', 'organisation',
+                            'line_1', 'line_2', 'line_3', 'town', 'postcode',
+                            'telephone', 'mobile', 'fax', 'email', 'website',
+                            'order', 'sub-order'))
+
     for it in contacts:
         p = it[0]
         ctype = it[1]
         org_name = it[2]
         c = it[3]
-        response.write (("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"," +
-                         "\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"," +
-                         "\"%s\",\"%s\",\"%s\",%d,%d,\"%s\",\"%s\"\n") % (
-            p.first_name, p.middle_name, p.last_name, ctype, org_name,
-            c.line_1, c.line_2, c.line_3, c.town, c.postcode, c.country,
-            c.telephone, c.mobile, c.fax, c.addr_order, c.addr_suborder,
-            c.email, c.website))
+        csv.writerow ((p.first_name, p.middle_name, p.last_name,
+                       ctype, org_name,
+                       c.line_1, c.line_2, c.line_3, c.town, c.postcode,
+                       c.telephone, c.mobile, c.fax, c.email, c.website,
+                       c.addr_order, c.addr_suborder))
 
-    now = datetime.datetime.today ()
-    fname = "%s-%d_%d-%02d-%02d:%02d-%02d-%02d.csv" % (
-        group.name.replace (' ', '_'), group.fair.date.year,
-        now.year, now.month, now.day, now.hour, now.minute, now.second)
-    response['Content-Disposition'] = 'attachement; filename=\"%s\"' % fname
-    return response
+    csv.set_file_name ('%s-%d' % (group.name.replace (' ', '_'),
+                                  group.fair.date.year))
+
+    return csv.response
