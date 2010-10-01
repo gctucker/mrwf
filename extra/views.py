@@ -641,9 +641,38 @@ def export_group (request, group_id):
                        ctype, org_name,
                        c.line_1, c.line_2, c.line_3, c.town, c.postcode,
                        c.telephone, c.mobile, c.fax, c.email, c.website,
-                       c.addr_order, c.addr_suborder))
+                       str (c.addr_order), str (c.addr_suborder)))
 
     csv.set_file_name ('%s-%d' % (group.name.replace (' ', '_'),
                                   group.fair.date.year))
+
+    return csv.response
+
+@login_required
+def export_programme (request):
+    def istr (value):
+        if value:
+            return str (value)
+        else:
+            return ''
+
+    events = FairEvent.objects.filter (status = Record.ACTIVE)
+    events = events.filter (fair__current = True)
+    events = events.order_by ('name')
+    csv = CSVFileResponse (('name', 'description',
+                            'time', 'until', 'age_min', 'age_max',
+                            'line_1', 'line_2', 'line_3', 'postcode', 'town',
+                            'website', 'order', 'sub-order'))
+
+    csv.set_file_name ("programme")
+
+    for e in events:
+        c = e.get_composite_contact ()
+        csv.writerow ((e.name, e.description,
+                       istr (e.time), istr (e.end_time),
+                       istr (e.age_min), istr (e.age_max),
+                       c['line_1'], c['line_2'], c['line_3'],
+                       c['postcode'], c['town'], c['website'],
+                       str (c['addr_order']), str (c['addr_suborder'])))
 
     return csv.response

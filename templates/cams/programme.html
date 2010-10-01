@@ -7,3 +7,6 @@
                   {{ it.name }}{% if it.status_str == "new" %} (not confirmed){% else %}{% if it.status_str == "disabled" %} (cancelled){% endif %}{% endif %}
                 </a>
 {% endblock %}
+
+{% block browse_footer %}
+          <div class="cmd"><a href="{{ px }}cams/prog/export/">&lt;export&gt;</a></div>{% endblock %}
