@@ -5,7 +5,7 @@
       <tr>
         <td id="navbar">
           <ul id="navlist">{% for p in pages %}
-            <li><a href="{{ px }}{{ p.url }}">{% if p.name = current_page %}<span class="current_nav">{{ p.title }}</span>{% else %}{{ p.title }}{% endif %}</a></li>{% endfor %}
+            <li><a href="{{ px }}{{ p.url }}">{% if p.name == current_page %}<span class="current_nav">{{ p.title }}</span>{% else %}{{ p.title }}{% endif %}</a></li>{% endfor %}
           </ul>
         </td>
         <td id="contents">{% block contents %}{% endblock %}        </td>

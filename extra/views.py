@@ -17,7 +17,8 @@ from cams.libcams import (CAMS_VERSION, Page, get_user_pages, str2list,
 from cams.models import (Record, Contactable, Person, Member, Organisation,
                          Contact, Event, Actor, Fair, Player, Group, Role,
                          Application, EventComment, get_user_email)
-from mrwf.extra.models import (FairEvent, StallEvent, FairEventApplication)
+from mrwf.extra.models import (FairEventType, FairEvent, StallEvent,
+                               FairEventApplication)
 from mrwf.extra.forms import UserNameForm, PersonForm, ContactForm
 
 from django import VERSION
@@ -314,6 +315,22 @@ def get_show_all (request):
 
     return show_all
 
+def get_listing_id (request):
+    if 'listing' in request.GET:
+        listing = request.GET['listing']
+        request.session['listing'] = listing
+    elif 'listing' in request.session:
+        listing = request.session['listing']
+    else:
+        listing = 0
+
+    try:
+        listing = int (listing)
+    except ValueError:
+        listing = 0
+
+    return listing
+
 # -----------------------------------------------------------------------------
 
 @login_required
@@ -503,10 +520,21 @@ def prep_event_cmt (request, event_id):
 def programme (request):
     fair = get_object_or_404 (Fair, current = True)
     prog = FairEvent.objects.filter (fair = fair)
+
     if not request.user.is_staff:
         prog = prog.filter (status = Record.ACTIVE)
-    prog = prog.order_by ('name')
-    tpl_vars = {'page_title': 'Programme', 'url': 'cams/prog/'}
+
+    listing = get_listing_id (request)
+    if listing:
+        prog = prog.filter (etype = listing)
+
+    prog = prog.order_by ('name') # ToDo: order by 'order' and 'sub-order'
+
+    listings = FairEventType.objects.all ()
+    listings = listings.values ('id', 'name')
+
+    tpl_vars = {'page_title': 'Programme', 'url': 'cams/prog/',
+                'listings': listings, 'current': listing}
     add_common_tpl_vars (request, tpl_vars, 'prog', prog)
     return render_to_response ('cams/programme.html', tpl_vars)
 
@@ -656,15 +684,22 @@ def export_programme (request):
         else:
             return ''
 
-    events = FairEvent.objects.filter (status = Record.ACTIVE)
-    events = events.filter (fair__current = True)
-    events = events.order_by ('name')
     csv = CSVFileResponse (('name', 'description',
                             'time', 'until', 'age_min', 'age_max',
                             'line_1', 'line_2', 'line_3', 'postcode', 'town',
                             'website', 'order', 'sub-order'))
 
-    csv.set_file_name ("programme")
+    events = FairEvent.objects.filter (status = Record.ACTIVE)
+    events = events.filter (fair__current = True)
+    events = events.order_by ('name')
+
+    listing = get_listing_id (request)
+    if listing:
+        events = events.filter (etype = listing)
+        listing_obj = get_object_or_404 (FairEventType, pk = listing)
+        csv.set_file_name (listing_obj.name.replace (' ', '_'))
+    else:
+        csv.set_file_name ("Programme")
 
     for e in events:
         c = e.get_composite_contact ()
