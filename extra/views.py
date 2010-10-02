@@ -687,6 +687,7 @@ def export_programme (request):
     csv = CSVFileResponse (('name', 'description',
                             'time', 'until', 'age_min', 'age_max',
                             'line_1', 'line_2', 'line_3', 'postcode', 'town',
+                            'telephone', 'mobile', 'fax', 'email',
                             'website', 'order', 'sub-order'))
 
     events = FairEvent.objects.filter (status = Record.ACTIVE)
@@ -707,7 +708,8 @@ def export_programme (request):
                        istr (e.time), istr (e.end_time),
                        istr (e.age_min), istr (e.age_max),
                        c['line_1'], c['line_2'], c['line_3'],
-                       c['postcode'], c['town'], c['website'],
+                       c['postcode'], c['town'], c['telephone'], c['mobile'],
+                       c['fax'], c['email'], c['website'],
                        str (c['addr_order']), str (c['addr_suborder'])))
 
     return csv.response
