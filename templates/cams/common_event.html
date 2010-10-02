@@ -5,7 +5,7 @@
 {% block browse_header %}{% if ev.status_str == "new" %}
           <p class="notice">THIS EVENT HAS NOT BEEN CONFIRMED YET</p>{% else %}{% if ev.status_str == "disabled" %}
           <p class="notice">THIS EVENT WAS CANCELLED</p>{% endif %}{% endif %}
-          <div class="element">{% if ev.description %}
+          <div class="element">
             <table class="details">
               <tr><td class="key">event owner</td><td class="value"><a href="{{ px }}abook/person/{{ ev.owner.id }}/">{{ ev.owner }}</a></td></tr>{% if ev.org %}
               <tr><td class="key">organisation</td><td class="value"><a href="{{ px }}abook/org/{{ ev.org.id }}/">{{ ev.org.name }}</a></td></tr>{% endif %}{% if ev.location %}
@@ -15,7 +15,7 @@
               <tr><td class="key">time</td><td class="value">{{ ev.time }}</td></tr>{% endif %}{% if ev.end_time %}
               <tr><td class="key">until</td><td class="value">{{ ev.end_time }}</td></tr>{% endif %}{% block special_event %}{% endblock %}
             </table>{% block extra_event_details %}{% endblock %}
-            <div class="textblock description">
+            {% if ev.description %}<div class="textblock description">
 {{ ev.description|linebreaksbr }}
             </div>{% endif %}{% block event_extra %}{% endblock %}{% if user.is_staff %}{% block staff_edit %}{% endblock %}{% endif %}
           </div>{% endblock %}
