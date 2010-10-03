@@ -544,8 +544,14 @@ def prog_event (request, event_id):
     if (not request.user.is_staff) and (ev.status != Record.ACTIVE):
         raise Http404
     form = get_form_if_actor (request, event_id)
+
+    if StallEvent.objects.filter (pk = event_id).exists ():
+        admin_type = 'stallevent'
+    else:
+        admin_type = 'fairevent'
+
     tpl_vars = {'page_title': 'Fair Event', 'ev': ev, 'form': form,
-                'url': 'cams/prog/%d/' % ev.id}
+                'url': 'cams/prog/%d/' % ev.id, 'admin_type': admin_type}
     add_common_tpl_vars (request, tpl_vars, 'prog', get_comments (ev), 4)
     return render_to_response ('cams/prog_event.html', tpl_vars,
                                context_instance = RequestContext (request))
