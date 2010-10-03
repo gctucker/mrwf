@@ -581,6 +581,7 @@ def applications (request):
 def appli_type (request, type_id):
     type_id = int (type_id)
     applis = FairEventApplication.objects.filter (subtype = type_id)
+    applis = applis.order_by ('-created')
     type_name = FairEventApplication.xtypes[type_id][1]
     tpl_vars = {'page_title': 'Applications: %ss' % type_name,
                 'url': 'cams/application/%d/' % type_id,
