@@ -9,9 +9,10 @@
           </p>{% endblock %}
 
 {% block browse_it %}
-                <a href="{{ px }}{{ url }}{{ it.id }}/">
-                  {{ it.name }}{% if it.status_str == "new" %} (not confirmed){% else %}{% if it.status_str == "disabled" %} (cancelled){% endif %}{% endif %}
-                </a>
+                <a href="{{ px }}{{ url }}{{ it.id }}/">{{ it.name }}</a>{% if it.status_str != "active" %}&nbsp;
+                <span class="notice" style="font-size: 0.85em">
+                  {% if it.status_str == "new" %}not confirmed{% else %}{% if it.status_str == "disabled" %}cancelled{% endif %}{% endif %}
+                </span>{% endif %}
 {% endblock %}
 
 {% block browse_footer %}
