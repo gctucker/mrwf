@@ -197,3 +197,6 @@ class StallInvoice (Invoice):
 
     def __unicode__ (self):
         return self.stall.__unicode__ ()
+
+    class Meta:
+        ordering = ['stall__name']

@@ -651,7 +651,7 @@ def invoices (request):
 @login_required
 def select_invoice (request):
     stalls = StallEvent.objects.filter (stallinvoice__isnull = True)
-    tpl_vars = {'page_title': 'Invoice'}
+    tpl_vars = {'page_title': 'Invoice', 'url': 'cams/invoice/select/'}
     add_common_tpl_vars (request, tpl_vars, 'invoice', stalls)
     return render_to_response ('cams/select_stall_invoice.html', tpl_vars)
 
@@ -671,13 +671,14 @@ def add_invoice (request, stall_id):
             form.save()
             return HttpResponseRedirect (reverse (invoices))
     else:
-        TABLE_PRICE = 20
-        SPACE_PRICE = 5
+        TABLE_PRICE = 5
+        SPACE_PRICE = 20
         amount = stall.n_tables * TABLE_PRICE
         amount += stall.n_spaces * SPACE_PRICE
         form = StallInvoiceForm (initial = {'amount': amount})
 
-    tpl_vars = {'page_title': 'New invoice', 'form': form, 'stall': stall}
+    tpl_vars = {'page_title': 'New invoice', 'form': form, 'stall': stall,
+                'url': 'cams/invoice/'}
     add_common_tpl_vars (request, tpl_vars, 'invoice')
     return render_to_response ("cams/add_invoice.html", tpl_vars,
                                context_instance = RequestContext (request))
