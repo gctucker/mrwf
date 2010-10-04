@@ -1,0 +1,19 @@
+{% extends "nav_layout.html" %}
+
+{% block contents %}
+          <h2>{{ inv.stall }}</h2>
+          <table class="details">
+            <tr><td class="key">Owner</td><td class="value"><a href="{{ px }}abook/person/{{ inv.stall.owner.id }}/">{{ inv.stall.owner }}</a></td></tr>{% if inv.stall.org %}
+            <tr><td class="key">Organisation</td><td class="value"><a href="{{ px }}abook/org/{{ inv.stall.org.id }}/">{{ inv.stall.org }}</a></td></tr>{% endif %}
+            <tr><td class="key">Spaces</td><td class="value">{{ inv.stall.n_spaces }}</td></tr>
+            <tr class="separator"><td class="key">Tables</td><td class="value">{{ inv.stall.n_tables }}</td></tr>
+            <tr><td class="key">Amount</td><td class="value">{{ inv.amount }}</td></tr>
+            <tr><td class="key">Status</td><td class="value">{{ inv.status_str }}</td></tr>            
+            <tr><td class="key">Created</td><td class="value">{{ inv.created }}</td></tr>
+            <tr><td class="key">Sent</td><td class="value">{% if inv.sent %}{{ inv.sent }}{% else %}<a href="?set=sent">set as sent</a>{% endif %}</td></tr>
+            <tr><td class="key">Paid</td><td class="value">{% if inv.paid %}{{ inv.paid }}{% else %}<a href="?set=paid">set as paid</a>{% endif %}</td></tr>
+            <tr><td class="key">Banked</td><td class="value">{% if inv.banked %}{{ inv.banked }}{% else %}<a href="?set=banked">set as banked</a>{% endif %}</td></tr>
+            <tr><td class="key"></td><td class="value"></td></tr>
+          </table>
+          <div class="back"><a href="{{ px }}cams/invoice/">&lt;&lt;back</a></div>
+{% endblock %}

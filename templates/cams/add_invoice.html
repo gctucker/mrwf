@@ -1,0 +1,13 @@
+{% extends "nav_layout.html" %}
+
+{% block contents %}
+          <h2>New stall invoice</h2>
+          <div class="element">
+            <form action="{{ px }}cams/invoice/add/" method="POST">
+              {% csrf_token %}
+              <p style="font-style: italic">insert form here ...</p>
+              <input type="submit" value="add" />
+            </form>
+          </div>
+          <div class="cmd"><a href="{{ px }}cams/invoice/">&lt;&lt;cancel</a></div>
+{% endblock %}

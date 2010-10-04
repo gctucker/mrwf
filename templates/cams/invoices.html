@@ -1,0 +1,11 @@
+{% extends "browser.html" %}
+
+{% block browse_title %}Stall invoices{% endblock %}
+
+{% block browse_it %}
+                <a href="{{ px }}cams/invoice/{{ it.id }}/">{{ it.stall }}</a>
+                <div class="search-preview">Status: {{ it.status_str }}, Amount: {{ it.amount }}</div>
+{% endblock %}
+
+{% block browse_footer %}
+          <div class="cmd"><a href="{{ px }}cams/invoice/add/">&lt;new invoice&gt;</a></div>{% endblock %}

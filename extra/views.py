@@ -16,9 +16,9 @@ from cams.libcams import (CAMS_VERSION, Page, get_user_pages, str2list,
                           CSVFileResponse)
 from cams.models import (Record, Contactable, Person, Member, Organisation,
                          Contact, Event, Actor, Fair, Player, Group, Role,
-                         Application, EventComment, get_user_email)
+                         Application, EventComment, Invoice, get_user_email)
 from mrwf.extra.models import (FairEventType, FairEvent, StallEvent,
-                               FairEventApplication)
+                               FairEventApplication, StallInvoice)
 from mrwf.extra.forms import UserNameForm, PersonForm, ContactForm
 
 from django import VERSION
@@ -31,6 +31,7 @@ PAGE_LIST = [
 #    Page ('prep',    'cams/prep/',         'preparation',  Page.OPEN),
     Page ('prog',    'cams/prog/',         'programme',    Page.OPEN),
     Page ('appli',   'cams/application/',  'applications', Page.ADMIN),
+    Page ('invoice', 'cams/invoice/',      'invoices',     Page.ADMIN),
 #    Page ('fairs',   'cams/fair/',         'winter fairs', Page.OPEN),
     Page ('admin',   'admin/',             'admin',        Page.ADMIN),
     Page ('logout',  'accounts/logout/',   'log out',      Page.OPEN)]
@@ -621,6 +622,41 @@ def appli_detail (request, type_id, appli_id):
     type_name = FairEventApplication.xtypes[type_id][1]
     template = "cams/appli_%s.html" % type_name
     return render_to_response (template, tpl_vars)
+
+@login_required
+def invoices (request):
+    invs = StallInvoice.objects.all ()
+    tpl_vars = {'page_title': 'Invoices', 'url': 'cams/invoice/'}
+    add_common_tpl_vars (request, tpl_vars, 'invoice', invs)
+    return render_to_response ('cams/invoices.html', tpl_vars)
+
+@login_required
+def add_invoice (request):
+    if request.method == 'POST':
+        print ("POST!")
+    tpl_vars = {'page_title': 'New invoice'}
+    add_common_tpl_vars (request, tpl_vars, 'invoice')
+    return render_to_response ("cams/add_invoice.html", tpl_vars,
+                               context_instance = RequestContext (request))
+
+@login_required
+def stall_invoice (request, inv_id):
+    inv = get_object_or_404 (StallInvoice, pk = int (inv_id))
+    if 'set' in request.GET:
+        set = request.GET['set']
+        print ("set as %s" % set)
+        if set == 'sent':
+            inv.status = Invoice.SENT
+            inv.save ()
+        elif set == 'paid':
+            inv.status = Invoice.PAID
+            inv.save ()
+        elif set == 'banked':
+            inv.status = Invoice.BANKED
+            inv.save ()
+    tpl_vars = {'page_title': 'Stall invoice details', 'inv': inv}
+    add_common_tpl_vars (request, tpl_vars, 'appli')
+    return render_to_response ('cams/stall_invoice.html', tpl_vars)
 
 @login_required
 def fairs (request):

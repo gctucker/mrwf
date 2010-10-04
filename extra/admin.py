@@ -3,9 +3,9 @@ from cams.models import (Person, Organisation, Member, Group, Fair, Role,
                          Player, Event, Actor, EventComment)
 from cams.admin import (PersonAdmin, OrganisationAdmin, MemberAdmin,
                         GroupAdmin, FairAdmin, PlayerAdmin, EventAdmin,
-                        ActorAdmin, EventCommentAdmin)
+                        ActorAdmin, EventCommentAdmin, InvoiceAdmin)
 from mrwf.extra.models import (FairEventType, FairEventCategory, FairEvent,
-                               StallEvent, Listener)
+                               StallEvent, Listener, StallInvoice)
 
 # temporary fix for the event contacts
 from cams.admin import ContactInline
@@ -65,3 +65,4 @@ admin.site.register (FairEventType)
 admin.site.register (FairEventCategory)
 admin.site.register (StallEvent, StallEventAdmin)
 admin.site.register (Listener, ListenerAdmin)
+admin.site.register (StallInvoice, InvoiceAdmin)

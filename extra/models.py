@@ -4,9 +4,9 @@ from django.db.models import (CharField, DateField, BooleanField,
                               PositiveIntegerField, PositiveSmallIntegerField,
                               ForeignKey, OneToOneField, ManyToManyField,
                               ImageField)
-from mrwf.settings import IMG_MAX_D, IMG_MAX_d
 from cams.models import (Record, Contact, Item, Event, Fair,
-                         Application, EventApplication)
+                         Application, EventApplication, Invoice)
+from mrwf.settings import IMG_MAX_D, IMG_MAX_d
 from mrwf.extra import imaging
 
 # WORKAROUND for temporary fix with the event contacts
@@ -20,6 +20,7 @@ class FairEventType (models.Model):
         return self.name
 
     class Meta:
+        verbose_name = 'Fair event listing'
         ordering = ['name']
 
 
@@ -189,3 +190,10 @@ class Listener (models.Model):
 
     def __unicode__ (self):
         return "%s upon %s" % (self.user, Listener.xtrigger[self.trigger][1])
+
+
+class StallInvoice (Invoice):
+    stall = ForeignKey (StallEvent)
+
+    def __unicode__ (self):
+        return self.stall.__unicode__ ()
