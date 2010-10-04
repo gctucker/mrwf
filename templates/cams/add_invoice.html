@@ -6,13 +6,13 @@
             <form action="{{ px }}cams/invoice/add/{{ stall.id }}/" method="POST">
               {% csrf_token %}
               <table class="apply">
-                <tr><td class="key">stall name</td><td class="value">{{ stall.name }}</td></tr>
-                <tr><td class="key">spaces</td><td class="value">{{ stall.n_spaces }}</td></tr>
-                <tr><td class="key">tables</td><td class="value">{{ stall.n_tables }}</td></tr>{% for field in form %}
+                <tr><td class="key">Stall name</td><td class="value">{{ stall.name }}</td></tr>
+                <tr><td class="key">Spaces</td><td class="value">{{ stall.n_spaces }}</td></tr>
+                <tr><td class="key">Tables</td><td class="value">{{ stall.n_tables }}</td></tr>{% for field in form %}
                 <tr><td class="key">{{ field.label_tag }}</td><td class="value">{{ field.errors }}{{ field }}</td></tr>{% endfor %}
               </table>
-              <input type="submit" value="add" />
+              <p><input type="submit" value="create invoice" /></p>
             </form>
           </div>
-          <div class="cmd"><a href="{{ px }}cams/invoice/">&lt;&lt;cancel</a></div>
+          <div class="cmd"><a href="{{ px }}cams/invoice/select/">&lt;&lt;cancel</a></div>
 {% endblock %}

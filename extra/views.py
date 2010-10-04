@@ -697,7 +697,7 @@ def stall_invoice (request, inv_id):
             inv.status = Invoice.BANKED
             inv.save ()
     tpl_vars = {'page_title': 'Stall invoice details', 'inv': inv}
-    add_common_tpl_vars (request, tpl_vars, 'appli')
+    add_common_tpl_vars (request, tpl_vars, 'invoice')
     return render_to_response ('cams/stall_invoice.html', tpl_vars)
 
 @login_required

@@ -4,7 +4,7 @@
 
 {% block browse_header %}
           <p class="sub-menu">{% for f in filters %}
-            {% if f == filter %}{{ f }}{% else %}<a href="?filter={{ f }}">{{ f }}</a>{% endif %}{% if not forloop.last %}&nbsp;|{% endif %}{% endfor %}
+            {% if f == filter %}<span class="current_nav">{{ f }}</span>{% else %}<a href="?filter={{ f }}">{{ f }}</a>{% endif %}{% if not forloop.last %}&nbsp;|{% endif %}{% endfor %}
           </p>
 {% endblock %}
 
