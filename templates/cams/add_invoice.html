@@ -3,10 +3,13 @@
 {% block contents %}
           <h2>New stall invoice</h2>
           <div class="element">
-            <form action="{{ px }}cams/invoice/add/" method="POST">
+            <form action="{{ px }}cams/invoice/add/{{ stall.id }}/" method="POST">
               {% csrf_token %}
-              <table class="apply">{% for field in form %}
-                <tr><td>{{ field.label }}</td><td>{{ field.errors }}{{ field }}</td></tr>{% endfor %}
+              <table class="apply">
+                <tr><td class="key">stall name</td><td class="value">{{ stall.name }}</td></tr>
+                <tr><td class="key">spaces</td><td class="value">{{ stall.n_spaces }}</td></tr>
+                <tr><td class="key">tables</td><td class="value">{{ stall.n_tables }}</td></tr>{% for field in form %}
+                <tr><td class="key">{{ field.label_tag }}</td><td class="value">{{ field.errors }}{{ field }}</td></tr>{% endfor %}
               </table>
               <input type="submit" value="add" />
             </form>

@@ -19,8 +19,7 @@ from cams.models import (Record, Contactable, Person, Member, Organisation,
                          Application, EventComment, Invoice, get_user_email)
 from mrwf.extra.models import (FairEventType, FairEvent, StallEvent,
                                FairEventApplication, StallInvoice)
-from mrwf.extra.forms import (UserNameForm, PersonForm, ContactForm,
-                              StallInvoiceForm)
+from mrwf.extra.forms import UserNameForm, PersonForm, ContactForm
 
 from django import VERSION
 
@@ -631,6 +630,9 @@ def invoices (request):
         fil = request.GET['filter']
         if not fil in filters:
             fil = filters[0]
+        request.session['invoice_filter'] = fil
+    elif 'invoice_filter' in request.session:
+        fil = request.session['invoice_filter']
     else:
         fil = filters[0]
 
@@ -643,19 +645,39 @@ def invoices (request):
 
     tpl_vars = {'page_title': 'Invoices', 'url': 'cams/invoice/',
                 'filters': filters, 'filter': fil}
-    add_common_tpl_vars (request, tpl_vars, 'invoice', invs)
+    add_common_tpl_vars (request, tpl_vars, 'invoice', invs, 10)
     return render_to_response ('cams/invoices.html', tpl_vars)
 
 @login_required
-def add_invoice (request):
+def select_invoice (request):
+    stalls = StallEvent.objects.filter (stallinvoice__isnull = True)
+    tpl_vars = {'page_title': 'Invoice'}
+    add_common_tpl_vars (request, tpl_vars, 'invoice', stalls)
+    return render_to_response ('cams/select_stall_invoice.html', tpl_vars)
+
+@login_required
+def add_invoice (request, stall_id):
+    class StallInvoiceForm (forms.ModelForm):
+        class Meta:
+            model = StallInvoice
+            exclude = ['stall', 'sent', 'paid', 'banked']
+
+    stall = get_object_or_404 (StallEvent, pk = int (stall_id))
+
     if request.method == 'POST':
         form = StallInvoiceForm (request.POST)
+        form.instance.stall = stall
         if form.is_valid ():
             form.save()
             return HttpResponseRedirect (reverse (invoices))
     else:
-        form = StallInvoiceForm ()
-    tpl_vars = {'page_title': 'New invoice', 'form': form}
+        TABLE_PRICE = 20
+        SPACE_PRICE = 5
+        amount = stall.n_tables * TABLE_PRICE
+        amount += stall.n_spaces * SPACE_PRICE
+        form = StallInvoiceForm (initial = {'amount': amount})
+
+    tpl_vars = {'page_title': 'New invoice', 'form': form, 'stall': stall}
     add_common_tpl_vars (request, tpl_vars, 'invoice')
     return render_to_response ("cams/add_invoice.html", tpl_vars,
                                context_instance = RequestContext (request))
