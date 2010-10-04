@@ -3,7 +3,7 @@
 {% block browse_title %}Programme: events on the day of the fair{% endblock %}
 
 {% block browse_header %}{% if listings %}
-          <p style="font-size: 0.85em">
+          <p class="sub-menu">
             <a href="?listing=">{% if not current %}<span class="current_nav">All</span>{% else %}All{% endif %}</a>{% for it in listings %}
             &nbsp;|&nbsp;<a href="?listing={{ it.id }}">{% if it.id == current %}<span class="current_nav">{{ it.name }}</span>{% else %}{{ it.name }}{% endif %}</a>{% endfor %}{% endif %}
           </p>{% endblock %}

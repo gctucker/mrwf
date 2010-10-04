@@ -625,8 +625,23 @@ def appli_detail (request, type_id, appli_id):
 
 @login_required
 def invoices (request):
+    filters = ('All', 'Pending', 'Banked')
+    if 'filter' in request.GET:
+        fil = request.GET['filter']
+        if not fil in filters:
+            fil = filters[0]
+    else:
+        fil = filters[0]
+
     invs = StallInvoice.objects.all ()
-    tpl_vars = {'page_title': 'Invoices', 'url': 'cams/invoice/'}
+
+    if fil == 'Pending':
+        invs = invs.exclude (status = Invoice.BANKED)
+    elif fil == 'Banked':
+        invs = invs.filter (status = Invoice.BANKED)
+
+    tpl_vars = {'page_title': 'Invoices', 'url': 'cams/invoice/',
+                'filters': filters, 'filter': fil}
     add_common_tpl_vars (request, tpl_vars, 'invoice', invs)
     return render_to_response ('cams/invoices.html', tpl_vars)
 

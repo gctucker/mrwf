@@ -74,6 +74,11 @@ input[type=text], input[type=password], textarea, select
   border-width: 1px;
 }
 
+.sub-menu
+{
+  font-size: 0.85em;
+}
+
 div.element
 {
   padding: 0 0 8px 0;

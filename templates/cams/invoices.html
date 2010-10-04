@@ -2,6 +2,12 @@
 
 {% block browse_title %}Stall invoices{% endblock %}
 
+{% block browse_header %}
+          <p class="sub-menu">{% for f in filters %}
+            {% if f == filter %}{{ f }}{% else %}<a href="?filter={{ f }}">{{ f }}</a>{% endif %}{% if not forloop.last %}&nbsp;|{% endif %}{% endfor %}
+          </p>
+{% endblock %}
+
 {% block browse_it %}
                 <a href="{{ px }}cams/invoice/{{ it.id }}/">{{ it.stall }}</a>
                 <div class="search-preview">Status: {{ it.status_str }}, Amount: {{ it.amount }}</div>
