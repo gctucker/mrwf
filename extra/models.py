@@ -193,7 +193,7 @@ class Listener (models.Model):
 
 
 class StallInvoice (Invoice):
-    stall = ForeignKey (StallEvent)
+    stall = ForeignKey (StallEvent, unique = True)
 
     def __unicode__ (self):
         return self.stall.__unicode__ ()

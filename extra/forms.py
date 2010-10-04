@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from cams.models import Person, Contact, Contact
-from mrwf.extra.models import StallEvent
+from mrwf.extra.models import StallEvent, StallInvoice
 
 def check_ibounds (data, name, imin, imax):
     try:
@@ -58,3 +58,9 @@ class StallForm (forms.ModelForm):
 
     def clean_n_tables (self):
         return check_ibounds (self.cleaned_data, 'n_tables', 0, 3)
+
+
+class StallInvoiceForm (forms.ModelForm):
+    class Meta:
+        model = StallInvoice
+        exclude = ['sent', 'paid', 'banked']

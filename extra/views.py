@@ -19,7 +19,8 @@ from cams.models import (Record, Contactable, Person, Member, Organisation,
                          Application, EventComment, Invoice, get_user_email)
 from mrwf.extra.models import (FairEventType, FairEvent, StallEvent,
                                FairEventApplication, StallInvoice)
-from mrwf.extra.forms import UserNameForm, PersonForm, ContactForm
+from mrwf.extra.forms import (UserNameForm, PersonForm, ContactForm,
+                              StallInvoiceForm)
 
 from django import VERSION
 
@@ -648,8 +649,13 @@ def invoices (request):
 @login_required
 def add_invoice (request):
     if request.method == 'POST':
-        print ("POST!")
-    tpl_vars = {'page_title': 'New invoice'}
+        form = StallInvoiceForm (request.POST)
+        if form.is_valid ():
+            form.save()
+            return HttpResponseRedirect (reverse (invoices))
+    else:
+        form = StallInvoiceForm ()
+    tpl_vars = {'page_title': 'New invoice', 'form': form}
     add_common_tpl_vars (request, tpl_vars, 'invoice')
     return render_to_response ("cams/add_invoice.html", tpl_vars,
                                context_instance = RequestContext (request))
@@ -659,7 +665,6 @@ def stall_invoice (request, inv_id):
     inv = get_object_or_404 (StallInvoice, pk = int (inv_id))
     if 'set' in request.GET:
         set = request.GET['set']
-        print ("set as %s" % set)
         if set == 'sent':
             inv.status = Invoice.SENT
             inv.save ()

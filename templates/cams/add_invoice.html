@@ -5,7 +5,9 @@
           <div class="element">
             <form action="{{ px }}cams/invoice/add/" method="POST">
               {% csrf_token %}
-              <p style="font-style: italic">insert form here ...</p>
+              <table class="apply">{% for field in form %}
+                <tr><td>{{ field.label }}</td><td>{{ field.errors }}{{ field }}</td></tr>{% endfor %}
+              </table>
               <input type="submit" value="add" />
             </form>
           </div>
