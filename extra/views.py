@@ -702,6 +702,62 @@ def stall_invoice (request, inv_id):
     return render_to_response ('cams/stall_invoice.html', tpl_vars)
 
 @login_required
+def export_invoices (request):
+    def date_str (datetime):
+        if datetime:
+            return str (datetime)
+        else:
+            return ''
+
+    invs = StallInvoice.objects.all ()
+    resp = CSVFileResponse (('stall_name', 'owner', 'owner_address',
+                             'owner_telephone', 'owner_email', 'organisation',
+                             'org_address', 'org_telephone', 'org_email',
+                             'tables', 'spaces', 'amount', 'status',
+                             'created', 'sent', 'paid', 'banked'))
+
+    for i in invs:
+        owner_c = Contact.objects.filter (obj = i.stall.owner)
+        if owner_c:
+            c = owner_c[0]
+            owner_address = c.get_address ()
+            owner_telephone = c.telephone
+            owner_email = c.email
+        else:
+            owner_address = ''
+            owner_telephone = ''
+            owner_email = ''
+
+        if i.stall.org:
+            org_name = i.stall.org.__unicode__ ()
+            org_c = Contact.objects.filter (obj = i.stall.org)
+            if org_c:
+                org_c = org_c[0]
+        else:
+            org_name = ''
+            org_c = None
+
+        if org_c:
+            org_address = org_c.get_address ()
+            org_telephone = org_c.telephone
+            org_email = org_c.email
+        else:
+            org_address = ''
+            org_telephone = ''
+            org_email = ''
+
+        resp.writerow ((i.stall.name, i.stall.owner.__unicode__ (),
+                        owner_address, owner_telephone, owner_email, org_name,
+                        org_address, org_telephone, org_email,
+                        str (i.stall.n_tables), str (i.stall.n_spaces),
+                        str (i.amount), i.status_str (), date_str (i.created),
+                        date_str (i.sent), date_str(i.paid),
+                        date_str (i.banked)))
+
+    resp.set_file_name ("Stall_invoices")
+    return resp.response
+
+@login_required
 def fairs (request):
     fair = get_object_or_404 (Fair, current = True)
     tpl_vars = {'page_title': 'Fairs', 'fair': fair}

@@ -21,5 +21,6 @@ urlpatterns = patterns ('mrwf.extra.views',
  (r'^invoice/select/$', 'select_invoice'),
  (r'^invoice/add/(?P<stall_id>\d+)/$', 'add_invoice'),
  (r'^invoice/(?P<inv_id>\d+)/$', 'stall_invoice'),
+ (r'^invoice/export/$', 'export_invoices'),
 # (r'^fair/$', 'fairs'),
 )
