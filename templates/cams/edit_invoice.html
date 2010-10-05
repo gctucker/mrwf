@@ -1,0 +1,18 @@
+{% extends "nav_layout.html" %}
+
+{% block contents %}
+          <h2>Edit stall invoice</h2>
+          <div class="element">
+            <form action="{{ px }}cams/invoice/edit/{{ inv.id }}/" method="POST">
+              {% csrf_token %}
+              <table class="details">
+                <tr><td class="key">Stall name</td><td class="value">{{ inv.stall.name }}</td></tr>
+                <tr><td class="key">Spaces</td><td class="value">{{ inv.stall.n_spaces }}</td></tr>
+                <tr class="separator"><td class="key">Tables</td><td class="value">{{ inv.stall.n_tables }}</td></tr>{% for field in form %}
+                <tr><td class="key">{{ field.label_tag }}</td><td class="value">{{ field.errors }}{{ field }}</td></tr>{% endfor %}
+              </table>
+              <p><input type="submit" value="save" /></p>
+            </form>
+          </div>
+          <div class="cmd"><a href="{{ px }}cams/invoice/{{ inv.id }}/">&lt;&lt;cancel</a></div>
+{% endblock %}

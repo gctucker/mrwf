@@ -684,19 +684,39 @@ def add_invoice (request, stall_id):
                                context_instance = RequestContext (request))
 
 @login_required
+def edit_invoice (request, inv_id):
+    class StallInvoiceEditForm (forms.ModelForm):
+        class Meta:
+            model = StallInvoice
+            fields = ['status', 'amount']
+    inv = get_object_or_404 (StallInvoice, pk = int (inv_id))
+    if request.method == 'POST':
+        form = StallInvoiceEditForm (request.POST, instance = inv)
+        if form.is_valid ():
+            form.save ()
+            return HttpResponseRedirect (
+                reverse (stall_invoice, args = [inv_id]))
+    else:
+        form = StallInvoiceEditForm (instance = inv)
+
+    tpl_vars = {'page_title': 'Edit invoice', 'inv': inv, 'form': form}
+    add_common_tpl_vars (request, tpl_vars, 'invoice')
+    return render_to_response ('cams/edit_invoice.html', tpl_vars,
+                               context_instance = RequestContext (request))
+
+@login_required
 def stall_invoice (request, inv_id):
+    status_keywords = {'sent': Invoice.SENT, 'paid': Invoice.PAID,
+                       'banked': Invoice.BANKED}
+
     inv = get_object_or_404 (StallInvoice, pk = int (inv_id))
     if 'set' in request.GET:
         set = request.GET['set']
-        if set == 'sent':
-            inv.status = Invoice.SENT
-            inv.save ()
-        elif set == 'paid':
-            inv.status = Invoice.PAID
-            inv.save ()
-        elif set == 'banked':
-            inv.status = Invoice.BANKED
-            inv.save ()
+        if set in status_keywords:
+            status = status_keywords[set]
+            if inv.status < status:
+                inv.status = status
+                inv.save ()
     tpl_vars = {'page_title': 'Stall invoice details', 'inv': inv}
     add_common_tpl_vars (request, tpl_vars, 'invoice')
     return render_to_response ('cams/stall_invoice.html', tpl_vars)
