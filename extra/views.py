@@ -324,10 +324,8 @@ def get_listing_id (request):
         listing = request.session['listing']
 
     if not listing:
-        print ("all")
         listing_id = -1
     elif listing == "_default":
-        print ("default")
         listing_id = 0
     else:
         try:
