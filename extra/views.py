@@ -12,6 +12,7 @@ from django.core.mail import send_mail
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.shortcuts import render_to_response, get_object_or_404
 from django.conf import settings
+from django import VERSION
 from cams.libcams import (CAMS_VERSION, Page, get_user_pages, str2list,
                           CSVFileResponse)
 from cams.models import (Record, Contactable, Person, Member, Organisation,
@@ -20,8 +21,6 @@ from cams.models import (Record, Contactable, Person, Member, Organisation,
 from mrwf.extra.models import (FairEventType, FairEvent, StallEvent,
                                FairEventApplication, StallInvoice)
 from mrwf.extra.forms import UserNameForm, PersonForm, ContactForm
-
-from django import VERSION
 
 PAGE_LIST = [
     Page ('home',    '',                   'welcome',      Page.OPEN),
@@ -322,6 +321,8 @@ def get_listing_id (request):
         request.session['listing'] = listing
     elif 'listing' in request.session:
         listing = request.session['listing']
+    else:
+        listing = None
 
     if not listing:
         listing_id = -1
