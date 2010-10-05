@@ -4,8 +4,9 @@
 
 {% block browse_header %}{% if listings %}
           <p class="sub-menu">
-            <a href="?listing=">{% if not current %}<span class="current_nav">All</span>{% else %}All{% endif %}</a>{% for it in listings %}
-            &nbsp;|&nbsp;<a href="?listing={{ it.id }}">{% if it.id == current %}<span class="current_nav">{{ it.name }}</span>{% else %}{{ it.name }}{% endif %}</a>{% endfor %}{% endif %}
+            <a href="?listing=">{% if current < 0 %}<span class="current_nav">All</span>{% else %}All{% endif %}</a>
+            |&nbsp;<a href="?listing=_default">{% if current == 0 %}<span class="current_nav">Default</span>{% else %}Default{% endif %}</a>{% for it in listings %}
+            |&nbsp;<a href="?listing={{ it.id }}">{% if it.id == current %}<span class="current_nav">{{ it.name }}</span>{% else %}{{ it.name }}{% endif %}</a>{% endfor %}{% endif %}
           </p>{% endblock %}
 
 {% block browse_it %}

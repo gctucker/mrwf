@@ -322,15 +322,20 @@ def get_listing_id (request):
         request.session['listing'] = listing
     elif 'listing' in request.session:
         listing = request.session['listing']
+
+    if not listing:
+        print ("all")
+        listing_id = -1
+    elif listing == "_default":
+        print ("default")
+        listing_id = 0
     else:
-        listing = 0
+        try:
+            listing_id = int (listing)
+        except ValueError:
+            listing_id = -1
 
-    try:
-        listing = int (listing)
-    except ValueError:
-        listing = 0
-
-    return listing
+    return listing_id
 
 # -----------------------------------------------------------------------------
 
@@ -525,10 +530,15 @@ def programme (request):
         prog = prog.filter (status = Record.ACTIVE)
 
     listing = get_listing_id (request)
-    if listing:
-        prog = prog.filter (etype = listing)
+    if listing > 0:
+        if FairEventType.objects.filter (pk = listing).exists ():
+            prog = prog.filter (etype = listing)
+        else:
+            listing = -1
+    elif listing == 0:
+        prog = prog.filter (etype__isnull = True)
 
-    # ToDo: order by 'order' and 'sub-order'
+    # ToDo: order events by 'order' and 'sub-order'
 
     listings = FairEventType.objects.all ()
     listings = listings.values ('id', 'name')
@@ -857,10 +867,14 @@ def export_programme (request):
     events = events.filter (fair__current = True)
 
     listing = get_listing_id (request)
-    if listing:
+    if listing > 0:
         events = events.filter (etype = listing)
         listing_obj = get_object_or_404 (FairEventType, pk = listing)
-        csv.set_file_name (listing_obj.name.replace (' ', '_'))
+        csv.set_file_name ("Programme_%s" %
+                           listing_obj.name.replace (' ', '_'))
+    elif listing == 0:
+        events = events.filter (etype__isnull = True)
+        csv.set_file_name ("Programme_Default")
     else:
         csv.set_file_name ("Programme")
 
