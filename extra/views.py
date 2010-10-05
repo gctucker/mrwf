@@ -650,6 +650,7 @@ def invoices (request):
 @login_required
 def select_invoice (request):
     stalls = StallEvent.objects.filter (stallinvoice__isnull = True)
+    stalls = stalls.filter (status = Record.ACTIVE)
     tpl_vars = {'page_title': 'Invoice', 'url': 'cams/invoice/select/'}
     add_common_tpl_vars (request, tpl_vars, 'invoice', stalls)
     return render_to_response ('cams/select_stall_invoice.html', tpl_vars)
