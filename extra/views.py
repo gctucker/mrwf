@@ -443,7 +443,6 @@ def participants (request):
     groups = Group.objects.all ()
     fair = get_object_or_404 (Fair, current = True)
     groups = groups.filter (Q (fair = fair) | Q (fair__isnull = True))
-    groups = groups.order_by ('name')
     tpl_vars = {'page_title': 'Participants', 'url': 'cams/participant/'}
     add_common_tpl_vars (request, tpl_vars, 'parts', groups)
     return render_to_response ('cams/participants.html', tpl_vars)
@@ -529,7 +528,7 @@ def programme (request):
     if listing:
         prog = prog.filter (etype = listing)
 
-    prog = prog.order_by ('name') # ToDo: order by 'order' and 'sub-order'
+    # ToDo: order by 'order' and 'sub-order'
 
     listings = FairEventType.objects.all ()
     listings = listings.values ('id', 'name')
@@ -717,6 +716,7 @@ def stall_invoice (request, inv_id):
             if inv.status < status:
                 inv.status = status
                 inv.save ()
+
     tpl_vars = {'page_title': 'Stall invoice details', 'inv': inv}
     add_common_tpl_vars (request, tpl_vars, 'invoice')
     return render_to_response ('cams/stall_invoice.html', tpl_vars)
@@ -854,7 +854,6 @@ def export_programme (request):
 
     events = FairEvent.objects.filter (status = Record.ACTIVE)
     events = events.filter (fair__current = True)
-    events = events.order_by ('name')
 
     listing = get_listing_id (request)
     if listing:
