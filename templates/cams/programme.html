@@ -7,7 +7,13 @@
             <a href="?listing=">{% if current < 0 %}<span class="current_nav">All</span>{% else %}All{% endif %}</a>
             |&nbsp;<a href="?listing=_default">{% if current == 0 %}<span class="current_nav">Default</span>{% else %}Default{% endif %}</a>{% for it in listings %}
             |&nbsp;<a href="?listing={{ it.id }}">{% if it.id == current %}<span class="current_nav">{{ it.name }}</span>{% else %}{{ it.name }}{% endif %}</a>{% endfor %}{% endif %}
-          </p>{% endblock %}
+          </p>
+          <div class="element">
+            <form action="" method="get">
+              {{ search_form.match }}
+              <input type="submit" value="search" />
+            </form>
+          </div>{% endblock %}
 
 {% block browse_it %}
                 <a href="{{ px }}{{ url }}{{ it.id }}/">{{ it.name }}</a>{% if it.status_str != "active" %}&nbsp;

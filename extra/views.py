@@ -522,11 +522,29 @@ def prep_event_cmt (request, event_id):
 
 @login_required
 def programme (request):
+    class SearchForm (forms.Form):
+        match = forms.CharField (required = True, max_length = 64)
+
     fair = get_object_or_404 (Fair, current = True)
     prog = FairEvent.objects.filter (fair = fair)
 
     if not request.user.is_staff:
         prog = prog.filter (status = Record.ACTIVE)
+
+    search_form = SearchForm (request.GET)
+    if search_form.is_valid ():
+        match = search_form.cleaned_data['match']
+        #request.session['match'] = match
+    elif 'match' in request.session:
+        #match = request.session['match']
+        #search_form = SearchForm (initial = {'match': match})
+        match = ''
+    else:
+        match = ''
+
+    for w in str2list (match):
+        prog = prog.filter (Q (name__icontains = w)
+                            | Q (org__name__icontains = w))
 
     listing = get_listing_id (request)
     if listing > 0:
@@ -543,7 +561,8 @@ def programme (request):
     listings = listings.values ('id', 'name')
 
     tpl_vars = {'page_title': 'Programme', 'url': 'cams/prog/',
-                'listings': listings, 'current': listing}
+                'listings': listings, 'current': listing,
+                'search_form': search_form}
     add_common_tpl_vars (request, tpl_vars, 'prog', prog)
     return render_to_response ('cams/programme.html', tpl_vars)
 
