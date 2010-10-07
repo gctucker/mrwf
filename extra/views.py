@@ -876,7 +876,7 @@ def export_programme (request):
             return ''
 
     csv = CSVFileResponse (('name', 'description',
-                            'time', 'until', 'age_min', 'age_max',
+                            'time', 'until', 'age_min', 'age_max', 'location',
                             'line_1', 'line_2', 'line_3', 'postcode', 'town',
                             'telephone', 'mobile', 'fax', 'email',
                             'website', 'order', 'sub-order'))
@@ -900,7 +900,7 @@ def export_programme (request):
         c = e.get_composite_contact ()
         csv.writerow ((e.name, e.description,
                        istr (e.time), istr (e.end_time),
-                       istr (e.age_min), istr (e.age_max),
+                       istr (e.age_min), istr (e.age_max), e.location,
                        c['line_1'], c['line_2'], c['line_3'],
                        c['postcode'], c['town'], c['telephone'], c['mobile'],
                        c['fax'], c['email'], c['website'],
