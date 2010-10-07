@@ -9,8 +9,8 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response, get_object_or_404
 from mrwf.extra.views.main import add_common_tpl_vars
 from cams.libcams import str2list, CSVFileResponse
-from cams.models import (Record, Player, Fair, Contact, Group, Actor, Role,
-                         Event, EventComment, Application, Invoice)
+from cams.models import (Record, Player, Fair, Contact, Member, Group, Actor,
+                         Role, Event, EventComment, Application, Invoice)
 from mrwf.extra.models import (FairEventType, FairEvent, StallEvent,
                                FairEventApplication, StallInvoice)
 
