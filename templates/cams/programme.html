@@ -20,6 +20,9 @@
                 <span class="notice" style="font-size: 0.85em">
                   {% if it.status_str == "new" %}not confirmed{% else %}{% if it.status_str == "disabled" %}cancelled{% endif %}{% endif %}
                 </span>{% endif %}
+                <div class="search-preview">
+                  {% if it.org %}{{ it.org.name }}{% else %}{{ it.owner }}{% endif %}
+                </div>
 {% endblock %}
 
 {% block browse_footer %}

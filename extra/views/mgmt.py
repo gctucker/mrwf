@@ -197,7 +197,7 @@ def programme (request):
     tpl_vars = {'page_title': 'Programme', 'url': 'cams/prog/',
                 'listings': listings, 'current': listing,
                 'search_form': search_form}
-    add_common_tpl_vars (request, tpl_vars, 'prog', prog)
+    add_common_tpl_vars (request, tpl_vars, 'prog', prog, 8)
     return render_to_response ('cams/programme.html', tpl_vars)
 
 @login_required
