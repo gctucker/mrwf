@@ -1,7 +1,10 @@
 import datetime
+from django.http import HttpResponse, Http404
 from django.contrib.auth.decorators import login_required
+from django.template import Context
+from django.template.loader import get_template
 from django.shortcuts import get_object_or_404
-from cams.libcams import CSVFileResponse
+from cams.libcams import CSVFileResponse, get_time_string
 from cams.models import Record, Contact, Member, Group
 from mrwf.extra.models import FairEventType, FairEvent, StallInvoice
 from mrwf.extra.views.mgmt import get_listing_id
@@ -55,8 +58,9 @@ def group (request, group_id):
                        c.telephone, c.mobile, c.fax, c.email, c.website,
                        str (c.addr_order), str (c.addr_suborder)))
 
-    csv.set_file_name ('%s-%d' % (group.name.replace (' ', '_'),
-                                  group.fair.date.year))
+    csv.set_file_name ('%s-%d_%s.csv' % (group.name.replace (' ', '_'),
+                                         group.fair.date.year,
+                                         get_time_string ()))
 
     return csv.response
 
@@ -68,12 +72,6 @@ def programme (request):
         else:
             return ''
 
-    csv = CSVFileResponse (('name', 'description',
-                            'time', 'until', 'age_min', 'age_max', 'location',
-                            'line_1', 'line_2', 'line_3', 'postcode', 'town',
-                            'telephone', 'mobile', 'fax', 'email',
-                            'website', 'order', 'sub-order'))
-
     events = FairEvent.objects.filter (status = Record.ACTIVE)
     events = events.filter (fair__current = True)
 
@@ -81,25 +79,54 @@ def programme (request):
     if listing > 0:
         events = events.filter (etype = listing)
         listing_obj = get_object_or_404 (FairEventType, pk = listing)
-        csv.set_file_name ("Programme_%s" %
-                           listing_obj.name.replace (' ', '_'))
+        file_name = "Programme_%s" % listing_obj.name.replace (' ', '_')
     elif listing == 0:
         events = events.filter (etype__isnull = True)
-        csv.set_file_name ("Programme_Default")
+        file_name = "Programme_Default"
     else:
-        csv.set_file_name ("Programme")
+        file_name = "Programme"
 
-    for e in events:
-        c = e.get_composite_contact ()
-        csv.writerow ((e.name, e.description,
-                       istr (e.time), istr (e.end_time),
-                       istr (e.age_min), istr (e.age_max), e.location,
-                       c['line_1'], c['line_2'], c['line_3'],
-                       c['postcode'], c['town'], c['telephone'], c['mobile'],
-                       c['fax'], c['email'], c['website'],
-                       str (c['addr_order']), str (c['addr_suborder'])))
+    if 'fmt' in request.GET:
+        fmt = request.GET['fmt']
+    else:
+        fmt='csv'
 
-    return csv.response
+    if fmt == 'csv':
+        csv = CSVFileResponse (('name', 'description', 'time', 'until',
+                                'age_min', 'age_max', 'location',
+                                'line_1', 'line_2', 'line_3', 'postcode',
+                                'town', 'telephone', 'mobile', 'fax', 'email',
+                                'website', 'order', 'sub-order'))
+
+        csv.set_file_name ("%s_%s.csv" % (file_name, get_time_string ()))
+
+        for e in events:
+            c = e.get_composite_contact ()
+            csv.writerow ((e.name, e.description,
+                           istr (e.time), istr (e.end_time),
+                           istr (e.age_min), istr (e.age_max), e.location,
+                           c['line_1'], c['line_2'], c['line_3'],
+                           c['postcode'], c['town'], c['telephone'],
+                           c['mobile'], c['fax'], c['email'], c['website'],
+                           str (c['addr_order']), str (c['addr_suborder'])))
+
+        return csv.response
+    elif fmt == 'plaintext':
+        resp = HttpResponse (mimetype = 'text/plain')
+        resp['Content-Disposition'] = \
+            'attachement; filename=\"%s_%s.txt\"' % \
+            (file_name, get_time_string ())
+        t = get_template ("cams/prog_event.txt")
+        ctx = Context ({'e': None, 'c': None})
+
+        for e in events:
+            ctx['e'] = e
+            ctx['c'] = e.get_composite_contact ()
+            resp.write (t.render (ctx))
+
+        return resp
+    else:
+        raise Http404
 
 @login_required
 def invoices (request):
@@ -154,5 +181,5 @@ def invoices (request):
                         date_str (i.sent), date_str(i.paid),
                         date_str (i.banked)))
 
-    resp.set_file_name ("Stall_invoices")
+    resp.set_file_name ("Stall_invoices_%s.csv" % get_time_string ())
     return resp.response

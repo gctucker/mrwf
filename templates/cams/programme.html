@@ -26,4 +26,7 @@
 {% endblock %}
 
 {% block browse_footer %}
-          <div class="cmd"><a href="{{ px }}export/programme/{% if current >= 0 %}?listing={{ current }}{% endif %}">&lt;export&gt;</a></div>{% endblock %}
+          <div class="cmd">
+            <a href="{{ px }}export/programme/{% if current >= 0 %}?listing={{ current }}{% endif %}">&lt;export&gt;</a>
+            <a href="{{ px }}export/programme/?fmt=plaintext{% if current >= 0 %}&listing={{ current }}{% endif %}">&lt;plain text&gt;</a>
+          </div>{% endblock %}

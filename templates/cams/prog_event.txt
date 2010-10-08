@@ -1,0 +1,22 @@
+{% autoescape off %}{{ e.name }}
+
+{% if e.description %}{{ e.description }}
+{% endif %}{% if e.org %}
+{{ e.org }}
+{% endif %}{% if e.time %}
+time: {{ e.time }}{% endif %}{% if e.end_time %}
+until: {{ e.end_time }}{% endif %}
+{% if c.line_1 %}
+{{ c.line_1 }}{% if c.line_2 %},
+{{ c.line_2 }}{% if c.line_3 %},
+{{ c.line_3 }}{% endif %}{% endif %}{% endif %}{% if c.postcode %}
+{{ c.postcode }}{% endif %}{% if c.town %}
+{{ c.town }}
+{% endif %}
+{% if c.telephone %}telephone: {{ c.telephone }}
+{% endif %}{% if c.mobile %}mobile: {{ c.mobile }}
+{% endif %}{% if c.email %}{{ c.email }}
+{% endif %}{% if c.website %}{{ c.website }}
+{% endif %}{% endautoescape %}
+----
+
