@@ -149,20 +149,20 @@ def search (request):
             o_list = list (search_orgs (keywords))[:30]
 
             for p in p_list:
-                c = Contact.objects.filter (obj = p)
+                c = p.contact_set.all ()
                 if c.count () == 0:
                     m = Member.objects.filter (person = p)
                     if m.count () > 0:
-                        c = Contact.objects.filter (obj = m[0])
+                        c = m[0].contact_set.all ()
 
                 append_person (people, p, c)
 
             for o in o_list:
-                c = Contact.objects.filter (obj = o)
+                c = o.contact_set.all ()
                 if c.count () == 0:
                     m = Member.objects.filter (organisation = o)
                     if m.count () > 0:
-                        c = Contact.objects.filter (obj = m[0])
+                        c = m[0].contact_set.all ()
 
                 append_org (orgs, o, c)
 
