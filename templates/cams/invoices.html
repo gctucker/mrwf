@@ -10,7 +10,7 @@
 
 {% block browse_it %}
                 <a href="{{ px }}cams/invoice/{{ it.id }}/">{{ it.stall }}</a>
-                <div class="search-preview">Status: {{ it.status_str }}, Amount: {{ it.amount }}</div>
+                <div class="search-preview">{{ it.status_str }}, £{{ it.amount }}{% if it.reference %}, {{ it.reference }}{% endif %}</div>
 {% endblock %}
 
 {% block browse_footer %}

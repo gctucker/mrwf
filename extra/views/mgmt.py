@@ -350,7 +350,8 @@ def edit_invoice (request, inv_id):
     class StallInvoiceEditForm (forms.ModelForm):
         class Meta:
             model = StallInvoice
-            fields = ['status', 'amount']
+            fields = ['amount', 'status', 'reference']
+
     inv = get_object_or_404 (StallInvoice, pk = int (inv_id))
     if request.method == 'POST':
         form = StallInvoiceEditForm (request.POST, instance = inv)

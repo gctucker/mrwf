@@ -9,7 +9,8 @@
             <tr><td class="key">spaces</td><td class="value">{{ inv.stall.n_spaces }}</td></tr>
             <tr class="separator"><td class="key">tables</td><td class="value">{{ inv.stall.n_tables }}</td></tr>
             <tr><td class="key">amount</td><td class="value">{{ inv.amount }}</td></tr>
-            <tr><td class="key">status</td><td class="value">{{ inv.status_str }}</td></tr>
+            <tr><td class="key">status</td><td class="value">{{ inv.status_str }}</td></tr>{% if inv.reference %}
+            <tr><td class="key">reference</td><td class="value">{{ inv.reference }}</td></tr>{% endif %}
             <tr><td class="key">created</td><td class="value">{{ inv.created }}</td></tr>
             <tr><td class="key">sent</td><td class="value">{% if inv.sent %}{{ inv.sent }}{% else %}<a href="?set=sent">set as sent</a>{% endif %}</td></tr>
             <tr><td class="key">paid</td><td class="value">{% if inv.paid %}{{ inv.paid }}{% else %}<a href="?set=paid">set as paid</a>{% endif %}</td></tr>

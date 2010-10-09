@@ -141,7 +141,7 @@ def invoices (request):
                              'owner_telephone', 'owner_email', 'organisation',
                              'org_address', 'org_telephone', 'org_email',
                              'tables', 'spaces', 'amount', 'status',
-                             'created', 'sent', 'paid', 'banked'))
+                             'reference', 'created', 'sent', 'paid', 'banked'))
 
     for i in invs:
         owner_c = Contact.objects.filter (obj = i.stall.owner)
@@ -177,9 +177,9 @@ def invoices (request):
                         owner_address, owner_telephone, owner_email, org_name,
                         org_address, org_telephone, org_email,
                         str (i.stall.n_tables), str (i.stall.n_spaces),
-                        str (i.amount), i.status_str (), date_str (i.created),
-                        date_str (i.sent), date_str(i.paid),
-                        date_str (i.banked)))
+                        str (i.amount), i.status_str (), i.reference,
+                        date_str (i.created), date_str (i.sent),
+                        date_str(i.paid), date_str (i.banked)))
 
     resp.set_file_name ("Stall_invoices_%s.csv" % get_time_string ())
     return resp.response
