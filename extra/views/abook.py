@@ -128,18 +128,17 @@ def search (request):
 
             contacts = list (search_contacts (keywords))
             for c in contacts:
-                obj_id = c.obj_id
-                obj = Contactable.objects.get (pk = obj_id)
+                obj = Contactable.objects.get (pk = c.obj_id)
                 # ToDo: transform (cast) a Contactable to its subclass...
                 if obj.type == Contactable.ORGANISATION:
-                    o = Organisation.objects.get (pk = obj_id)
+                    # ToDo: check whether that reads the Contactable data again
+                    o = obj.organisation
                     append_org (orgs, o, (c,))
                 else:
                     if obj.type == Contactable.PERSON:
-                        p = Person.objects.get (pk = obj_id)
+                        p = obj.person
                     elif obj.type == Contactable.MEMBER:
-                        m = Member.objects.get (pk = obj_id)
-                        p = Person.objects.get (pk = m.person)
+                        p = obj.member.person
                     else:
                         p = None
 
