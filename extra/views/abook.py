@@ -126,7 +126,7 @@ def search (request):
             # person/org, so that person/org will be in the results several
             # times (with a different contact preview though)
 
-            contacts = list (search_contacts (keywords))
+            contacts = list (search_contacts (keywords))[:40]
             for c in contacts:
                 obj = Contactable.objects.get (pk = c.obj_id)
                 # ToDo: transform (cast) a Contactable to its subclass...
