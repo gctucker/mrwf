@@ -1,0 +1,123 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="application/xhtml+xml;charset=UTF-8" />
+    <meta http-equiv="Content-Language" content="en-GB" />
+    <title>Mill Road Winter Fair - Invoice for {{ inv.stall.name }}</title>
+    <style>
+body {
+  font-family: verdana, sans-serif;
+  text-align: left;
+  width: 600px;
+  margin: 50px 50px 50px 50px;
+}
+h1 {
+  font-size: 1.4em;
+  padding: 0 0 15px 0;
+}
+table {
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+td {
+  vertical-align: top;
+}
+#layout {
+  width: 100%;
+}
+#letterhead {
+  text-align: center;
+}
+#spacer_1 {
+  height: 20px;
+}
+#spacer_2 {
+  height: 20px;
+}
+#addr_to {
+  text-align: left;
+}
+#addr_from {
+  text-align: right;
+}
+#invoice {
+}
+#bank_account {
+  line-height: 150%;
+}
+.heavy {
+  font-weight: 900;
+}
+.details_key {
+  padding: 5px 5px 25px 40px;
+}
+.details_value {
+  padding: 0 5px 0 70px;
+}
+.account_key {
+  padding: 0 50px 0 0;
+}
+.account_value {
+}
+#footer {
+  padding: 40px 0 0 0;
+  font-size: 0.7em;
+}
+    </style>
+  </head>
+  <body>
+    <div id="letterhead"><img src="/static/mrwf/img/letterhead.jpg" /></div>
+    <table id="layout">
+      <tr id="spacer_1"><td colspan="2"></td></tr>
+      <tr>
+        <td id="addr_to" class="heavy">
+          {{ inv.stall.owner.first_name }} {{ inv.stall.owner.last_name }}<br />{% if org_name %}
+          {{ org_name }}{% endif %}<br />{% if c.line_1 %}
+          {{ c.line_1 }}<br />{% if c.line_2 %}
+          {{ c.line_2 }}<br />{% if c.line_3 %}
+          {{ c.line_3 }}<br />{% endif %}{% endif %}{% endif %}{% if c.town %}
+          {{ c.town }}{% endif %}{% if c.postcode %} {{ c.postcode }}{% endif %}<br />
+        </td>
+        <td id="addr_from" class="heavy">
+          Treasurer, Mill Road Winter Fair<br />
+          The Post Office<br />
+          100A Mill Road<br />
+          Cambridge CB1 2BD<br />
+          <a href="mailto:mrwf-treasurer@mill-road.com">mrwf-treasurer@mill-road.com</a><br />
+        </td>
+      </tr>
+      <tr id="spacer_2"><td colspan="2">&nbsp;</td></tr>
+      <tr><td colspan="2"><h1 style="text-align: center">INVOICE</h1></td></tr>
+      <tr>
+        <td colspan="2">
+          <table id="details">{% for key,value in details %}
+            <tr><td class="details_key heavy">{{ key }}:</td><td class="details_value heavy">{{ value|safe|linebreaksbr }}</td></tr>{% endfor %}
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2">
+          <p>
+            Please make payments within 30 days either by a cheque made out to
+            Mill Road Winter Fair Association and sent to the above address
+            using the enclosed envelope, or by direct transfer to the following
+            bank account;
+          </p>
+          <table id="bank_account">
+            <tr><td class="account_key">Bank:</td><td class="account_value">The Co-operative Bank</td></tr>
+            <tr><td class="account_key">Sort Code:</td><td class="account_value">08 92 99</td></tr>
+            <tr><td class="account_key">Account Number:</td><td class="account_value">65406681.</td></tr>
+          </table>
+          <p>Please use the invoice number as the reference.</p>
+        </td>
+      </tr>
+    </table>
+    <div id="footer">
+      In the event that the Mill Road Winter Fair has to be cancelled for
+      reasons beyond the control of the Committee, every effort will be made to
+      return money paid to the Winter Fair Association, but no guarantees can
+      be given.
+    </div>
+    </div>
+  </body>
+</html>

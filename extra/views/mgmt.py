@@ -1,3 +1,4 @@
+import datetime
 from django import forms
 from django.core.urlresolvers import reverse
 from django.http import (HttpResponseForbidden, HttpResponseRedirect,
@@ -385,6 +386,43 @@ def stall_invoice (request, inv_id):
     add_common_tpl_vars (request, tpl_vars, 'invoice')
     return render_to_response ('cams/stall_invoice.html', tpl_vars)
 
+@login_required
+def invoice_hard_copy (request, inv_id):
+    inv = get_object_or_404 (StallInvoice, pk = int (inv_id))
+
+    if inv.stall.owner.contact_set.count () > 0:
+        c = inv.stall.owner.contact_set.all ()[0]
+        if not c.get_address ():
+            c = None
+    else:
+        c = None
+
+    if not c and inv.stall.org and inv.stall.org.contact_set.count () > 0:
+        org_name = inv.stall.org.name
+        c = inv.stall.org.contact_set.all ()[0]
+    else:
+        org_name = None
+
+    details = [("Date", datetime.date.today ())]
+
+    if inv.reference:
+        details.append (('Invoice number', inv.reference))
+
+    if inv.stall.etype:
+        listing = "%s:\n" % inv.stall.etype
+    else:
+        listing = ''
+
+    details.append (("Details",
+                     "%s%i x Stall space and %i x table hire" %
+                     (listing, inv.stall.n_spaces, inv.stall.n_tables)))
+
+    details.append (("Amount", '&#163;%.2f' % inv.amount))
+
+    tpl_vars = {'inv': inv, 'c': c, 'org_name': org_name,
+                'date': datetime.date.today (), 'details': details}
+
+    return render_to_response ('cams/invoice_hard_copy.html', tpl_vars)
 
 @login_required
 def fairs (request):

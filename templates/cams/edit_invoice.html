@@ -3,7 +3,7 @@
 {% block contents %}
           <h2>Edit stall invoice</h2>
           <div class="element">
-            <form action="{{ px }}cams/invoice/edit/{{ inv.id }}/" method="POST">
+            <form action="" method="POST">
               {% csrf_token %}
               <table class="details">
                 <tr><td class="key">Stall name</td><td class="value">{{ inv.stall.name }}</td></tr>

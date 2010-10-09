@@ -16,6 +16,9 @@
             <tr><td class="key">paid</td><td class="value">{% if inv.paid %}{{ inv.paid }}{% else %}<a href="?set=paid">set as paid</a>{% endif %}</td></tr>
             <tr><td class="key">banked</td><td class="value">{% if inv.banked %}{{ inv.banked }}{% else %}<a href="?set=banked">set as banked</a>{% endif %}</td></tr>
           </table>
-          <div class="cmd"><a href="{{ px }}cams/invoice/edit/{{ inv.id }}/">&lt;edit&gt;</a></div>
+          <div class="cmd">
+            <a href="edit/">&lt;edit&gt;</a>
+            <a href="hard_copy/">&lt;hard copy&gt;</a>
+          </div>
           <div class="back"><a href="{{ px }}cams/invoice/">&lt;&lt;back</a></div>
 {% endblock %}
