@@ -27,11 +27,9 @@ td {
 }
 #letterhead {
   text-align: center;
+  padding: 0 0 35px 0;
 }
-#spacer_1 {
-  height: 20px;
-}
-#spacer_2 {
+#spacer {
   height: 20px;
 }
 #addr_to {
@@ -68,7 +66,6 @@ td {
   <body>
     <div id="letterhead"><img src="/static/mrwf/img/letterhead.jpg" /></div>
     <table id="layout">
-      <tr id="spacer_1"><td colspan="2"></td></tr>
       <tr>
         <td id="addr_to" class="heavy">
           {{ inv.stall.owner.first_name }} {{ inv.stall.owner.last_name }}<br />{% if org_name %}
@@ -86,7 +83,7 @@ td {
           <a href="mailto:mrwf-treasurer@mill-road.com">mrwf-treasurer@mill-road.com</a><br />
         </td>
       </tr>
-      <tr id="spacer_2"><td colspan="2">&nbsp;</td></tr>
+      <tr id="spacer"><td colspan="2">&nbsp;</td></tr>
       <tr><td colspan="2"><h1 style="text-align: center">INVOICE</h1></td></tr>
       <tr>
         <td colspan="2">
