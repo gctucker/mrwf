@@ -53,13 +53,20 @@ def event_obj (fevent):
     root = doc.documentElement
     root.setAttribute ('name', event.name)
 
-    if fevent.etype:
-        root.setAttribute ('type', fevent.etype.name)
+    # listing attribute ...
+#    if fevent.etype:
+#        root.setAttribute ('type', fevent.etype.name)
 
     if fevent.event.location:
         root.setAttribute ('venue', fevent.event.location)
     elif fevent.event.org:
         root.setAttribute ('venue', fevent.event.org.name)
+
+    if event.description:
+        desc_ele = doc.createElement ('description')
+        root.appendChild (desc_ele)
+        desc_txt = doc.createTextNode (event.description)
+        desc_ele.appendChild (desc_txt)
 
     if fevent.image:
         img = doc.createElement ('image')
@@ -67,6 +74,18 @@ def event_obj (fevent):
         img.setAttribute ('url', fevent.image.url)
         img.setAttribute ('width', str (fevent.image.width))
         img.setAttribute ('height', str (fevent.image.height))
+
+    if event.date != event.fair.date:
+        add_date_ele (doc, root, 'date', event.date)
+
+    if event.end_date:
+        add_date_ele (doc, root, 'end_date', event.end_date)
+
+    if event.time:
+        add_time_ele (doc, root, 'time', event.time)
+
+    if event.end_time:
+        add_time_ele (doc, root, 'end_time', event.end_time)
 
     if fevent.age_min or fevent.age_max:
         age = doc.createElement ('age')
@@ -77,38 +96,20 @@ def event_obj (fevent):
         if fevent.age_max:
             age.setAttribute ('max', str (fevent.age_max))
 
-    if event.description:
-        desc_ele = doc.createElement ('description')
-        root.appendChild (desc_ele)
-        desc_txt = doc.createTextNode (event.description)
-        desc_ele.appendChild (desc_txt)
-
-    if event.date != event.fair.date:
-        add_date_ele (doc, root, 'date', event.date)
-
-    if event.time:
-        add_time_ele (doc, root, 'time', event.time)
-
-    if event.end_date:
-        add_date_ele (doc, root, 'end_date', event.end_date)
-
-    if event.end_time:
-        add_time_ele (doc, root, 'end_time', event.end_time)
+    for cat in fevent.categories.all ():
+        ele = doc.createElement ('category')
+        root.appendChild (ele)
+        ele.setAttribute ('name', cat.word)
 
     # WORKAROUND
     c = fevent.get_composite_contact ()
     addr_ele = doc.createElement ('address')
-    has_address = False
 
     for it in ['line_1', 'line_2', 'line_3', 'town', 'postcode', 'website',
-               'addr_order', 'addr_suborder']:
-        value = c[it]
-        if value:
-            addr_ele.setAttribute (it, str (value))
-            has_address = True
+               'email', 'telephone', 'mobile', 'addr_order', 'addr_suborder']:
+        addr_ele.setAttribute (it, str (c[it]))
 
-    if has_address:
-        root.appendChild (addr_ele)
+    root.appendChild (addr_ele)
 
     return HttpResponse (doc.toprettyxml ('  ', '\n', 'utf-8'),
                          mimetype = 'application/xml')
@@ -142,12 +143,9 @@ def search_obj (request, fair):
 
     fe = FairEvent.objects.filter (fair = fair)
 
-    for l in get_list (request, 'location'):
+    for l in get_list (request, 'venue'):
         fe = fe.filter (Q (event__location__icontains = l)
-                        | Q (event__org__contact__line_1__icontains = l)
-                        | Q (event__org__contact__line_2__icontains = l)
-                        | Q (event__org__contact__line_3__icontains = l)
-                        | Q (event__org__contact__postcode__icontains = l))
+                        | Q (event__org__name__icontains = l))
 
     hour = get_pos_int (request, 'hour')
     if (hour >= 0) and (hour < 24):
@@ -164,9 +162,9 @@ def search_obj (request, fair):
                         & (Q (age_max__isnull = True)
                            | Q (age_max__gte = age)))
 
-    if 'type' in request.GET:
-        etype = request.GET['type']
-        fe = fe.filter (categories__word = etype)
+    if 'cat' in request.GET:
+        category = request.GET['cat']
+        fe = fe.filter (categories__word__icontains = category)
 
     for w in get_list (request, 'desc'):
         fe = fe.filter (Q (event__name__icontains = w)
@@ -187,7 +185,7 @@ def all_fairs (request):
     impl = getDOMImplementation ()
     doc = impl.createDocument (None, 'fairs', None)
     root = doc.documentElement
-    root.setAttribute ("api_version", "1.0")
+    root.setAttribute ("api_version", "1.1")
 
     for fair in Fair.objects.all ():
         ele = doc.createElement ('fair')
@@ -227,13 +225,9 @@ def cats (request, fair_year):
     doc = impl.createDocument (None, 'categories', None)
     root = doc.documentElement
 
-    ecats_ele = doc.createElement ('event_types')
-    root.appendChild (ecats_ele)
-    ecats = FairEventCategory.objects.all ()
-
-    for it in ecats:
-        ele = doc.createElement ('type')
-        ecats_ele.appendChild (ele)
+    for it in FairEventCategory.objects.all ():
+        ele = doc.createElement ('category')
+        root.appendChild (ele)
         ele.setAttribute ('name', it.word)
 
     return HttpResponse (doc.toprettyxml ('  ', '\n', 'utf-8'),
