@@ -6,7 +6,8 @@ time: {{ e.time }}{% endif %}{% if e.end_time %}
 until: {{ e.end_time }}
 {% else %}
 {% endif %}{% if e.org %}
-{{ e.org }}{% endif %}{% if c.line_1 %}
+{{ e.org }}{% endif %}{% if e.location %}
+{{ e.location }}{% endif %}{% if c.line_1 %}
 {{ c.line_1 }}{% if c.line_2 %},
 {{ c.line_2 }}{% if c.line_3 %},
 {{ c.line_3 }}{% endif %}{% endif %}{% endif %}{% if c.postcode %}
