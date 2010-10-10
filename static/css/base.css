@@ -35,6 +35,11 @@ table
   border-collapse: collapse;
 }
 
+td
+{
+  vertical-align: top;
+}
+
 a {text-decoration: none}
 a:link    {color: #20A000}
 a:visited {color: #20A000}

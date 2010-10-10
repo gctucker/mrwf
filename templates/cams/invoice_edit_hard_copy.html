@@ -1,0 +1,15 @@
+{% extends "nav_layout.html" %}
+
+{% block contents %}
+          <h2>Stall invoice details</h2>
+          <div class="element">
+            <form action="" method="POST">
+              {% csrf_token %}
+              <table class="apply">{% for it in form %}
+                <tr><td class="key">{{ it.label_tag }}</td><td class="value">{{ it.errors }}{{ it }}</td></tr>{% endfor %}
+              </table>
+              <p><input type="submit" value="generate invoice" /></p>
+            </form>
+          </div>
+          <div class="cmd"><a href="{{ px }}cams/invoice/{{ inv.id }}/">&lt;&lt;back</a></div>
+{% endblock %}

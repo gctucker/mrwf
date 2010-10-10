@@ -68,12 +68,7 @@ td {
     <table id="layout">
       <tr>
         <td id="addr_to" class="heavy">
-          {{ inv.stall.owner.first_name }} {{ inv.stall.owner.last_name }}<br />{% if org_name %}
-          {{ org_name }}{% endif %}<br />{% if c.line_1 %}
-          {{ c.line_1 }}<br />{% if c.line_2 %}
-          {{ c.line_2 }}<br />{% if c.line_3 %}
-          {{ c.line_3 }}<br />{% endif %}{% endif %}{% endif %}{% if c.town %}
-          {{ c.town }}{% endif %}{% if c.postcode %} {{ c.postcode }}{% endif %}<br />
+{{ address|linebreaksbr }}
         </td>
         <td id="addr_from" class="heavy">
           Treasurer, Mill Road Winter Fair<br />

@@ -1,5 +1,6 @@
 import datetime
 from django import forms
+from django.forms.extras.widgets import SelectDateWidget
 from django.core.urlresolvers import reverse
 from django.http import (HttpResponseForbidden, HttpResponseRedirect,
                          Http404, HttpResponseServerError)
@@ -149,7 +150,7 @@ def prep_event (request, event_id):
                 'url': 'cams/prep/%d/' % ev.id}
     add_common_tpl_vars (request, tpl_vars, 'prep', get_comments (ev), 4)
     return render_to_response ('cams/prep_event.html', tpl_vars,
-                               context_instance = RequestContext (request),)
+                               context_instance = RequestContext (request))
 
 @login_required
 def prep_event_cmt (request, event_id):
@@ -388,41 +389,89 @@ def stall_invoice (request, inv_id):
 
 @login_required
 def invoice_hard_copy (request, inv_id):
+    class HardCopyForm (forms.Form):
+        address = forms.CharField (required = True,
+            widget = forms.Textarea (attrs = {'cols': '40', 'rows': '5'}))
+        date = forms.DateField (required = True, widget = SelectDateWidget)
+        details = forms.CharField (required = True,
+            widget = forms.Textarea (attrs = {'cols': '40', 'rows': '2'}))
+
     inv = get_object_or_404 (StallInvoice, pk = int (inv_id))
 
-    if inv.stall.owner.contact_set.count () > 0:
-        c = inv.stall.owner.contact_set.all ()[0]
-        if not c.get_address ():
+    if request.method == 'POST':
+        form = HardCopyForm (request.POST)
+        if form.is_valid ():
+            details = [("Date", form.cleaned_data['date'])]
+
+            if inv.reference:
+                details.append (('Invoice number', inv.reference))
+
+            details.append (("Details", form.cleaned_data['details']))
+            details.append (("Amount", '&#163;%.2f' % inv.amount))
+
+            address = form.cleaned_data['address']
+
+            return render_to_response ('cams/invoice_hard_copy.html',
+                                       {'inv': inv,
+                                        'address': address,
+                                        'details': details})
+        else:
+            tpl_vars = {'page_title': 'Stall invoice', 'form': form,
+                        'inv': inv}
+            add_common_tpl_vars (request, tpl_vars, 'invoice')
+            return render_to_response ('cams/invoice_edit_hard_copy.html',
+                                       tpl_vars,
+                                   context_instance = RequestContext (request))
+    else:
+        if inv.stall.owner.contact_set.count () > 0:
+            c = inv.stall.owner.contact_set.all ()[0]
+            if not c.get_address ():
+                c = None
+        else:
             c = None
-    else:
-        c = None
 
-    if not c and inv.stall.org and inv.stall.org.contact_set.count () > 0:
-        org_name = inv.stall.org.name
-        c = inv.stall.org.contact_set.all ()[0]
-    else:
-        org_name = None
+        if not c and inv.stall.org and inv.stall.org.contact_set.count () > 0:
+            org_name = inv.stall.org.name
+            c = inv.stall.org.contact_set.all ()[0]
+        else:
+            org_name = None
 
-    details = [("Date", datetime.date.today ())]
+        address = "%s %s\n" % (inv.stall.owner.first_name,
+                               inv.stall.owner.last_name)
 
-    if inv.reference:
-        details.append (('Invoice number', inv.reference))
+        if org_name:
+            address += "%s\n" % org_name
 
-    if inv.stall.etype:
-        listing = "%s:\n" % inv.stall.etype
-    else:
-        listing = ''
+        if c:
+            if c.line_1:
+                address += "%s\n" % c.line_1
+                if c.line_2:
+                    address += "%s\n" % c.line_2
+                    if c.line_3:
+                        address += "%s\n" % c.line_3
+            if c.town:
+                if c.postcode:
+                    address += "%s %s\n" % (c.town, c.postcode)
+                else:
+                    address += "%s\n" % c.town
 
-    details.append (("Details",
-                     "%s%i x Stall space and %i x table hire" %
-                     (listing, inv.stall.n_spaces, inv.stall.n_tables)))
+        if inv.stall.etype:
+            listing = "%s:\n" % inv.stall.etype
+        else:
+            listing = ''
 
-    details.append (("Amount", '&#163;%.2f' % inv.amount))
+        inv_details = "%s%i x Stall space and %i x table hire" % \
+                      (listing, inv.stall.n_spaces, inv.stall.n_tables)
 
-    tpl_vars = {'inv': inv, 'c': c, 'org_name': org_name,
-                'date': datetime.date.today (), 'details': details}
+        form = HardCopyForm (initial = {'address': address,
+                                        'date': datetime.date.today (),
+                                        'details': inv_details})
 
-    return render_to_response ('cams/invoice_hard_copy.html', tpl_vars)
+        tpl_vars = {'page_title': 'Stall invoice', 'form': form, 'inv': inv}
+        add_common_tpl_vars (request, tpl_vars, 'invoice')
+        return render_to_response ('cams/invoice_edit_hard_copy.html',
+                                   tpl_vars,
+                                   context_instance = RequestContext (request))
 
 @login_required
 def fairs (request):
