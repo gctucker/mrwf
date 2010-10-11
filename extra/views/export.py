@@ -6,7 +6,8 @@ from django.template.loader import get_template
 from django.shortcuts import get_object_or_404
 from cams.libcams import CSVFileResponse, get_time_string
 from cams.models import Record, Contact, Member, Group
-from mrwf.extra.models import FairEventType, FairEvent, StallInvoice
+from mrwf.extra.models import (FairEventType, FairEvent,
+                               StallEvent, StallInvoice)
 from mrwf.extra.views.mgmt import get_listing_id
 
 @login_required
@@ -93,14 +94,23 @@ def programme (request):
 
     if fmt == 'csv':
         csv = CSVFileResponse (('name', 'description', 'time', 'until',
-                                'age_min', 'age_max', 'location',
+                                'age min', 'age max', 'location',
                                 'line_1', 'line_2', 'line_3', 'postcode',
                                 'town', 'telephone', 'mobile', 'fax', 'email',
-                                'website', 'order', 'sub-order'))
+                                'website', 'order', 'sub-order',
+                                'n. spaces', 'n. tables'))
 
         csv.set_file_name ("%s_%s.csv" % (file_name, get_time_string ()))
 
         for e in events:
+            try:
+                stall = StallEvent.objects.get (pk = e.id)
+                n_spaces = str (stall.n_spaces)
+                n_tables = str (stall.n_tables)
+            except StallEvent.DoesNotExist:
+                n_spaces = ''
+                n_tables = ''
+
             c = e.get_composite_contact ()
             csv.writerow ((e.name, e.description,
                            istr (e.time), istr (e.end_time),
@@ -108,7 +118,8 @@ def programme (request):
                            c['line_1'], c['line_2'], c['line_3'],
                            c['postcode'], c['town'], c['telephone'],
                            c['mobile'], c['fax'], c['email'], c['website'],
-                           str (c['addr_order']), str (c['addr_suborder'])))
+                           str (c['addr_order']), str (c['addr_suborder']),
+                           n_spaces, n_tables))
 
         return csv.response
     elif fmt == 'plaintext':
