@@ -425,7 +425,7 @@ def invoice_hard_copy (request, inv_id):
     else:
         if inv.stall.owner.contact_set.count () > 0:
             c = inv.stall.owner.contact_set.all ()[0]
-            if not c.get_address ():
+            if not c.get_address (): # ToDo: that's not so good
                 c = None
         else:
             c = None

@@ -6,6 +6,7 @@ from django.db.models import (CharField, DateField, BooleanField,
                               ImageField)
 from cams.models import (Record, Contact, Item, Event, Fair,
                          Application, EventApplication, Invoice)
+from cams.libcams import get_obj_address
 from mrwf.settings import IMG_MAX_D, IMG_MAX_d
 from mrwf.extra import imaging
 
@@ -82,34 +83,34 @@ class FairEvent (Event):
 
     # WORKAROUND to make the event contacts more flexible
     def get_composite_contact (self):
-        c = {}
+        class CompositeContact:
+            def __init__ (self, event):
+                attrs = ['line_1', 'line_2', 'line_3', 'postcode', 'town',
+                         'country', 'email', 'website', 'telephone', 'mobile',
+                         'fax', 'addr_order', 'addr_suborder']
 
-        attrs = ['line_1', 'line_2', 'line_3', 'postcode', 'town', 'country',
-                 'email', 'website', 'telephone', 'mobile', 'fax',
-                 'addr_order', 'addr_suborder']
-
-        if self.ignore_org_c:
-            for att in attrs:
-                c[att] = getattr (self, att, '')
-        else:
-            if self.org:
-                org_c = Contact.objects.filter (obj = self.org)
-                if org_c.count () > 0:
-                    org_c = org_c[0]
+                if event.ignore_org_c:
+                    for att in attrs:
+                        setattr (self, att, getattr (event, att, ''))
                 else:
-                    org_c = None
-            else:
-                org_c = None
+                    if event.org and event.org.contact_set.count () > 0:
+                        org_c = event.org.contact_set.all ()[0]
+                    else:
+                        org_c = None
 
-            for att in attrs:
-                value = getattr (self, att, '')
+                    for att in attrs:
+                        value = getattr (event, att, '')
 
-                if org_c and not value:
-                    value = getattr (org_c, att, '')
+                        if org_c and not value:
+                            value = getattr (org_c, att, '')
 
-                c[att] = value
+                        setattr (self, att, value)
 
-        return c
+            def get_address (self):
+                return get_obj_address (self)
+
+
+        return CompositeContact (self)
 
 
 class StallEvent (FairEvent):

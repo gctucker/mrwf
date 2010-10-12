@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.template import Context
 from django.template.loader import get_template
 from django.shortcuts import get_object_or_404
-from cams.libcams import CSVFileResponse, get_time_string
+from cams.libcams import CSVFileResponse, get_time_string, get_obj_address
 from cams.models import Record, Contact, Member, Group
 from mrwf.extra.models import (FairEventType, FairEvent,
                                StallEvent, StallInvoice)
@@ -95,14 +95,24 @@ def programme (request):
     if fmt == 'csv':
         csv = CSVFileResponse (('name', 'description', 'time', 'until',
                                 'age min', 'age max', 'location',
-                                'line_1', 'line_2', 'line_3', 'postcode',
-                                'town', 'telephone', 'mobile', 'fax', 'email',
-                                'website', 'order', 'sub-order',
+                                'order', 'suborder',
+
+                                'event address', 'event telephone',
+                                'event mobile', 'event email', 'event website',
+
+                                'owner', 'owner address', 'owner telephone',
+                                'owner mobile', 'owner email', 'owner website',
+
+                                'organisation', 'org address', 'org telephone',
+                                'org mobile', 'org email', 'org website',
+                                'org order', 'org sub-order',
+
                                 'n. spaces', 'n. tables'))
 
         csv.set_file_name ("%s_%s.csv" % (file_name, get_time_string ()))
 
         for e in events:
+            # ToDo: add subtype field in base FairEvent like Contactable ?
             try:
                 stall = StallEvent.objects.get (pk = e.id)
                 n_spaces = str (stall.n_spaces)
@@ -112,13 +122,64 @@ def programme (request):
                 n_tables = ''
 
             c = e.get_composite_contact ()
+
+            if e.owner.contact_set.count () > 0:
+                owner_c = e.owner.contact_set.all ()[0]
+                owner_addr = owner_c.get_address ()
+                owner_tel = owner_c.telephone
+                owner_mob = owner_c.mobile
+                owner_email = owner_c.email
+                owner_website = owner_c.website
+            # ToDo: use 'empty' contact object
+            else:
+                owner_addr = ''
+                owner_tel = ''
+                owner_mob = ''
+                owner_email = ''
+                owner_website = ''
+
+            if e.org:
+                org_name = e.org.name
+                if e.org.contact_set.count () > 0:
+                    org_c = e.org.contact_set.all ()[0]
+                else:
+                    org_c = None
+            else:
+                org_name = ''
+                org_c = None
+
+            if org_c:
+                org_addr = org_c.get_address ()
+                org_tel = org_c.telephone
+                org_mobile = org_c.mobile
+                org_email = org_c.email
+                org_website = org_c.website
+                org_order = istr (org_c.addr_order)
+                org_suborder = istr (org_c.addr_suborder)
+            else:
+                org_addr = ''
+                org_tel = ''
+                org_mobile = ''
+                org_email = ''
+                org_website = ''
+                org_order = ''
+                org_suborder = ''
+
             csv.writerow ((e.name, e.description,
                            istr (e.time), istr (e.end_time),
                            istr (e.age_min), istr (e.age_max), e.location,
-                           c['line_1'], c['line_2'], c['line_3'],
-                           c['postcode'], c['town'], c['telephone'],
-                           c['mobile'], c['fax'], c['email'], c['website'],
-                           str (c['addr_order']), str (c['addr_suborder']),
+                           istr (c.addr_order), istr (c.addr_suborder),
+
+                           c.get_address (), c.telephone,
+                           c.mobile, c.email, c.website,
+
+                           "%s %s" % (e.owner.first_name, e.owner.last_name),
+                           owner_addr, owner_tel, owner_mob, owner_email,
+                           owner_website,
+
+                           org_name, org_addr, org_tel, org_mobile,
+                           org_email, org_website, org_order, org_suborder,
+
                            n_spaces, n_tables))
 
         return csv.response

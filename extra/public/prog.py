@@ -107,7 +107,7 @@ def event_obj (fevent):
 
     for it in ['line_1', 'line_2', 'line_3', 'town', 'postcode', 'website',
                'email', 'telephone', 'mobile', 'addr_order', 'addr_suborder']:
-        addr_ele.setAttribute (it, str (c[it]))
+        addr_ele.setAttribute (it, str (getattr (c, it, '')))
 
     root.appendChild (addr_ele)
 
