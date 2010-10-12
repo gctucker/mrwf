@@ -460,8 +460,10 @@ def invoice_hard_copy (request, inv_id):
         else:
             listing = ''
 
-        inv_details = "%s%i x Stall space and %i x table hire" % \
-                      (listing, inv.stall.n_spaces, inv.stall.n_tables)
+        inv_details = "%s%i x Stall space" % (listing, inv.stall.n_spaces)
+
+        if inv.stall.n_tables:
+            inv_details += " and %i x table hire" % inv.stall.n_tables
 
         form = HardCopyForm (initial = {'address': address,
                                         'date': datetime.date.today (),
