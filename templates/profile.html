@@ -16,4 +16,8 @@
           <div class="cmd"><a href="{{ px }}profile/email_test/">&lt;email test&gt;</a></div>
           <div class="cmd"><a href="{{ px }}profile/edit/">edit profile&nbsp;&gt;&gt;</a></div>
           <div class="cmd"><a href="{{ px }}profile/password/">change password&nbsp;&gt;&gt;</a></div>
+          <p style="font-size: 0.7em">{% if django_version %}
+            Django {{ django_version }}<br />{% endif %}{% if cams_version %}
+            CAMS {{ cams_version }}<br />{% endif %}
+          </p>
 {% endblock %}

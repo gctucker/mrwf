@@ -75,7 +75,16 @@ def profile (request):
     else:
         c = None
 
-    tpl_vars = {'page_title': 'User Profile', 'person': person, 'contact': c}
+    if request.user.is_staff:
+        django_version = "v%d.%d.%d" % (VERSION[0], VERSION[1], VERSION[2])
+        cams_version = "v%d.%d.%d" % (CAMS_VERSION[0], CAMS_VERSION[1],
+                                      CAMS_VERSION[2])
+    else:
+        django_version = None
+        cams_version = None
+
+    tpl_vars = {'page_title': 'User Profile', 'person': person, 'contact': c,
+                'django_version': django_version, 'cams_version': cams_version}
     add_common_tpl_vars (request, tpl_vars, 'profile')
     return render_to_response ('profile.html', tpl_vars)
 
@@ -111,18 +120,9 @@ def profile_edit (request):
         else:
             c_form = ContactForm ()
 
-    if request.user.is_staff:
-        django_version = "v%d.%d.%d" % (VERSION[0], VERSION[1], VERSION[2])
-        cams_version = "v%d.%d.%d" % (CAMS_VERSION[0], CAMS_VERSION[1],
-                                      CAMS_VERSION[2])
-    else:
-        django_version = None
-        cams_version = None
+    tpl_vars = {'page_title': 'User Profile', 'f_user': u_form,
+                'c_form': c_form, 'p_form': p_form}
 
-    tpl_vars = {'page_title': 'User Profile',
-                'f_user': u_form, 'c_form': c_form,
-                'p_form': p_form, 'django_version': django_version,
-                'cams_version': cams_version}
     add_common_tpl_vars (request, tpl_vars, 'profile')
     return render_to_response ('profile_edit.html', tpl_vars,
                                context_instance = RequestContext(request))
