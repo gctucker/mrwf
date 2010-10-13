@@ -394,7 +394,7 @@ def invoice_hard_copy (request, inv_id):
             widget = forms.Textarea (attrs = {'cols': '40', 'rows': '5'}))
         date = forms.DateField (required = True, widget = SelectDateWidget)
         details = forms.CharField (required = True,
-            widget = forms.Textarea (attrs = {'cols': '40', 'rows': '2'}))
+            widget = forms.Textarea (attrs = {'cols': '40', 'rows': '3'}))
 
     inv = get_object_or_404 (StallInvoice, pk = int (inv_id))
 
