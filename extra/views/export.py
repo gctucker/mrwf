@@ -59,9 +59,13 @@ def group (request, group_id):
                        c.telephone, c.mobile, c.fax, c.email, c.website,
                        str (c.addr_order), str (c.addr_suborder)))
 
-    csv.set_file_name ('%s-%d_%s.csv' % (group.name.replace (' ', '_'),
-                                         group.fair.date.year,
-                                         get_time_string ()))
+    if group.fair:
+        name_year = "%d_" % group.fair.date.year
+    else:
+        name_year = ''
+
+    csv.set_file_name ('%s-%s%s.csv' % (group.name.replace (' ', '_'),
+                                        name_year, get_time_string ()))
 
     return csv.response
 
