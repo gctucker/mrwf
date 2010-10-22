@@ -20,11 +20,11 @@ def add_time_ele (doc, root, tag, time):
     ele.setAttribute ('hour', str (time.hour))
     ele.setAttribute ('minute', str (time.minute))
 
-def add_fevent_ele (doc, root, tag, fev):
+def add_fevent_ele (doc, root, tag, event):
     ele = doc.createElement (tag)
     root.appendChild (ele)
-    ele.setAttribute ('id', str (fev.pk))
-    ele.setAttribute ('name', fev.event.name)
+    ele.setAttribute ('id', str (event.pk))
+    ele.setAttribute ('name', event.name)
 
 def fair_obj (fair):
     f_events = FairEvent.objects.filter (fair = fair)
@@ -45,71 +45,69 @@ def fair_obj (fair):
     return HttpResponse (doc.toprettyxml ('  ', '\n', 'utf-8'),
                          mimetype = 'application/xml')
 
-def event_obj (fevent):
-    event = fevent.event
-
+def event_obj (event):
     impl = getDOMImplementation ()
     doc = impl.createDocument (None, 'event', None)
-    root = doc.documentElement
-    root.setAttribute ('name', event.name)
+    ele = doc.documentElement
+    ele.setAttribute ('name', event.name)
 
     # listing attribute ...
-#    if fevent.etype:
-#        root.setAttribute ('type', fevent.etype.name)
+#    if event.etype:
+#        root.setAttribute ('type', event.etype.name)
 
-    if fevent.event.location:
-        root.setAttribute ('venue', fevent.event.location)
-    elif fevent.event.org:
-        root.setAttribute ('venue', fevent.event.org.name)
+    if event.location:
+        ele.setAttribute ('venue', event.location)
+    elif event.org:
+        ele.setAttribute ('venue', event.org.name)
 
     if event.description:
         desc_ele = doc.createElement ('description')
-        root.appendChild (desc_ele)
+        ele.appendChild (desc_ele)
         desc_txt = doc.createTextNode (event.description)
         desc_ele.appendChild (desc_txt)
 
-    if fevent.image:
+    if event.image:
         img = doc.createElement ('image')
-        root.appendChild (img)
-        img.setAttribute ('url', fevent.image.url)
-        img.setAttribute ('width', str (fevent.image.width))
-        img.setAttribute ('height', str (fevent.image.height))
+        ele.appendChild (img)
+        img.setAttribute ('url', event.image.url)
+        img.setAttribute ('width', str (event.image.width))
+        img.setAttribute ('height', str (event.image.height))
 
     if event.date != event.fair.date:
-        add_date_ele (doc, root, 'date', event.date)
+        add_date_ele (doc, ele, 'date', event.date)
 
     if event.end_date:
-        add_date_ele (doc, root, 'end_date', event.end_date)
+        add_date_ele (doc, ele, 'end_date', event.end_date)
 
     if event.time:
-        add_time_ele (doc, root, 'time', event.time)
+        add_time_ele (doc, ele, 'time', event.time)
 
     if event.end_time:
-        add_time_ele (doc, root, 'end_time', event.end_time)
+        add_time_ele (doc, ele, 'end_time', event.end_time)
 
-    if fevent.age_min or fevent.age_max:
+    if event.age_min or event.age_max:
         age = doc.createElement ('age')
-        root.appendChild (age)
-        if fevent.age_min:
-            age.setAttribute ('min', str (fevent.age_min))
+        ele.appendChild (age)
+        if event.age_min:
+            age.setAttribute ('min', str (event.age_min))
 
-        if fevent.age_max:
-            age.setAttribute ('max', str (fevent.age_max))
+        if event.age_max:
+            age.setAttribute ('max', str (event.age_max))
 
-    for cat in fevent.categories.all ():
-        ele = doc.createElement ('category')
-        root.appendChild (ele)
-        ele.setAttribute ('name', cat.word)
+    for cat in event.categories.all ():
+        cat_ele = doc.createElement ('category')
+        ele.appendChild (cat_ele)
+        cat_ele.setAttribute ('name', cat.word)
 
     # WORKAROUND
-    c = fevent.get_composite_contact ()
+    c = event.get_composite_contact ()
     addr_ele = doc.createElement ('address')
 
     for it in ['line_1', 'line_2', 'line_3', 'town', 'postcode', 'website',
                'email', 'telephone', 'mobile', 'addr_order', 'addr_suborder']:
         addr_ele.setAttribute (it, str (getattr (c, it, '')))
 
-    root.appendChild (addr_ele)
+    ele.appendChild (addr_ele)
 
     return HttpResponse (doc.toprettyxml ('  ', '\n', 'utf-8'),
                          mimetype = 'application/xml')
