@@ -20,35 +20,13 @@ def add_time_ele (doc, root, tag, time):
     ele.setAttribute ('hour', str (time.hour))
     ele.setAttribute ('minute', str (time.minute))
 
-def add_fevent_ele (doc, root, tag, event):
+def add_event_id_ele (doc, root, tag, event):
     ele = doc.createElement (tag)
     root.appendChild (ele)
     ele.setAttribute ('id', str (event.pk))
     ele.setAttribute ('name', event.name)
 
-def fair_obj (fair):
-    f_events = FairEvent.objects.filter (fair = fair)
-    f_events = f_events.filter (status = Record.ACTIVE)
-    f_events = f_events.order_by ('event__organisationcontact__line1')
-    f_events = f_events.order_by ('event__time')
-
-    impl = getDOMImplementation ()
-    doc = impl.createDocument (None, 'events', None)
-    root = doc.documentElement
-    root.setAttribute ('year', str (fair.date.year))
-    root.setAttribute ('month', str (fair.date.month))
-    root.setAttribute ('day', str (fair.date.day))
-
-    for it in f_events:
-        add_fevent_ele (doc, root, 'event', it)
-
-    return HttpResponse (doc.toprettyxml ('  ', '\n', 'utf-8'),
-                         mimetype = 'application/xml')
-
-def event_obj (event):
-    impl = getDOMImplementation ()
-    doc = impl.createDocument (None, 'event', None)
-    ele = doc.documentElement
+def populate_event_ele (doc, ele, event):
     ele.setAttribute ('name', event.name)
 
     # listing attribute ...
@@ -109,6 +87,36 @@ def event_obj (event):
 
     ele.appendChild (addr_ele)
 
+def fair_obj (fair, dump):
+    events = FairEvent.objects.filter (fair = fair)
+    events = events.filter (status = Record.ACTIVE)
+    events = events.order_by ('organisationcontact__line1')
+    events = events.order_by ('time')
+
+    impl = getDOMImplementation ()
+    doc = impl.createDocument (None, 'events', None)
+    root = doc.documentElement
+    root.setAttribute ('year', str (fair.date.year))
+    root.setAttribute ('month', str (fair.date.month))
+    root.setAttribute ('day', str (fair.date.day))
+
+    if dump:
+        for it in events:
+            ele = doc.createElement ('event')
+            root.appendChild (ele)
+            populate_event_ele (doc, ele, it)
+    else:
+        for it in events:
+            add_event_id_ele (doc, root, 'event', it)
+
+    return HttpResponse (doc.toprettyxml ('  ', '\n', 'utf-8'),
+                         mimetype = 'application/xml')
+
+def event_obj (event):
+    impl = getDOMImplementation ()
+    doc = impl.createDocument (None, 'event', None)
+    ele = doc.documentElement
+    populate_event_ele (doc, ele, event)
     return HttpResponse (doc.toprettyxml ('  ', '\n', 'utf-8'),
                          mimetype = 'application/xml')
 
@@ -172,7 +180,7 @@ def search_obj (request, fair):
     fe = fe.order_by ('event__name')
 
     for it in fe:
-        add_fevent_ele (doc, root, 'event', it)
+        add_event_id_ele (doc, root, 'event', it)
 
     return HttpResponse (doc.toprettyxml ('  ', '\n', 'utf-8'),
                          mimetype = 'application/xml')
@@ -198,10 +206,11 @@ def all_fairs (request):
                          mimetype = 'application/xml')
 
 def fair (request, fair_year):
-    return fair_obj (get_object_or_404 (Fair, date__year = fair_year))
+    return fair_obj (get_object_or_404 (Fair, date__year = int (fair_year)),
+                     False)
 
 def current (request):
-    return fair_obj (get_object_or_404 (Fair, current = True))
+    return fair_obj (get_object_or_404 (Fair, current = True), False)
 
 def event (request, fair_year, event_id):
     fair = get_object_or_404 (Fair, date__year = fair_year)
@@ -216,6 +225,13 @@ def current_event (request, event_id):
     if (not event.fair) or (event.fair != fair):
         raise Http404
     return event_obj (event)
+
+def dump (request, fair_year):
+    return fair_obj (get_object_or_404 (Fair, date__year = int (fair_year)),
+                     True)
+
+def current_dump (request):
+    return fair_obj (get_object_or_404 (Fair, current = True), True)
 
 def cats (request, fair_year):
     # ToDo: review names of categories, types etc.
