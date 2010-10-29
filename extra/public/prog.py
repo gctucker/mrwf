@@ -27,6 +27,7 @@ def add_event_id_ele (doc, root, tag, event):
     ele.setAttribute ('name', event.name)
 
 def populate_event_ele (doc, ele, event):
+    ele.setAttribute ('id', str (event.pk))
     ele.setAttribute ('name', event.name)
 
     # listing attribute ...
@@ -75,6 +76,7 @@ def populate_event_ele (doc, ele, event):
     for cat in event.categories.all ():
         cat_ele = doc.createElement ('category')
         ele.appendChild (cat_ele)
+        cat_ele.setAttribute ('id', str (cat.pk))
         cat_ele.setAttribute ('name', cat.word)
 
     # WORKAROUND
@@ -191,7 +193,7 @@ def all_fairs (request):
     impl = getDOMImplementation ()
     doc = impl.createDocument (None, 'fairs', None)
     root = doc.documentElement
-    root.setAttribute ("api_version", "1.1")
+    root.setAttribute ("api_version", "1.2")
 
     for fair in Fair.objects.all ():
         ele = doc.createElement ('fair')
@@ -242,6 +244,7 @@ def cats (request, fair_year):
     for it in FairEventCategory.objects.all ():
         ele = doc.createElement ('category')
         root.appendChild (ele)
+        ele.setAttribute ('id', str (it.pk))
         ele.setAttribute ('name', it.word)
 
     return HttpResponse (doc.toprettyxml ('  ', '\n', 'utf-8'),
