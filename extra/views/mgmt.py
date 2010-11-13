@@ -91,6 +91,7 @@ def participants (request):
 def group (request, group_id):
     group = get_object_or_404 (Group, pk = group_id)
     roles = Role.objects.filter (group = group)
+    roles = roles.filter (person__status = Record.ACTIVE)
     roles = roles.order_by ('person__last_name')
     tpl_vars = {'page_title': 'Group members', 'group': group,
                 'url': 'cams/participant/group/%d/' % group.id}

@@ -14,7 +14,7 @@ from mrwf.extra.views.mgmt import get_listing_id
 def group (request, group_id):
     group = get_object_or_404 (Group, pk = group_id)
     contacts = []
-    members = group.members.all ()
+    members = group.members.filter (status = Record.ACTIVE)
     members = members.order_by ('last_name')
 
     for it in members:
