@@ -5,7 +5,7 @@ from django.template import Context
 from django.template.loader import get_template
 from django.shortcuts import get_object_or_404
 from cams.libcams import CSVFileResponse, get_time_string, get_obj_address
-from cams.models import Record, Contact, Member, Group
+from cams.models import Record, Contact, Contactable, Member, Group
 from mrwf.extra.models import (FairEventType, FairEvent,
                                StallEvent, StallInvoice)
 from mrwf.extra.views.mgmt import get_listing_id
@@ -14,11 +14,12 @@ from mrwf.extra.views.mgmt import get_listing_id
 def group (request, group_id):
     group = get_object_or_404 (Group, pk = group_id)
     contacts = []
-    members = group.members.filter (status = Record.ACTIVE)
-    members = members.order_by ('last_name')
+    contactables = group.members.filter (status = Record.ACTIVE)
 
-    for it in members:
-        ctype = ''
+    c_people = contactables.filter (type = Contactable.PERSON)
+    c_people = c_people.order_by ('person__last_name')
+
+    for it in c_people:
         org_name = ''
         c = Contact.objects.filter (obj = it)
         if c:
@@ -38,9 +39,35 @@ def group (request, group_id):
                     if c:
                         c = c[0]
                         ctype = 'org'
-
         if c:
-            contacts.append ((it, ctype, org_name, c))
+            contacts.append ((it.person, ctype, org_name, c))
+
+    c_orgs = contactables.filter (type = Contactable.ORGANISATION)
+    c_orgs = c_orgs.order_by ('organisation__name')
+
+    for it in c_orgs:
+        c = Contact.objects.filter (obj = it)
+        p = None
+        if c:
+            c = c[0]
+            c_type = 'org'
+        else:
+            member = Member.objects.filter (organisation = it)
+            if member:
+                member = member[0]
+                c = Contact.objects.filter (obj = member)
+                if c:
+                    p = member.person
+                    c = c[0]
+                    c_type = 'member'
+                else:
+                    c = Contact.objects.filter (obj = member.person)
+                    if c:
+                        p = member.person
+                        c = c[0]
+                        c_type = 'person'
+        if c:
+            contacts.append ((p, c_type, it.organisation.name, c))
 
     csv = CSVFileResponse (('first_name', 'middle_name', 'last_name',
                             'contact_type', 'organisation',
@@ -53,7 +80,17 @@ def group (request, group_id):
         ctype = it[1]
         org_name = it[2]
         c = it[3]
-        csv.writerow ((p.first_name, p.middle_name, p.last_name,
+
+        if p:
+            p_first_name = p.first_name
+            p_middle_name = p.middle_name
+            p_last_name = p.last_name
+        else:
+            p_first_name = ''
+            p_middle_name = ''
+            p_last_name = ''
+
+        csv.writerow ((p_first_name, p_middle_name, p_last_name,
                        ctype, org_name,
                        c.line_1, c.line_2, c.line_3, c.town, c.postcode,
                        c.telephone, c.mobile, c.fax, c.email, c.website,
