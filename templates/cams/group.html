@@ -2,11 +2,14 @@
 
 {% block browse_title %}Group: {{ group.name }}{% endblock %}
 
-{% block browse_it %}
+{% block browse_it %}{% if it.contactable.type_str = "person" %}
                 <a href="{{ px }}abook/person/{{ it.person.id }}/">
-                  {{ it.person.first_name }} {{ it.person.middle_name }} {{ it.person.last_name }}{% if it.role %}
+                  {{ it.contactable.person.first_name }} {{ it.contactable.person.middle_name }} {{ it.contactable.person.last_name }}{% if it.role %}
                   &nbsp;({{ it.role }}){% endif %}
-                </a>
+                </a>{% else %}
+                <a href="{{ px }}abook/org/{{ it.contactable.organisation.id }}/">
+                  {{ it.contactable.organisation.name }}
+                </a> (organisation){% endif %}
 {% endblock %}
 
 {% block browse_footer %}
