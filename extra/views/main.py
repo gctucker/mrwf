@@ -1,3 +1,4 @@
+from sys import version_info
 from django import VERSION
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.core.urlresolvers import reverse
@@ -76,15 +77,18 @@ def profile (request):
         c = None
 
     if request.user.is_staff:
-        django_version = "v%d.%d.%d" % (VERSION[0], VERSION[1], VERSION[2])
-        cams_version = "v%d.%d.%d" % (CAMS_VERSION[0], CAMS_VERSION[1],
-                                      CAMS_VERSION[2])
+        vstring = lambda v : 'v{:d}.{:d}.{:d}'.format(v[0], v[1], v[2])
+        python_version = vstring(version_info)
+        django_version = vstring(VERSION)
+        cams_version = vstring(CAMS_VERSION)
     else:
+        python_version = None
         django_version = None
         cams_version = None
 
     tpl_vars = {'page_title': 'User Profile', 'person': person, 'contact': c,
-                'django_version': django_version, 'cams_version': cams_version}
+                'django_version': django_version, 'cams_version': cams_version,
+                'python_version': python_version}
     add_common_tpl_vars (request, tpl_vars, 'profile')
     return render_to_response ('profile.html', tpl_vars)
 
