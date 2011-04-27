@@ -90,11 +90,11 @@ def group (request, group_id):
             p_middle_name = ''
             p_last_name = ''
 
-        csv.writerow ((p_first_name, p_middle_name, p_last_name,
-                       ctype, org_name,
-                       c.line_1, c.line_2, c.line_3, c.town, c.postcode,
-                       c.telephone, c.mobile, c.fax, c.email, c.website,
-                       str (c.addr_order), str (c.addr_suborder)))
+        csv.write ((p_first_name, p_middle_name, p_last_name,
+                    ctype, org_name,
+                    c.line_1, c.line_2, c.line_3, c.town, c.postcode,
+                    c.telephone, c.mobile, c.fax, c.email, c.website,
+                    str (c.addr_order), str (c.addr_suborder)))
 
     if group.fair:
         name_year = "%d_" % group.fair.date.year
@@ -206,22 +206,22 @@ def programme (request):
                 org_order = ''
                 org_suborder = ''
 
-            csv.writerow ((e.name, e.description,
-                           istr (e.time), istr (e.end_time),
-                           istr (e.age_min), istr (e.age_max), e.location,
-                           istr (c.addr_order), istr (c.addr_suborder),
+            csv.write ((e.name, e.description,
+                        istr (e.time), istr (e.end_time),
+                        istr (e.age_min), istr (e.age_max), e.location,
+                        istr (c.addr_order), istr (c.addr_suborder),
 
-                           c.get_address (), c.telephone,
-                           c.mobile, c.email, c.website,
+                        c.get_address (), c.telephone,
+                        c.mobile, c.email, c.website,
 
-                           "%s %s" % (e.owner.first_name, e.owner.last_name),
-                           owner_addr, owner_tel, owner_mob, owner_email,
-                           owner_website,
+                        "%s %s" % (e.owner.first_name, e.owner.last_name),
+                        owner_addr, owner_tel, owner_mob, owner_email,
+                        owner_website,
 
-                           org_name, org_addr, org_tel, org_mobile,
-                           org_email, org_website, org_order, org_suborder,
+                        org_name, org_addr, org_tel, org_mobile,
+                        org_email, org_website, org_order, org_suborder,
 
-                           n_spaces, n_tables))
+                        n_spaces, n_tables))
 
         return csv.response
     elif fmt == 'plaintext':
@@ -286,13 +286,13 @@ def invoices (request):
             org_telephone = ''
             org_email = ''
 
-        resp.writerow ((i.stall.name, i.stall.owner.__unicode__ (),
-                        owner_address, owner_telephone, owner_email, org_name,
-                        org_address, org_telephone, org_email,
-                        str (i.stall.n_tables), str (i.stall.n_spaces),
-                        str (i.amount), i.status_str (), i.reference,
-                        date_str (i.created), date_str (i.sent),
-                        date_str(i.paid), date_str (i.banked)))
+        resp.write ((i.stall.name, i.stall.owner.__unicode__ (),
+                     owner_address, owner_telephone, owner_email, org_name,
+                     org_address, org_telephone, org_email,
+                     str (i.stall.n_tables), str (i.stall.n_spaces),
+                     str (i.amount), i.status_str (), i.reference,
+                     date_str (i.created), date_str (i.sent),
+                     date_str(i.paid), date_str (i.banked)))
 
     resp.set_file_name ("Stall_invoices_%s.csv" % get_time_string ())
     return resp.response

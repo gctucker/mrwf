@@ -14,17 +14,17 @@ from cams.models import Contact, Player, get_user_email
 from mrwf.extra.forms import UserNameForm, PersonForm, ContactForm
 
 PAGE_LIST = [
-    Page ('home',    '',                   'welcome',      Page.OPEN),
-    Page ('profile', 'profile/',           'user profile', Page.OPEN),
-    Page ('abook',   'abook/',             'address book', Page.OPEN),
-    Page ('parts',   'cams/participant/',  'groups',       Page.OPEN),
-#    Page ('prep',    'cams/prep/',         'preparation',  Page.OPEN),
-    Page ('prog',    'cams/prog/',         'programme',    Page.OPEN),
-    Page ('appli',   'cams/application/',  'applications', Page.ADMIN),
-    Page ('invoice', 'cams/invoice/',      'invoices',     Page.ADMIN),
-#    Page ('fairs',   'cams/fair/',         'winter fairs', Page.OPEN),
-    Page ('admin',   'admin/',             'admin',        Page.ADMIN),
-    Page ('logout',  'accounts/logout/',   'log out',      Page.OPEN)]
+    Page('home',    '',                   'welcome',      Page.COMMON),
+    Page('profile', 'profile/',           'user profile', Page.COMMON),
+    Page('abook',   'abook/',             'address book', Page.COMMON),
+    Page('parts',   'cams/participant/',  'groups',       Page.COMMON),
+#    Page('prep',    'cams/prep/',         'preparation',  Page.COMMON),
+    Page('prog',    'cams/prog/',         'programme',    Page.COMMON),
+    Page('appli',   'cams/application/',  'applications', Page.ADMIN),
+    Page('invoice', 'cams/invoice/',      'invoices',     Page.ADMIN),
+#    Page('fairs',   'cams/fair/',         'winter fairs', Page.COMMON),
+    Page('admin',   'admin/',             'admin',        Page.ADMIN),
+    Page('logout',  'accounts/logout/',   'log out',      Page.COMMON)]
 
 
 def get_page (request, list, n):
@@ -66,12 +66,12 @@ def home (request):
     return render_to_response ('home.html', tpl_vars)
 
 @login_required
-def profile (request):
-    player = get_object_or_404 (Player, user = request.user)
+def profile(request):
+    player = get_object_or_404(Player, user = request.user)
     person = player.person
-    contacts = Contact.objects.filter (obj = person)
+    contacts = Contact.objects.filter(obj = person)
 
-    if contacts.count () > 0:
+    if contacts.count() > 0:
         c = contacts[0]
     else:
         c = None
@@ -89,8 +89,8 @@ def profile (request):
     tpl_vars = {'page_title': 'User Profile', 'person': person, 'contact': c,
                 'django_version': django_version, 'cams_version': cams_version,
                 'python_version': python_version}
-    add_common_tpl_vars (request, tpl_vars, 'profile')
-    return render_to_response ('profile.html', tpl_vars)
+    add_common_tpl_vars(request, tpl_vars, 'profile')
+    return render_to_response('profile.html', tpl_vars)
 
 @login_required
 def profile_edit (request):
