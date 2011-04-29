@@ -1,7 +1,7 @@
 from django.conf.urls.defaults import *
 from mrwf.extra import public
 
-urlpatterns = patterns ('mrwf.extra.public',
+urlpatterns = patterns('mrwf.extra.public',
  (r'^$', 'home.index'),
  (r'prog/$', 'prog.all_fairs'),
  (r'prog/current/$', 'prog.current'),
