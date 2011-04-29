@@ -1,5 +1,5 @@
 from sys import version_info
-from django import VERSION
+from django import get_version as get_django_version
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.core.urlresolvers import reverse
 from django.core.mail import send_mail
@@ -79,7 +79,7 @@ def profile(request):
     if request.user.is_staff:
         vstring = lambda v : 'v{:d}.{:d}.{:d}'.format(v[0], v[1], v[2])
         python_version = vstring(version_info)
-        django_version = vstring(VERSION)
+        django_version = get_django_version()
         cams_version = vstring(CAMS_VERSION)
     else:
         python_version = None
