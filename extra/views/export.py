@@ -75,12 +75,12 @@ def iterate_group_contacts (group): # ToDo: move into group model ?
 
 def make_group_file_name (group, sx = ''):
     if group.fair:
-        name_year = "%d" % group.fair.date.year
+        year_str = '-%d' % group.fair.date.year
     else:
-        name_year = ''
+        year_str = ''
 
-    return '%s-%s%s_%s' % (group.name.replace (' ', '_'),
-                          name_year, sx, get_time_string ())
+    return '%s%s%s_%s' % (group.name.replace (' ', '_'),
+                          year_str, sx, get_time_string ())
 
 @login_required
 def group (request, group_id):
