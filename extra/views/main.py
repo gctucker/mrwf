@@ -1,4 +1,5 @@
 from sys import version_info
+from smtplib import SMTPException
 from django import get_version as get_django_version
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.core.urlresolvers import reverse
@@ -11,6 +12,7 @@ from django.conf import settings
 from django.shortcuts import render_to_response, get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView
+from django.views.generic.edit import ProcessFormView, FormMixin
 from cams.libcams import CAMS_VERSION, Page, get_user_pages
 from cams.models import Contact, Player, get_user_email
 from mrwf.extra.forms import UserNameForm, PersonForm, ContactForm
@@ -28,7 +30,8 @@ PAGE_LIST = [
     Page('admin',   'admin/',             'admin',        Page.ADMIN),
     Page('logout',  'accounts/logout/',   'log out',      Page.COMMON)]
 
-
+# Note: this is about list pagination, not site pages...
+# ToDo: rename to remove ambiguity
 def get_page (request, list, n):
     pagin = Paginator (list, n)
 
@@ -85,71 +88,77 @@ class HomeView(SiteView):
     title = 'Home'
     page_name = 'home'
 
-@login_required
-def profile(request):
-    player = get_object_or_404(Player, user = request.user)
-    person = player.person
-    contacts = Contact.objects.filter(obj = person)
 
-    if contacts.count() > 0:
-        c = contacts[0]
-    else:
-        c = None
+class BaseProfileView(SiteView):
+    title = 'User Profile'
+    page_name = 'profile'
 
-    if request.user.is_staff:
-        vstring = lambda v : 'v{:d}.{:d}.{:d}'.format(v[0], v[1], v[2])
-        python_version = vstring(version_info)
-        django_version = get_django_version()
-        cams_version = vstring(CAMS_VERSION)
-    else:
-        python_version = None
-        django_version = None
-        cams_version = None
+    def set_player(self):
+        self.player = get_object_or_404(Player, user=self.request.user)
+        self.contacts = Contact.objects.filter(obj=self.player.person)
 
-    tpl_vars = {'page_title': 'User Profile', 'person': person, 'contact': c,
-                'django_version': django_version, 'cams_version': cams_version,
-                'python_version': python_version}
-    add_common_tpl_vars(request, tpl_vars, 'profile')
-    return render_to_response('profile.html', tpl_vars)
 
-@login_required
-def profile_edit (request):
-    player = get_object_or_404 (Player, user = request.user)
-    person = player.person
-    contacts = Contact.objects.filter (obj = person)
+class ProfileView(BaseProfileView):
+    template_name = 'profile.html'
 
-    if request.method == 'POST':
-        u_form = UserNameForm (request.POST, instance = request.user,
-                               prefix = 'user')
-        p_form = PersonForm (request.POST, instance = person)
+    def get_context_data(self, **kwargs):
+        ctx = super(ProfileView, self).get_context_data(**kwargs)
+        self.set_player()
 
-        if contacts.count () > 0:
-            c_form = ContactForm (request.POST, instance = contacts[0])
+        if self.contacts.count() > 0:
+            ctx['contact'] = self.contacts[0]
+
+        vstring = lambda v: 'v{:d}.{:d}.{:d}'.format(v[0], v[1], v[2])
+        ctx.update({'python_version': vstring(version_info),
+                    'django_version': get_django_version(),
+                    'cams_version': vstring(CAMS_VERSION),
+                    'person': self.player.person})
+        return ctx
+
+
+class ProfileEditView(BaseProfileView):
+    template_name = 'profile_edit.html'
+
+    def get(self, request, *args, **kwargs):
+        self.set_player()
+        self._uf = UserNameForm(instance=self.request.user, prefix='user')
+        self._pf = PersonForm(instance=self.player.person)
+
+        if self.contacts.count() > 0:
+            self._cf = ContactForm(instance=self.contacts[0])
         else:
-            c_form = ContactForm (request.POST)
-            c_form.instance.person = person
+            self._cf = ContactForm()
 
-        if u_form.is_valid () and p_form.is_valid () and c_form.is_valid ():
-            u_form.save ()
-            p_form.save ()
-            c_form.save ()
-            return HttpResponseRedirect (reverse (profile))
+        return super(ProfileEditView, self).get(request, *args, **kwargs)
 
-    else:
-        u_form = UserNameForm (instance = request.user, prefix = 'user')
-        p_form = PersonForm (instance = person)
+    def post(self, request, *args, **kwargs):
+        self.set_player()
+        self._uf = UserNameForm(self.request.POST, instance=self.request.user,
+                                prefix='user')
+        self._pf = PersonForm(self.request.POST, instance=self.player.person)
 
-        if contacts.count () > 0:
-            c_form = ContactForm (instance = contacts[0])
+        if self.contacts.count() > 0:
+            self._cf = ContactForm(self.request.POST,
+                                   instance=self.contacts[0])
         else:
-            c_form = ContactForm ()
+            self._cf = ContactForm(self.request.POST)
+            self._cf.instance.person = self.player.person
 
-    tpl_vars = {'page_title': 'User Profile', 'f_user': u_form,
-                'c_form': c_form, 'p_form': p_form}
+        if self._uf.is_valid() and self._pf.is_valid() and self._cf.is_valid():
+            self._uf.save()
+            self._pf.save()
+            self._cf.save()
+            # ToDo: reverse('profile')
+            return HttpResponseRedirect('/profile/')
 
-    add_common_tpl_vars (request, tpl_vars, 'profile')
-    return render_to_response ('profile_edit.html', tpl_vars,
-                               context_instance = RequestContext(request))
+        return super(ProfileEditView, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        ctx = super(ProfileEditView, self).get_context_data(**kwargs)
+        ctx.update({'f_user': self._uf,
+                    'c_form': self._cf,
+                    'p_form': self._pf})
+        return ctx
 
 @login_required
 def password (request):
@@ -167,6 +176,7 @@ def password (request):
     return render_to_response ('password.html', tpl_vars,
                                context_instance = RequestContext (request))
 
+
 @login_required
 def email_test (request):
     email = get_user_email (request.user)
@@ -176,7 +186,7 @@ def email_test (request):
                        "Your email is properly configured.",
                        "no-reply@mangoz.org", [email])
             all_good = True
-        except smtplib.SMTPException:
+        except SMTPException:
             all_good = False
     else:
         all_good = False
