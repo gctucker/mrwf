@@ -73,6 +73,15 @@ def iterate_group_contacts (group): # ToDo: move into group model ?
         if c:
             yield ExportContact (p, c_type, it.organisation.name, c)
 
+def make_group_file_name (group, sx = ''):
+    if group.fair:
+        name_year = "%d" % group.fair.date.year
+    else:
+        name_year = ''
+
+    return '%s-%s%s_%s' % (group.name.replace (' ', '_'),
+                          name_year, sx, get_time_string ())
+
 @login_required
 def group (request, group_id):
     group = get_object_or_404 (Group, pk = group_id)
@@ -99,14 +108,7 @@ def group (request, group_id):
                        it.c.email, it.c.website,
                        str (it.c.addr_order), str (it.c.addr_suborder)))
 
-    if group.fair:
-        name_year = "%d_" % group.fair.date.year
-    else:
-        name_year = ''
-
-    csv.set_file_name ('%s-%s%s.csv' % (group.name.replace (' ', '_'),
-                                        name_year, get_time_string ()))
-
+    csv.set_file_name (make_group_file_name (group) + '.csv')
     return csv.response
 
 @login_required
@@ -118,6 +120,8 @@ def group_email (request, group_id):
             emails.append (it.c.email)
     emails.sort ()
     resp = HttpResponse (mimetype = 'text/plain')
+    resp['Content-Disposition'] = 'attachement; filename=\"%s\"' % \
+        (make_group_file_name (group, '-email') + '.txt')
     n_emails = len (emails)
     range_step = 50
     for i, range_start in enumerate (range (0, n_emails, range_step)):
