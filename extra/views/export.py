@@ -10,10 +10,14 @@ from mrwf.extra.models import (FairEventType, FairEvent,
                                StallEvent, StallInvoice)
 from mrwf.extra.views.mgmt import get_listing_id
 
-@login_required
-def group (request, group_id):
-    group = get_object_or_404 (Group, pk = group_id)
-    contacts = []
+class ExportContact (object):
+    def __init__(self, person, ctype, org_name, contact):
+        self.p = person
+        self.ctype = ctype
+        self.org_name = org_name
+        self.c = contact
+
+def iterate_group_contacts (group): # ToDo: move into group model ?
     contactables = group.members.filter (status = Record.ACTIVE)
 
     c_people = contactables.filter (type = Contactable.PERSON)
@@ -40,7 +44,7 @@ def group (request, group_id):
                         c = c[0]
                         ctype = 'org'
         if c:
-            contacts.append ((it.person, ctype, org_name, c))
+            yield ExportContact (it.person, ctype, org_name, c)
 
     c_orgs = contactables.filter (type = Contactable.ORGANISATION)
     c_orgs = c_orgs.order_by ('organisation__name')
@@ -67,34 +71,33 @@ def group (request, group_id):
                         c = c[0]
                         c_type = 'person'
         if c:
-            contacts.append ((p, c_type, it.organisation.name, c))
+            yield ExportContact (p, c_type, it.organisation.name, c)
 
+@login_required
+def group (request, group_id):
+    group = get_object_or_404 (Group, pk = group_id)
     csv = CSVFileResponse (('first_name', 'middle_name', 'last_name',
                             'contact_type', 'organisation',
                             'line_1', 'line_2', 'line_3', 'town', 'postcode',
                             'telephone', 'mobile', 'fax', 'email', 'website',
                             'order', 'sub-order'))
 
-    for it in contacts:
-        p = it[0]
-        ctype = it[1]
-        org_name = it[2]
-        c = it[3]
-
-        if p:
-            p_first_name = p.first_name
-            p_middle_name = p.middle_name
-            p_last_name = p.last_name
+    for it in iterate_group_contacts (group):
+        if it.p:
+            p_first_name = it.p.first_name
+            p_middle_name = it.p.middle_name
+            p_last_name = it.p.last_name
         else:
             p_first_name = ''
             p_middle_name = ''
             p_last_name = ''
 
         csv.writerow ((p_first_name, p_middle_name, p_last_name,
-                       ctype, org_name,
-                       c.line_1, c.line_2, c.line_3, c.town, c.postcode,
-                       c.telephone, c.mobile, c.fax, c.email, c.website,
-                       str (c.addr_order), str (c.addr_suborder)))
+                       it.ctype, it.org_name,
+                       it.c.line_1, it.c.line_2, it.c.line_3, it.c.town,
+                       it.c.postcode, it.c.telephone, it.c.mobile, it.c.fax,
+                       it.c.email, it.c.website,
+                       str (it.c.addr_order), str (it.c.addr_suborder)))
 
     if group.fair:
         name_year = "%d_" % group.fair.date.year
@@ -105,6 +108,25 @@ def group (request, group_id):
                                         name_year, get_time_string ()))
 
     return csv.response
+
+@login_required
+def group_email (request, group_id):
+    group = get_object_or_404 (Group, pk = group_id)
+    emails = []
+    for it in iterate_group_contacts (group):
+        if it.c.email and it.c.email not in emails:
+            emails.append (it.c.email)
+    resp = HttpResponse (mimetype = 'text/plain')
+    n_emails = len (emails)
+    range_step = 50
+    for i, range_start in enumerate (range (0, n_emails, range_step)):
+        range_stop = range_start + range_step
+        resp.write ('Chunk #%d\n' % i)
+        chunk_str = ''
+        for e in emails[range_start:range_stop]:
+            chunk_str += ('<' + e + '>, ')
+        resp.write (chunk_str.rstrip (', ') + '\n\n')
+    return resp
 
 @login_required
 def programme (request):
