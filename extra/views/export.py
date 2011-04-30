@@ -116,6 +116,7 @@ def group_email (request, group_id):
     for it in iterate_group_contacts (group):
         if it.c.email and it.c.email not in emails:
             emails.append (it.c.email)
+    emails.sort ()
     resp = HttpResponse (mimetype = 'text/plain')
     n_emails = len (emails)
     range_step = 50
