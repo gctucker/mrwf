@@ -1,11 +1,12 @@
 from django.conf.urls.defaults import patterns, include
 from django.contrib import admin
 from settings import DEBUG, STATIC_ROOT
+from mrwf.extra import views
 
 admin.autodiscover()
 
 urlpatterns = patterns('',
- (r'^$', 'mrwf.extra.views.main.home'),
+ (r'^$', views.main.HomeView.as_view()),
  (r'^accounts/login/', 'django.contrib.auth.views.login',
   {'template_name': 'login.html'}),
  (r'^accounts/logout/', 'django.contrib.auth.views.logout',

@@ -9,6 +9,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.conf import settings
 from django.shortcuts import render_to_response, get_object_or_404
+from django.utils.decorators import method_decorator
+from django.views.generic import TemplateView
 from cams.libcams import CAMS_VERSION, Page, get_user_pages
 from cams.models import Contact, Player, get_user_email
 from mrwf.extra.forms import UserNameForm, PersonForm, ContactForm
@@ -56,14 +58,32 @@ def add_common_tpl_vars (request, tpl_vars, cpage, obj_list = None, n = 20):
         page = get_page (request, obj_list, n)
         tpl_vars['page'] = page
 
+class SiteView(TemplateView):
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(SiteView, self).dispatch(*args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        ctx = super(SiteView, self).get_context_data(**kwargs)
+        ctx['px'] = settings.URL_PREFIX # ToDo: use {% url ... %} tag instead
+        ctx['user'] = self.request.user
+        ctx['pages'] = get_user_pages(PAGE_LIST, self.request.user)
+
+        if self.title:
+            ctx['page_title'] = self.title
+
+        if self.page_name:
+            ctx['current_page'] = self.page_name
+
+        return ctx
+
 # -----------------------------------------------------------------------------
 # entry points from url's
 
-@login_required
-def home (request):
-    tpl_vars = {'page_title': 'Home'}
-    add_common_tpl_vars (request, tpl_vars, 'home')
-    return render_to_response ('home.html', tpl_vars)
+class HomeView(SiteView):
+    template_name = 'home.html'
+    title = 'Home'
+    page_name = 'home'
 
 @login_required
 def profile(request):
