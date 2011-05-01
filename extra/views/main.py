@@ -160,21 +160,29 @@ class ProfileEditView(BaseProfileView):
                     'p_form': self._pf})
         return ctx
 
-@login_required
-def password (request):
-    if request.method == 'POST':
-        f_passwd = PasswordChangeForm (request.user, request.POST)
 
-        if f_passwd.is_valid ():
-            f_passwd.save ()
-            return HttpResponseRedirect (reverse (profile))
-    else:
-        f_passwd = PasswordChangeForm (request.user)
+class PasswordEditView(SiteView):
+    template_name = 'password.html'
+    title = 'Change password'
+    page_name = 'profile'
 
-    tpl_vars = {'page_title': 'Change password', 'f_passwd': f_passwd}
-    add_common_tpl_vars (request, tpl_vars, 'profile')
-    return render_to_response ('password.html', tpl_vars,
-                               context_instance = RequestContext (request))
+    def get(self, request, *args, **kwargs):
+        self._fpwd = PasswordChangeForm(request.user)
+        return super(PasswordEditView, self).get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self._fpwd = PasswordChangeForm(request.user, request.POST)
+
+        if self._fpwd.is_valid():
+            self._fpwd.save()
+            return HttpResponseRedirect('/profile/')
+
+        return super(PasswordEditView, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        ctx = super(PasswordEditView, self).get_context_data(**kwargs)
+        ctx.update({'f_pwd': self._fpwd})
+        return ctx
 
 
 @login_required

@@ -19,7 +19,7 @@ urlpatterns = patterns('',
  (r'^public/', include('mrwf.extra.public.urls')),
  (r'^profile/$', views.main.ProfileView.as_view()),
  (r'^profile/edit/$', views.main.ProfileEditView.as_view()),
- (r'^profile/password/$', 'mrwf.extra.views.main.password'),
+ (r'^profile/password/$', views.main.PasswordEditView.as_view()),
  (r'^profile/email_test/$', 'mrwf.extra.views.main.email_test'),
 )
 
