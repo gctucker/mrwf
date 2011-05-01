@@ -2,17 +2,15 @@ from sys import version_info
 from smtplib import SMTPException
 from django import get_version as get_django_version
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
-from django.core.urlresolvers import reverse
+#from django.core.urlresolvers import reverse
 from django.core.mail import send_mail
 from django.http import HttpResponseRedirect
-from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.conf import settings
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView
-from django.views.generic.edit import ProcessFormView, FormMixin
 from cams.libcams import CAMS_VERSION, Page, get_user_pages
 from cams.models import Contact, Player, get_user_email
 from mrwf.extra.forms import UserNameForm, PersonForm, ContactForm
