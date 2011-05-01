@@ -80,6 +80,13 @@ class SiteView(TemplateView):
 
         return ctx
 
+
+class PlayerMixin(object):
+    def set_player(self):
+        self.player = get_object_or_404(Player, user=self.request.user)
+        self.contacts = Contact.objects.filter(obj=self.player.person)
+
+
 # -----------------------------------------------------------------------------
 # entry points from url's
 
@@ -89,17 +96,10 @@ class HomeView(SiteView):
     page_name = 'home'
 
 
-class BaseProfileView(SiteView):
-    title = 'User Profile'
-    page_name = 'profile'
-
-    def set_player(self):
-        self.player = get_object_or_404(Player, user=self.request.user)
-        self.contacts = Contact.objects.filter(obj=self.player.person)
-
-
-class ProfileView(BaseProfileView):
+class ProfileView(SiteView, PlayerMixin):
     template_name = 'profile.html'
+    title = 'User profile'
+    page_name = 'profile'
 
     def get_context_data(self, **kwargs):
         ctx = super(ProfileView, self).get_context_data(**kwargs)
@@ -116,8 +116,10 @@ class ProfileView(BaseProfileView):
         return ctx
 
 
-class ProfileEditView(BaseProfileView):
+class ProfileEditView(SiteView, PlayerMixin):
     template_name = 'profile_edit.html'
+    title = 'Edit user profile'
+    page_name = 'profile'
 
     def get(self, request, *args, **kwargs):
         self.set_player()
