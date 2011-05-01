@@ -187,21 +187,29 @@ class PasswordEditView(SiteView):
         return ctx
 
 
-@login_required
-def email_test (request):
-    email = get_user_email (request.user)
-    if email:
-        try:
-            send_mail ("CAMS e-mail test",
-                       "Your email is properly configured.",
-                       "no-reply@mangoz.org", [email])
-            all_good = True
-        except SMTPException:
-            all_good = False
-    else:
-        all_good = False
+class EmailTestView(SiteView):
+    template_name = 'email_test.html'
+    title = 'E-mail test'
+    page_name = 'profile'
 
-    tpl_vars = {'page_title': 'Email test', 'all_good': all_good,
-                'email': email}
-    add_common_tpl_vars (request, tpl_vars, 'profile')
-    return render_to_response ('email_test.html', tpl_vars)
+    def get(self, request, *args, **kwargs):
+        self._email = get_user_email(request.user)
+        self._result = False
+        self._err_str = None
+
+        if self._email:
+            try:
+                send_mail("CAMS e-mail test",
+                          "Your email is properly configured.",
+                          "no-reply@mangoz.org", [self._email])
+                self._result = True
+            except SMTPException, e:
+                self._err_str = str(e)
+
+        return super(EmailTestView, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        ctx = super(EmailTestView, self).get_context_data(**kwargs)
+        ctx.update({'result': self._result, 'email': self._email,
+                    'error': self._err_str})
+        return ctx

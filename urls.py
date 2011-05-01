@@ -20,7 +20,7 @@ urlpatterns = patterns('',
  (r'^profile/$', views.main.ProfileView.as_view()),
  (r'^profile/edit/$', views.main.ProfileEditView.as_view()),
  (r'^profile/password/$', views.main.PasswordEditView.as_view()),
- (r'^profile/email_test/$', 'mrwf.extra.views.main.email_test'),
+ (r'^profile/email_test/$', views.main.EmailTestView.as_view()),
 )
 
 if DEBUG and STATIC_ROOT:
