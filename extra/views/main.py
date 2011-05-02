@@ -28,21 +28,21 @@ MENU_ITEMS = [
     Menu.Item('admin',   'admin/',           'admin',        Menu.Item.ADMIN),
     Menu.Item('logout',  'accounts/logout/', 'log out',      Menu.Item.COMMON)]
 
-def get_page (request, list, n):
-    pagin = Paginator (list, n)
+def get_list_page(request, obj_list, n):
+    pagin = Paginator(obj_list, n)
 
     if 'page' in request.GET:
         try:
-            page_n = int (request.GET['page'])
+            page_n = int(request.GET['page'])
         except ValueError:
             page_n = 1
     else:
         page_n = 1
 
     try:
-        page = pagin.page (page_n)
+        page = pagin.page(page_n)
     except (InvalidPage, EmptyPage):
-        page = pagin.page (pagin.num_pages)
+        page = pagin.page(pagin.num_pages)
 
     return page
 
@@ -54,7 +54,7 @@ def add_common_tpl_vars(request, tpl_vars, menu_name, obj_list=None, n=20):
     tpl_vars['menu'] = menu.get_user_pages(request.user)
 
     if obj_list:
-        page = get_page (request, obj_list, n)
+        page = get_list_page(request, obj_list, n)
         tpl_vars['page'] = page
 
 class SiteView(TemplateView):
