@@ -11,25 +11,23 @@ from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView
-from cams.libcams import CAMS_VERSION, Page, get_user_pages
+from cams.libcams import CAMS_VERSION, Menu
 from cams.models import Contact, Player, get_user_email
 from mrwf.extra.forms import UserNameForm, PersonForm, ContactForm
 
-PAGE_LIST = [
-    Page('home',    '',                   'welcome',      Page.COMMON),
-    Page('profile', 'profile/',           'user profile', Page.COMMON),
-    Page('abook',   'abook/',             'address book', Page.COMMON),
-    Page('parts',   'cams/participant/',  'groups',       Page.COMMON),
-#    Page('prep',    'cams/prep/',         'preparation',  Page.COMMON),
-    Page('prog',    'cams/prog/',         'programme',    Page.COMMON),
-    Page('appli',   'cams/application/',  'applications', Page.ADMIN),
-    Page('invoice', 'cams/invoice/',      'invoices',     Page.ADMIN),
-#    Page('fairs',   'cams/fair/',         'winter fairs', Page.COMMON),
-    Page('admin',   'admin/',             'admin',        Page.ADMIN),
-    Page('logout',  'accounts/logout/',   'log out',      Page.COMMON)]
+MENU_ITEMS = [
+    Menu.Item('home',    '',                 'welcome',      Menu.Item.COMMON),
+    Menu.Item('profile', 'profile/',         'user profile', Menu.Item.COMMON),
+    Menu.Item('abook',   'abook/',           'address book', Menu.Item.COMMON),
+    Menu.Item('parts',   'cams/participant/','groups',       Menu.Item.COMMON),
+#   Menu.Item('prep',    'cams/prep/',       'preparation',  Menu.Item.COMMON),
+    Menu.Item('prog',    'cams/prog/',       'programme',    Menu.Item.COMMON),
+    Menu.Item('appli',   'cams/application/','applications', Menu.Item.ADMIN),
+    Menu.Item('invoice', 'cams/invoice/',    'invoices',     Menu.Item.ADMIN),
+#   Menu.Item('fairs',   'cams/fair/',       'winter fairs', Menu.Item.COMMON),
+    Menu.Item('admin',   'admin/',           'admin',        Menu.Item.ADMIN),
+    Menu.Item('logout',  'accounts/logout/', 'log out',      Menu.Item.COMMON)]
 
-# Note: this is about list pagination, not site pages...
-# ToDo: rename to remove ambiguity
 def get_page (request, list, n):
     pagin = Paginator (list, n)
 
@@ -48,12 +46,12 @@ def get_page (request, list, n):
 
     return page
 
-def add_common_tpl_vars (request, tpl_vars, cpage, obj_list = None, n = 20):
+def add_common_tpl_vars(request, tpl_vars, menu_name, obj_list=None, n=20):
     tpl_vars['px'] = settings.URL_PREFIX
     tpl_vars['user'] = request.user
-    # ToDo: rename pages -> nav (avoid confusion with page in paginator)
-    tpl_vars['pages'] = get_user_pages (PAGE_LIST, request.user)
-    tpl_vars['current_page'] = cpage
+    menu = Menu(MENU_ITEMS)
+    menu.set_current(menu_name)
+    tpl_vars['menu'] = menu.get_user_pages(request.user)
 
     if obj_list:
         page = get_page (request, obj_list, n)
@@ -66,16 +64,19 @@ class SiteView(TemplateView):
 
     def get_context_data(self, **kwargs):
         ctx = super(SiteView, self).get_context_data(**kwargs)
-        ctx['px'] = settings.URL_PREFIX # ToDo: use {% url ... %} tag instead
-        ctx['user'] = self.request.user
-        ctx['pages'] = get_user_pages(PAGE_LIST, self.request.user)
 
         if self.title:
             ctx['page_title'] = self.title
 
-        if self.page_name:
-            ctx['current_page'] = self.page_name
+        menu = Menu(MENU_ITEMS)
 
+        if self.menu_name:
+            menu.set_current(self.menu_name)
+
+        # ToDo: use {% url ... %} tag instead iof `px'
+        ctx.update({'px': settings.URL_PREFIX,
+                    'user': self.request.user,
+                    'menu': menu.get_user_pages(self.request.user)})
         return ctx
 
 
@@ -91,13 +92,13 @@ class PlayerMixin(object):
 class HomeView(SiteView):
     template_name = 'home.html'
     title = 'Home'
-    page_name = 'home'
+    menu_name = 'home'
 
 
 class ProfileView(SiteView, PlayerMixin):
     template_name = 'profile.html'
     title = 'User profile'
-    page_name = 'profile'
+    menu_name = 'profile'
 
     def get_context_data(self, **kwargs):
         ctx = super(ProfileView, self).get_context_data(**kwargs)
@@ -117,7 +118,7 @@ class ProfileView(SiteView, PlayerMixin):
 class ProfileEditView(SiteView, PlayerMixin):
     template_name = 'profile_edit.html'
     title = 'Edit user profile'
-    page_name = 'profile'
+    menu_name = 'profile'
 
     def get(self, request, *args, **kwargs):
         self.set_player()
@@ -164,7 +165,7 @@ class ProfileEditView(SiteView, PlayerMixin):
 class PasswordEditView(SiteView):
     template_name = 'password.html'
     title = 'Change password'
-    page_name = 'profile'
+    menu_name = 'profile'
 
     def get(self, request, *args, **kwargs):
         self._fpwd = PasswordChangeForm(request.user)
@@ -188,7 +189,7 @@ class PasswordEditView(SiteView):
 class EmailTestView(SiteView):
     template_name = 'email_test.html'
     title = 'E-mail test'
-    page_name = 'profile'
+    menu_name = 'profile'
 
     def get(self, request, *args, **kwargs):
         self._email = get_user_email(request.user)
