@@ -64,17 +64,11 @@ class SiteView(TemplateView):
 
     def get_context_data(self, **kwargs):
         ctx = super(SiteView, self).get_context_data(**kwargs)
-
-        if self.title:
-            ctx['page_title'] = self.title
-
         menu = Menu(MENU_ITEMS)
-
-        if self.menu_name:
-            menu.set_current(self.menu_name)
-
-        # ToDo: use {% url ... %} tag instead iof `px'
+        menu.set_current(self.menu_name)
+        # ToDo: use {% url ... %} tag instead of `px'
         ctx.update({'px': settings.URL_PREFIX,
+                    'title': self.title,
                     'user': self.request.user,
                     'menu': menu.get_user_pages(self.request.user)})
         return ctx
