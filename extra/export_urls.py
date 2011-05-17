@@ -6,3 +6,7 @@ urlpatterns = patterns ('mrwf.extra.views.export',
  (r'^programme/$', 'programme'),
  (r'^invoices/$', 'invoices'),
 )
+
+urlpatterns += patterns ('mrwf.extra.views.pdfexport',
+ (r'^group_org_pdf/(?P<group_id>\d+)/$', 'group_org_pdf'), # Temporary...
+)
