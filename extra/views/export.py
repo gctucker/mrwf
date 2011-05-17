@@ -4,83 +4,12 @@ from django.contrib.auth.decorators import login_required
 from django.template import Context
 from django.template.loader import get_template
 from django.shortcuts import get_object_or_404
-from cams.libcams import CSVFileResponse, get_time_string, get_obj_address
+from cams.libcams import CSVFileResponse, get_time_string, make_group_file_name
 from cams.models import Record, Contact, Contactable, Member, Group
+from cams.contacts import iterate_group_contacts
 from mrwf.extra.models import (FairEventType, FairEvent,
                                StallEvent, StallInvoice)
 from mrwf.extra.views.mgmt import get_listing_id
-
-class ExportContact (object):
-    def __init__(self, person, ctype, org_name, contact):
-        self.p = person
-        self.ctype = ctype
-        self.org_name = org_name
-        self.c = contact
-
-def iterate_group_contacts (group): # ToDo: move into group model ?
-    contactables = group.members.filter (status = Record.ACTIVE)
-
-    c_people = contactables.filter (type = Contactable.PERSON)
-    c_people = c_people.order_by ('person__last_name')
-
-    for it in c_people:
-        org_name = ''
-        c = Contact.objects.filter (obj = it)
-        if c:
-            c = c[0]
-            ctype = 'person'
-        else:
-            member = Member.objects.filter (person = it)
-            if member:
-                member = member[0]
-                org_name = member.organisation.name
-                c = Contact.objects.filter (obj = member)
-                if c:
-                    c = c[0]
-                    ctype = 'member'
-                else:
-                    c = Contact.objects.filter (obj = member.organisation)
-                    if c:
-                        c = c[0]
-                        ctype = 'org'
-        if c:
-            yield ExportContact (it.person, ctype, org_name, c)
-
-    c_orgs = contactables.filter (type = Contactable.ORGANISATION)
-    c_orgs = c_orgs.order_by ('organisation__name')
-
-    for it in c_orgs:
-        c = Contact.objects.filter (obj = it)
-        p = None
-        if c:
-            c = c[0]
-            c_type = 'org'
-        else:
-            member = Member.objects.filter (organisation = it)
-            if member:
-                member = member[0]
-                c = Contact.objects.filter (obj = member)
-                if c:
-                    p = member.person
-                    c = c[0]
-                    c_type = 'member'
-                else:
-                    c = Contact.objects.filter (obj = member.person)
-                    if c:
-                        p = member.person
-                        c = c[0]
-                        c_type = 'person'
-        if c:
-            yield ExportContact (p, c_type, it.organisation.name, c)
-
-def make_group_file_name (group, sx = ''):
-    if group.fair:
-        year_str = '-%d' % group.fair.date.year
-    else:
-        year_str = ''
-
-    return '%s%s%s_%s' % (group.name.replace (' ', '_'),
-                          year_str, sx, get_time_string ())
 
 @login_required
 def group (request, group_id):
