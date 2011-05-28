@@ -17,7 +17,7 @@ from django.contrib.auth.decorators import login_required
 from cams.models import Contactable, Person, Organisation, Group
 from cams.libcams import make_group_file_name
 from cams.pdftools import append_org_form
-from settings import STATIC_ROOT
+from django.conf import settings
 
 @login_required
 def group_org_pdf(request, group_id):
@@ -38,7 +38,8 @@ def group_org_pdf(request, group_id):
     image_h = 270
     w = page_size[0] * 0.4
     h = w * image_h / image_w
-    letterhead = Image(STATIC_ROOT + '/img/mrwf_master_logo_black.png',
+    letterhead = Image(settings.STATIC_ROOT
+                       + '/img/mrwf_master_logo_black.png',
                        width=w, height=h)
 
     head_style = deepcopy(styles["Normal"])
@@ -56,7 +57,7 @@ at the bottom to show that it is correct.  Then, drop it in at the Post Office
 at Al-Amin's.""", instr_style)
 
     img = '<img src="%s" width="%d" height="%d" />' % \
-        (STATIC_ROOT + '/img/checkbox.png', 10, 10)
+        (settings.STATIC_ROOT + '/img/checkbox.png', 10, 10)
     check = Paragraph(img +
                       '  Please check this box if all details are correct.',
                       instr_style)
