@@ -91,11 +91,6 @@ class AbookView(SiteView):
         ctx['urlmatch'] = self.urlmatch
         return ctx
 
-    class SearchForm(forms.Form):
-        match = forms.CharField(required=True, max_length=64)
-        opt_contacts = forms.BooleanField(required=False,
-                                          label="search within contacts")
-
 # -----------------------------------------------------------------------------
 # entry points from url's
 
