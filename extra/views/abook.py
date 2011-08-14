@@ -1,8 +1,7 @@
 from urllib import urlencode
 from django import forms
 from django.db.models.query import Q
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import get_object_or_404
 from cams.libcams import str2list
 from cams.models import (Record, Contactable, Person, Organisation, Member,
                          Contact)
