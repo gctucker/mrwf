@@ -218,6 +218,7 @@ class PersonView(AbookView):
                     'url': 'abook/person/{:d}'.format(person.id)})
         return ctx
 
+
 class OrgView(AbookView):
     template_name = 'abook/org.html'
 
