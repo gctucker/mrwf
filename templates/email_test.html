@@ -1,9 +1,9 @@
 {% extends "nav_layout.html" %}
 
 {% block contents %}
-          <div class="element">{% if all_good %}
+          <div class="element">{% if result %}
             A test e-mail was sent successfully to {{ email }}{% else %}{% if email %}
-            An error occured with {{ email }}{% else %}
+            An error occured with {{ email }}{% if error %}:<br />{{ error }}{% endif %}{% else %}
             You have no e-mail address configured.{% endif %}{% endif %}
           </div>
           <div class="back"><a href="{{ px }}profile/">&lt;&lt;&nbsp;back to profile</a></div>

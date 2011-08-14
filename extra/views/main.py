@@ -1,163 +1,208 @@
-from django import VERSION
+from sys import version_info
+from smtplib import SMTPException
+from django import get_version as get_django_version
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
-from django.core.urlresolvers import reverse
+#from django.core.urlresolvers import reverse
 from django.core.mail import send_mail
 from django.http import HttpResponseRedirect
-from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.conf import settings
-from django.shortcuts import render_to_response, get_object_or_404
-from cams.libcams import CAMS_VERSION, Page, get_user_pages
+from django.shortcuts import get_object_or_404
+from django.utils.decorators import method_decorator
+from django.views.generic import TemplateView
+from cams.libcams import CAMS_VERSION, Menu
 from cams.models import Contact, Player, get_user_email
 from mrwf.extra.forms import UserNameForm, PersonForm, ContactForm
 
-PAGE_LIST = [
-    Page ('home',    '',                   'welcome',      Page.OPEN),
-    Page ('profile', 'profile/',           'user profile', Page.OPEN),
-    Page ('abook',   'abook/',             'address book', Page.OPEN),
-    Page ('parts',   'cams/participant/',  'groups',       Page.OPEN),
-#    Page ('prep',    'cams/prep/',         'preparation',  Page.OPEN),
-    Page ('prog',    'cams/prog/',         'programme',    Page.OPEN),
-    Page ('appli',   'cams/application/',  'applications', Page.ADMIN),
-    Page ('invoice', 'cams/invoice/',      'invoices',     Page.ADMIN),
-#    Page ('fairs',   'cams/fair/',         'winter fairs', Page.OPEN),
-    Page ('admin',   'admin/',             'admin',        Page.ADMIN),
-    Page ('logout',  'accounts/logout/',   'log out',      Page.OPEN)]
+MENU_ITEMS = [
+    Menu.Item('home',    '',                 'welcome',      Menu.Item.COMMON),
+    Menu.Item('profile', 'profile/',         'user profile', Menu.Item.COMMON),
+    Menu.Item('abook',   'abook/',           'address book', Menu.Item.COMMON),
+    Menu.Item('parts',   'cams/participant/','groups',       Menu.Item.COMMON),
+#   Menu.Item('prep',    'cams/prep/',       'preparation',  Menu.Item.COMMON),
+    Menu.Item('prog',    'cams/prog/',       'programme',    Menu.Item.COMMON),
+    Menu.Item('appli',   'cams/application/','applications', Menu.Item.ADMIN),
+    Menu.Item('invoice', 'cams/invoice/',    'invoices',     Menu.Item.ADMIN),
+#   Menu.Item('fairs',   'cams/fair/',       'winter fairs', Menu.Item.COMMON),
+    Menu.Item('admin',   'admin/',           'admin',        Menu.Item.ADMIN),
+    Menu.Item('logout',  'accounts/logout/', 'log out',      Menu.Item.COMMON)]
 
-
-def get_page (request, list, n):
-    pagin = Paginator (list, n)
+def get_list_page(request, obj_list, n):
+    pagin = Paginator(obj_list, n)
 
     if 'page' in request.GET:
         try:
-            page_n = int (request.GET['page'])
+            page_n = int(request.GET['page'])
         except ValueError:
             page_n = 1
     else:
         page_n = 1
 
     try:
-        page = pagin.page (page_n)
+        page = pagin.page(page_n)
     except (InvalidPage, EmptyPage):
-        page = pagin.page (pagin.num_pages)
+        page = pagin.page(pagin.num_pages)
 
     return page
 
-def add_common_tpl_vars (request, tpl_vars, cpage, obj_list = None, n = 20):
+def add_common_tpl_vars(request, tpl_vars, menu_name, obj_list=None, n=20):
     tpl_vars['px'] = settings.URL_PREFIX
     tpl_vars['user'] = request.user
-    # ToDo: rename pages -> nav (avoid confusion with page in paginator)
-    tpl_vars['pages'] = get_user_pages (PAGE_LIST, request.user)
-    tpl_vars['current_page'] = cpage
+    menu = Menu(MENU_ITEMS)
+    menu.set_current(menu_name)
+    tpl_vars['menu'] = menu.get_user_pages(request.user)
 
     if obj_list:
-        page = get_page (request, obj_list, n)
+        page = get_list_page(request, obj_list, n)
         tpl_vars['page'] = page
+
+class SiteView(TemplateView):
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(SiteView, self).dispatch(*args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        ctx = super(SiteView, self).get_context_data(**kwargs)
+        menu = Menu(MENU_ITEMS)
+        menu.set_current(self.menu_name)
+        # ToDo: use {% url ... %} tag instead of `px'
+        ctx.update({'px': settings.URL_PREFIX,
+                    'title': self.title,
+                    'user': self.request.user,
+                    'menu': menu.get_user_pages(self.request.user)})
+        return ctx
+
+
+class PlayerMixin(object):
+    def set_player(self):
+        self.player = get_object_or_404(Player, user=self.request.user)
+        self.contacts = Contact.objects.filter(obj=self.player.person)
+
 
 # -----------------------------------------------------------------------------
 # entry points from url's
 
-@login_required
-def home (request):
-    tpl_vars = {'page_title': 'Home'}
-    add_common_tpl_vars (request, tpl_vars, 'home')
-    return render_to_response ('home.html', tpl_vars)
+class HomeView(SiteView):
+    template_name = 'home.html'
+    title = 'Home'
+    menu_name = 'home'
 
-@login_required
-def profile (request):
-    player = get_object_or_404 (Player, user = request.user)
-    person = player.person
-    contacts = Contact.objects.filter (obj = person)
 
-    if contacts.count () > 0:
-        c = contacts[0]
-    else:
-        c = None
+class ProfileView(SiteView, PlayerMixin):
+    template_name = 'profile.html'
+    title = 'User profile'
+    menu_name = 'profile'
 
-    if request.user.is_staff:
-        django_version = "v%d.%d.%d" % (VERSION[0], VERSION[1], VERSION[2])
-        cams_version = "v%d.%d.%d" % (CAMS_VERSION[0], CAMS_VERSION[1],
-                                      CAMS_VERSION[2])
-    else:
-        django_version = None
-        cams_version = None
+    def get_context_data(self, **kwargs):
+        ctx = super(ProfileView, self).get_context_data(**kwargs)
+        self.set_player()
 
-    tpl_vars = {'page_title': 'User Profile', 'person': person, 'contact': c,
-                'django_version': django_version, 'cams_version': cams_version}
-    add_common_tpl_vars (request, tpl_vars, 'profile')
-    return render_to_response ('profile.html', tpl_vars)
+        if self.contacts.count() > 0:
+            ctx['contact'] = self.contacts[0]
 
-@login_required
-def profile_edit (request):
-    player = get_object_or_404 (Player, user = request.user)
-    person = player.person
-    contacts = Contact.objects.filter (obj = person)
+        vstring = lambda v: 'v{:d}.{:d}.{:d}'.format(v[0], v[1], v[2])
+        ctx.update({'python_version': vstring(version_info),
+                    'django_version': get_django_version(),
+                    'cams_version': vstring(CAMS_VERSION),
+                    'person': self.player.person})
+        return ctx
 
-    if request.method == 'POST':
-        u_form = UserNameForm (request.POST, instance = request.user,
-                               prefix = 'user')
-        p_form = PersonForm (request.POST, instance = person)
 
-        if contacts.count () > 0:
-            c_form = ContactForm (request.POST, instance = contacts[0])
+class ProfileEditView(SiteView, PlayerMixin):
+    template_name = 'profile_edit.html'
+    title = 'Edit user profile'
+    menu_name = 'profile'
+
+    def get(self, request, *args, **kwargs):
+        self.set_player()
+        self._uf = UserNameForm(instance=self.request.user, prefix='user')
+        self._pf = PersonForm(instance=self.player.person)
+
+        if self.contacts.count() > 0:
+            self._cf = ContactForm(instance=self.contacts[0])
         else:
-            c_form = ContactForm (request.POST)
-            c_form.instance.person = person
+            self._cf = ContactForm()
 
-        if u_form.is_valid () and p_form.is_valid () and c_form.is_valid ():
-            u_form.save ()
-            p_form.save ()
-            c_form.save ()
-            return HttpResponseRedirect (reverse (profile))
+        return super(ProfileEditView, self).get(request, *args, **kwargs)
 
-    else:
-        u_form = UserNameForm (instance = request.user, prefix = 'user')
-        p_form = PersonForm (instance = person)
+    def post(self, request, *args, **kwargs):
+        self.set_player()
+        self._uf = UserNameForm(self.request.POST, instance=self.request.user,
+                                prefix='user')
+        self._pf = PersonForm(self.request.POST, instance=self.player.person)
 
-        if contacts.count () > 0:
-            c_form = ContactForm (instance = contacts[0])
+        if self.contacts.count() > 0:
+            self._cf = ContactForm(self.request.POST,
+                                   instance=self.contacts[0])
         else:
-            c_form = ContactForm ()
+            self._cf = ContactForm(self.request.POST)
+            self._cf.instance.person = self.player.person
 
-    tpl_vars = {'page_title': 'User Profile', 'f_user': u_form,
-                'c_form': c_form, 'p_form': p_form}
+        if self._uf.is_valid() and self._pf.is_valid() and self._cf.is_valid():
+            self._uf.save()
+            self._pf.save()
+            self._cf.save()
+            # ToDo: reverse('profile')
+            return HttpResponseRedirect('/profile/')
 
-    add_common_tpl_vars (request, tpl_vars, 'profile')
-    return render_to_response ('profile_edit.html', tpl_vars,
-                               context_instance = RequestContext(request))
+        return super(ProfileEditView, self).get(request, *args, **kwargs)
 
-@login_required
-def password (request):
-    if request.method == 'POST':
-        f_passwd = PasswordChangeForm (request.user, request.POST)
+    def get_context_data(self, **kwargs):
+        ctx = super(ProfileEditView, self).get_context_data(**kwargs)
+        ctx.update({'f_user': self._uf,
+                    'c_form': self._cf,
+                    'p_form': self._pf})
+        return ctx
 
-        if f_passwd.is_valid ():
-            f_passwd.save ()
-            return HttpResponseRedirect (reverse (profile))
-    else:
-        f_passwd = PasswordChangeForm (request.user)
 
-    tpl_vars = {'page_title': 'Change password', 'f_passwd': f_passwd}
-    add_common_tpl_vars (request, tpl_vars, 'profile')
-    return render_to_response ('password.html', tpl_vars,
-                               context_instance = RequestContext (request))
+class PasswordEditView(SiteView):
+    template_name = 'password.html'
+    title = 'Change password'
+    menu_name = 'profile'
 
-@login_required
-def email_test (request):
-    email = get_user_email (request.user)
-    if email:
-        try:
-            send_mail ("CAMS e-mail test",
-                       "Your email is properly configured.",
-                       "no-reply@mangoz.org", [email])
-            all_good = True
-        except smtplib.SMTPException:
-            all_good = False
-    else:
-        all_good = False
+    def get(self, request, *args, **kwargs):
+        self._fpwd = PasswordChangeForm(request.user)
+        return super(PasswordEditView, self).get(request, *args, **kwargs)
 
-    tpl_vars = {'page_title': 'Email test', 'all_good': all_good,
-                'email': email}
-    add_common_tpl_vars (request, tpl_vars, 'profile')
-    return render_to_response ('email_test.html', tpl_vars)
+    def post(self, request, *args, **kwargs):
+        self._fpwd = PasswordChangeForm(request.user, request.POST)
+
+        if self._fpwd.is_valid():
+            self._fpwd.save()
+            return HttpResponseRedirect('/profile/')
+
+        return super(PasswordEditView, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        ctx = super(PasswordEditView, self).get_context_data(**kwargs)
+        ctx.update({'f_pwd': self._fpwd})
+        return ctx
+
+
+class EmailTestView(SiteView):
+    template_name = 'email_test.html'
+    title = 'E-mail test'
+    menu_name = 'profile'
+
+    def get(self, request, *args, **kwargs):
+        self._email = get_user_email(request.user)
+        self._result = False
+        self._err_str = None
+
+        if self._email:
+            try:
+                send_mail("CAMS e-mail test",
+                          "Your email is properly configured.",
+                          "no-reply@mangoz.org", [self._email])
+                self._result = True
+            except SMTPException, e:
+                self._err_str = str(e)
+
+        return super(EmailTestView, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        ctx = super(EmailTestView, self).get_context_data(**kwargs)
+        ctx.update({'result': self._result, 'email': self._email,
+                    'error': self._err_str})
+        return ctx

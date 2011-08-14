@@ -1,6 +1,6 @@
 from django.conf.urls.defaults import patterns
 
-urlpatterns = patterns ('mrwf.extra.views.mgmt',
+urlpatterns = patterns('mrwf.extra.views.mgmt',
  (r'^participant/$', 'participants'),
 # (r'^participant/(?P<part_id>\d+)/$', 'part_details'),
  (r'^participant/group/(?P<group_id>\d+)/$', 'group'),

@@ -12,15 +12,15 @@ from mrwf.extra.models import (FairEventType, FairEvent,
 from mrwf.extra.views.mgmt import get_listing_id
 
 @login_required
-def group (request, group_id):
-    group = get_object_or_404 (Group, pk = group_id)
-    csv = CSVFileResponse (('first_name', 'middle_name', 'last_name',
-                            'contact_type', 'organisation',
-                            'line_1', 'line_2', 'line_3', 'town', 'postcode',
-                            'telephone', 'mobile', 'fax', 'email', 'website',
-                            'order', 'sub-order'))
+def group(request, group_id):
+    group = get_object_or_404(Group, pk = group_id)
+    csv = CSVFileResponse(('first_name', 'middle_name', 'last_name',
+                           'contact_type', 'organisation',
+                           'line_1', 'line_2', 'line_3', 'town', 'postcode',
+                           'telephone', 'mobile', 'fax', 'email', 'website',
+                           'order', 'sub-order'))
 
-    for it in iterate_group_contacts (group):
+    for it in iterate_group_contacts(group):
         if it.p:
             p_first_name = it.p.first_name
             p_middle_name = it.p.middle_name
@@ -30,59 +30,59 @@ def group (request, group_id):
             p_middle_name = ''
             p_last_name = ''
 
-        csv.writerow ((p_first_name, p_middle_name, p_last_name,
-                       it.ctype, it.org_name,
-                       it.c.line_1, it.c.line_2, it.c.line_3, it.c.town,
-                       it.c.postcode, it.c.telephone, it.c.mobile, it.c.fax,
-                       it.c.email, it.c.website,
-                       str (it.c.addr_order), str (it.c.addr_suborder)))
+        csv.write((p_first_name, p_middle_name, p_last_name,
+                   it.ctype, it.org_name,
+                   it.c.line_1, it.c.line_2, it.c.line_3, it.c.town,
+                   it.c.postcode, it.c.telephone, it.c.mobile, it.c.fax,
+                   it.c.email, it.c.website,
+                   str(it.c.addr_order), str(it.c.addr_suborder)))
 
-    csv.set_file_name (make_group_file_name (group) + '.csv')
+    csv.set_file_name(make_group_file_name(group) + '.csv')
     return csv.response
 
 @login_required
-def group_email (request, group_id):
-    group = get_object_or_404 (Group, pk = group_id)
+def group_email(request, group_id):
+    group = get_object_or_404(Group, pk = group_id)
     emails = []
-    for it in iterate_group_contacts (group):
+    for it in iterate_group_contacts(group):
         if it.c.email and it.c.email not in emails:
-            emails.append (it.c.email)
-    emails.sort ()
-    resp = HttpResponse (mimetype = 'text/plain')
-    resp['Content-Disposition'] = 'attachement; filename=\"%s\"' % \
-        (make_group_file_name (group, '-email') + '.txt')
-    n_emails = len (emails)
+            emails.append(it.c.email)
+    emails.sort()
+    resp = HttpResponse(mimetype = 'text/plain')
+    resp['Content-Disposition'] = 'attachement; filename=\"{0}\"'.format \
+        (make_group_file_name(group, '-email') + '.txt')
+    n_emails = len(emails)
     range_step = 50
-    for i, range_start in enumerate (range (0, n_emails, range_step)):
+    for i, range_start in enumerate(range(0, n_emails, range_step)):
         range_stop = range_start + range_step
-        resp.write ('Chunk #%d\n' % i)
+        resp.write('Chunk {:d}\n'.format(i))
         chunk_str = ''
         for e in emails[range_start:range_stop]:
             chunk_str += ('<' + e + '>, ')
-        resp.write (chunk_str.rstrip (', ') + '\n\n')
+        resp.write(chunk_str.rstrip(', ') + '\n\n')
     return resp
 
 @login_required
-def programme (request):
-    def istr (value):
+def programme(request):
+    def istr(value):
         if value:
-            return str (value)
+            return str(value)
         else:
             return ''
 
-    events = FairEvent.objects.filter (status = Record.ACTIVE)
-    events = events.filter (fair__current = True)
+    events = FairEvent.objects.filter(status = Record.ACTIVE)
+    events = events.filter(fair__current = True)
 
-    listing = get_listing_id (request)
+    listing = get_listing_id(request)
     if listing > 0:
-        events = events.filter (etype = listing)
-        listing_obj = get_object_or_404 (FairEventType, pk = listing)
-        file_name = "Programme_%s" % listing_obj.name.replace (' ', '_')
+        events = events.filter(etype = listing)
+        listing_obj = get_object_or_404(FairEventType, pk = listing)
+        file_name = 'Programme_{0}'.format(listing_obj.name.replace(' ', '_'))
     elif listing == 0:
-        events = events.filter (etype__isnull = True)
-        file_name = "Programme_Default"
+        events = events.filter(etype__isnull = True)
+        file_name = 'Programme_Default'
     else:
-        file_name = "Programme"
+        file_name = 'Programme'
 
     if 'fmt' in request.GET:
         fmt = request.GET['fmt']
@@ -90,39 +90,39 @@ def programme (request):
         fmt='csv'
 
     if fmt == 'csv':
-        csv = CSVFileResponse (('name', 'description', 'time', 'until',
-                                'age min', 'age max', 'location',
-                                'order', 'suborder',
+        csv = CSVFileResponse(('name', 'description', 'time', 'until',
+                               'age min', 'age max', 'location',
+                               'order', 'suborder',
 
-                                'event address', 'event telephone',
-                                'event mobile', 'event email', 'event website',
+                               'event address', 'event telephone',
+                               'event mobile', 'event email', 'event website',
 
-                                'owner', 'owner address', 'owner telephone',
-                                'owner mobile', 'owner email', 'owner website',
+                               'owner', 'owner address', 'owner telephone',
+                               'owner mobile', 'owner email', 'owner website',
 
-                                'organisation', 'org address', 'org telephone',
-                                'org mobile', 'org email', 'org website',
-                                'org order', 'org sub-order',
+                               'organisation', 'org address', 'org telephone',
+                               'org mobile', 'org email', 'org website',
+                               'org order', 'org sub-order',
 
-                                'n. spaces', 'n. tables'))
+                               'n. spaces', 'n. tables'))
 
-        csv.set_file_name ("%s_%s.csv" % (file_name, get_time_string ()))
+        csv.set_file_name('{0}_{1}.csv'.format(file_name, get_time_string()))
 
         for e in events:
             # ToDo: add subtype field in base FairEvent like Contactable ?
             try:
-                stall = StallEvent.objects.get (pk = e.id)
-                n_spaces = str (stall.n_spaces)
-                n_tables = str (stall.n_tables)
+                stall = StallEvent.objects.get(pk = e.id)
+                n_spaces = str(stall.n_spaces)
+                n_tables = str(stall.n_tables)
             except StallEvent.DoesNotExist:
                 n_spaces = ''
                 n_tables = ''
 
-            c = e.get_composite_contact ()
+            c = e.get_composite_contact()
 
-            if e.owner.contact_set.count () > 0:
-                owner_c = e.owner.contact_set.all ()[0]
-                owner_addr = owner_c.get_address ()
+            if e.owner.contact_set.count() > 0:
+                owner_c = e.owner.contact_set.all()[0]
+                owner_addr = owner_c.get_address()
                 owner_tel = owner_c.telephone
                 owner_mob = owner_c.mobile
                 owner_email = owner_c.email
@@ -137,8 +137,8 @@ def programme (request):
 
             if e.org:
                 org_name = e.org.name
-                if e.org.contact_set.count () > 0:
-                    org_c = e.org.contact_set.all ()[0]
+                if e.org.contact_set.count() > 0:
+                    org_c = e.org.contact_set.all()[0]
                 else:
                     org_c = None
             else:
@@ -146,13 +146,13 @@ def programme (request):
                 org_c = None
 
             if org_c:
-                org_addr = org_c.get_address ()
+                org_addr = org_c.get_address()
                 org_tel = org_c.telephone
                 org_mobile = org_c.mobile
                 org_email = org_c.email
                 org_website = org_c.website
-                org_order = istr (org_c.addr_order)
-                org_suborder = istr (org_c.addr_suborder)
+                org_order = istr(org_c.addr_order)
+                org_suborder = istr(org_c.addr_suborder)
             else:
                 org_addr = ''
                 org_tel = ''
@@ -162,61 +162,61 @@ def programme (request):
                 org_order = ''
                 org_suborder = ''
 
-            csv.writerow ((e.name, e.description,
-                           istr (e.time), istr (e.end_time),
-                           istr (e.age_min), istr (e.age_max), e.location,
-                           istr (c.addr_order), istr (c.addr_suborder),
+            csv.write((e.name, e.description,
+                       istr(e.time), istr(e.end_time),
+                       istr(e.age_min), istr(e.age_max), e.location,
+                       istr(c.addr_order), istr(c.addr_suborder),
 
-                           c.get_address (), c.telephone,
-                           c.mobile, c.email, c.website,
+                       c.get_address(), c.telephone,
+                       c.mobile, c.email, c.website,
 
-                           "%s %s" % (e.owner.first_name, e.owner.last_name),
-                           owner_addr, owner_tel, owner_mob, owner_email,
-                           owner_website,
+                       '{0} {1}'.format(e.owner.first_name, e.owner.last_name),
+                       owner_addr, owner_tel, owner_mob, owner_email,
+                       owner_website,
 
-                           org_name, org_addr, org_tel, org_mobile,
-                           org_email, org_website, org_order, org_suborder,
+                       org_name, org_addr, org_tel, org_mobile,
+                       org_email, org_website, org_order, org_suborder,
 
-                           n_spaces, n_tables))
+                       n_spaces, n_tables))
 
         return csv.response
     elif fmt == 'plaintext':
-        resp = HttpResponse (mimetype = 'text/plain')
+        resp = HttpResponse(mimetype = 'text/plain')
         resp['Content-Disposition'] = \
-            'attachement; filename=\"%s_%s.txt\"' % \
-            (file_name, get_time_string ())
-        t = get_template ("cams/prog_event.txt")
-        ctx = Context ({'e': None, 'c': None})
+            'attachement; filename=\"{0}_{1}.txt\"'.format \
+            (file_name, get_time_string())
+        t = get_template("cams/prog_event.txt")
+        ctx = Context({'e': None, 'c': None})
 
         for e in events:
             ctx['e'] = e
-            ctx['c'] = e.get_composite_contact ()
-            resp.write (t.render (ctx))
+            ctx['c'] = e.get_composite_contact()
+            resp.write(t.render(ctx))
 
         return resp
     else:
         raise Http404
 
 @login_required
-def invoices (request):
-    def date_str (datetime):
+def invoices(request):
+    def date_str(datetime):
         if datetime:
-            return str (datetime)
+            return str(datetime)
         else:
             return ''
 
-    invs = StallInvoice.objects.all ()
-    resp = CSVFileResponse (('stall_name', 'owner', 'owner_address',
-                             'owner_telephone', 'owner_email', 'organisation',
-                             'org_address', 'org_telephone', 'org_email',
-                             'tables', 'spaces', 'amount', 'status',
-                             'reference', 'created', 'sent', 'paid', 'banked'))
+    invs = StallInvoice.objects.all()
+    resp = CSVFileResponse(('stall_name', 'owner', 'owner_address',
+                            'owner_telephone', 'owner_email', 'organisation',
+                            'org_address', 'org_telephone', 'org_email',
+                            'tables', 'spaces', 'amount', 'status',
+                            'reference', 'created', 'sent', 'paid', 'banked'))
 
     for i in invs:
-        owner_c = Contact.objects.filter (obj = i.stall.owner)
+        owner_c = Contact.objects.filter(obj = i.stall.owner)
         if owner_c:
             c = owner_c[0]
-            owner_address = c.get_address ()
+            owner_address = c.get_address()
             owner_telephone = c.telephone
             owner_email = c.email
         else:
@@ -225,8 +225,8 @@ def invoices (request):
             owner_email = ''
 
         if i.stall.org:
-            org_name = i.stall.org.__unicode__ ()
-            org_c = Contact.objects.filter (obj = i.stall.org)
+            org_name = i.stall.org.__unicode__()
+            org_c = Contact.objects.filter(obj = i.stall.org)
             if org_c:
                 org_c = org_c[0]
         else:
@@ -234,7 +234,7 @@ def invoices (request):
             org_c = None
 
         if org_c:
-            org_address = org_c.get_address ()
+            org_address = org_c.get_address()
             org_telephone = org_c.telephone
             org_email = org_c.email
         else:
@@ -242,13 +242,13 @@ def invoices (request):
             org_telephone = ''
             org_email = ''
 
-        resp.writerow ((i.stall.name, i.stall.owner.__unicode__ (),
-                        owner_address, owner_telephone, owner_email, org_name,
-                        org_address, org_telephone, org_email,
-                        str (i.stall.n_tables), str (i.stall.n_spaces),
-                        str (i.amount), i.status_str (), i.reference,
-                        date_str (i.created), date_str (i.sent),
-                        date_str(i.paid), date_str (i.banked)))
+        resp.write((i.stall.name, i.stall.owner.__unicode__(),
+                    owner_address, owner_telephone, owner_email, org_name,
+                    org_address, org_telephone, org_email,
+                    str(i.stall.n_tables), str(i.stall.n_spaces),
+                    str(i.amount), i.status_str(), i.reference,
+                    date_str(i.created), date_str(i.sent),
+                    date_str(i.paid), date_str(i.banked)))
 
-    resp.set_file_name ("Stall_invoices_%s.csv" % get_time_string ())
+    resp.set_file_name('Stall_invoices_{0}.csv'.format(get_time_string()))
     return resp.response
