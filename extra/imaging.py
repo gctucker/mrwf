@@ -1,20 +1,20 @@
 import Image
 import os
 
-def scale_down (img_field, max_D, max_d):
+def scale_down(img_field, max_D, max_d):
     if (max_d > max_D):
         tmp = max_d
         max_d = max_D
         max_D = max_d
 
     try:
-        file_name = os.path.split (img_field.path)[1]
-        img = Image.open (img_field)
+        file_name = os.path.split(img_field.path)[1]
+        img = Image.open(img_field)
         format = img.format
 
         if (format != "JPEG") and (format != "PNG") and (format != "GIF"):
             format = "JPEG"
-            file_name = os.path.splitext (file_name)[0] + ".jpeg"
+            file_name = os.path.splitext(file_name)[0] + ".jpeg"
             save = True
         else:
             save = False
@@ -27,26 +27,26 @@ def scale_down (img_field, max_D, max_d):
             d = img.size[0]
 
         if D > max_D:
-            ratio = float (max_D) / float (D)
+            ratio = float(max_D) / float(D)
             d *= ratio
         else:
             ratio = 1.0
 
         if d > max_d:
-            ratio *= (float (max_d) / float (d))
+            ratio *= (float(max_d) / float(d))
 
-        new_size = (int (img.size[0] * ratio), int (img.size[1] * ratio))
+        new_size = (int(img.size[0] * ratio), int(img.size[1] * ratio))
 
         if img.size != new_size:
-            img = img.resize (new_size, Image.ANTIALIAS)
+            img = img.resize(new_size, Image.ANTIALIAS)
             save = True
 
         if save:
-            new_name = img_field.field.generate_filename (img_field.instance,
-                                                          file_name)
+            new_name = img_field.field.generate_filename(img_field.instance,
+                                                         file_name)
             img_field.name = new_name
-            img.save (img_field.path, format)
-            img_field._size = os.path.getsize (img_field.path)
+            img.save(img_field.path, format)
+            img_field._size = os.path.getsize(img_field.path)
             img_field._committed = True
 
         ret = True
