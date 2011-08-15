@@ -13,18 +13,21 @@ class SearchHelper(object):
         self._people = []
         self._orgs = []
         if self.form.is_valid():
-            self.match = self.form.cleaned_data['match']
-            self.keywords = str2list(self.match)
-            self.opt_contacts = self.form.cleaned_data['opt_contacts']
-            self.urlmatch = urlencode((('match', self.match),
-                                       ('opt_contacts',
-                                        self.opt_contacts)))
-            self._do_search()
+            self._match = self.form.cleaned_data['match']
+            self._keywords = str2list(self._match)
+            self._opt_contacts = self.form.cleaned_data['opt_contacts']
+            self._urlmatch = urlencode((('match', self._match),
+                                        ('opt_contacts',
+                                         self._opt_contacts)))
         else:
-            self.match = ''
-            self.keywords = []
-            self.opt_contacts = False
-            self.urlmatch = ''
+            self._match = ''
+            self._keywords = []
+            self._opt_contacts = False
+            self._urlmatch = ''
+
+    @property
+    def urlmatch(self):
+        return self._urlmatch
 
     @property
     def people(self):
@@ -40,8 +43,8 @@ class SearchHelper(object):
             return True
         return False
 
-    def _do_search(self):
-        if self.opt_contacts:
+    def do_search(self):
+        if self._opt_contacts:
             self._search_in_contacts()
         else:
             self._search_in_names()
@@ -102,7 +105,7 @@ class SearchHelper(object):
     def _search_people(self):
         people = Person.objects.all()
 
-        for kw in self.keywords:
+        for kw in self._keywords:
             people = people.filter(Q(first_name__icontains=kw) |
                                    Q(middle_name__icontains=kw) |
                                    Q(last_name__icontains=kw) |
@@ -113,7 +116,7 @@ class SearchHelper(object):
     def _search_orgs(self):
         orgs = Organisation.objects.all()
 
-        for kw in self.keywords:
+        for kw in self._keywords:
             orgs = orgs.filter(Q(name__icontains=kw) |
                                Q(nickname__icontains=kw))
 
@@ -123,7 +126,7 @@ class SearchHelper(object):
         contacts = Contact.objects.all()
 
         tel_re = None
-        for c in self.match.strip():
+        for c in self._match.strip():
             if c.isdigit():
                 if tel_re:
                     tel_re += r'[^0-9]*' + c
@@ -133,7 +136,7 @@ class SearchHelper(object):
         if not tel_re:
             tel_re = r'^\[\]$'
 
-        for kw in self.keywords:
+        for kw in self._keywords:
             # ToDo: find a way to avoid testing the same tel_re with each kw
             contacts = contacts.filter(Q(line_1__icontains=kw) |
                                        Q(line_2__icontains=kw) |
@@ -162,23 +165,12 @@ class AbookView(SiteView):
     menu_name = 'abook'
 
     def get(self, request, *args, **kwargs):
-        self.form = SearchHelper.SearchForm(request.GET)
-        if self.form.is_valid():
-            self.match = self.form.cleaned_data['match']
-            self.opt_contacts = self.form.cleaned_data['opt_contacts']
-            self.urlmatch = urlencode((('match', self.match),
-                                       ('opt_contacts',
-                                        self.opt_contacts)))
-        else:
-            self.match = ''
-            self.opt_contacts = False
-            self.urlmatch = ''
-
+        self.search = SearchHelper(request)
         return super(AbookView, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         ctx = super(AbookView, self).get_context_data(**kwargs)
-        ctx['urlmatch'] = self.urlmatch
+        ctx['urlmatch'] = self.search.urlmatch
         return ctx
 
 # -----------------------------------------------------------------------------
@@ -189,17 +181,17 @@ class SearchView(AbookView):
 
     def get_context_data(self, **kwargs):
         ctx = super(SearchView, self).get_context_data(**kwargs)
-        search = SearchHelper(self.request)
+        self.search.do_search()
 
-        if search.has_results:
+        if self.search.has_results:
             results = SearchView.PaginatorStub()
-            results.add_list(search.people, 'person')
-            results.add_list(search.orgs, 'org')
+            results.add_list(self.search.people, 'person')
+            results.add_list(self.search.orgs, 'org')
             results.limit_list(40)
         else:
             results = None
 
-        ctx.update({'form': search.form, 'page': results})
+        ctx.update({'form': self.search.form, 'page': results})
         return ctx
 
     class PaginatorStub(object):
