@@ -50,7 +50,17 @@ def search_orgs(keywords):
 def search_contacts(keywords):
     contacts = Contact.objects.all()
 
+    tel_re = r''
     for kw in keywords:
+        for c in kw:
+            if c.isdigit():
+                if tel_re:
+                    tel_re += r'[^0-9]*' + c
+                elif c != '0':
+                    tel_re += c
+
+    for kw in keywords:
+        # ToDo: find a way to avoid testing the same tel_re with each kw
         contacts = contacts.filter(Q(line_1__icontains=kw) |
                                    Q(line_2__icontains=kw) |
                                    Q(line_3__icontains=kw) |
@@ -59,9 +69,9 @@ def search_contacts(keywords):
                                    Q(country__icontains=kw) |
                                    Q(email__icontains=kw) |
                                    Q(website__icontains=kw) |
-                                   Q(telephone__icontains= kw) |
-                                   Q(mobile__icontains=kw) |
-                                   Q(fax__icontains=kw) |
+                                   Q(telephone__regex=tel_re) |
+                                   Q(mobile__regex=tel_re) |
+                                   Q(fax__regex=tel_re) |
                                    Q(addr_order__icontains=kw) |
                                    Q(addr_suborder__icontains=kw))
 
