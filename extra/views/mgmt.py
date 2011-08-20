@@ -83,7 +83,7 @@ def participants (request):
     groups = Group.objects.all ()
     fair = get_object_or_404 (Fair, current = True)
     groups = groups.filter (Q (fair = fair) | Q (fair__isnull = True))
-    tpl_vars = {'page_title': 'Participants', 'url': 'cams/participant/'}
+    tpl_vars = {'title': 'Groups', 'url': 'cams/participant/'}
     add_common_tpl_vars (request, tpl_vars, 'parts', groups)
     return render_to_response ('cams/participants.html', tpl_vars)
 
@@ -94,7 +94,7 @@ def group (request, group_id):
     roles = roles.filter (contactable__status = Record.ACTIVE)
     # ToDo: sort alphabetically... without fetching the 2 full tables for
     # people and orgs!
-    tpl_vars = {'page_title': 'Group members', 'group': group,
+    tpl_vars = {'title': group, 'group': group,
                 'url': 'cams/participant/group/%d/' % group.id}
     add_common_tpl_vars (request, tpl_vars, 'parts', roles)
     return render_to_response ('cams/group.html', tpl_vars)
@@ -139,7 +139,7 @@ def preparation (request):
         tpl = 'cams/preparation.html'
 
     # ToDo: filter past events and add option to see them
-    tpl_vars = {'page_title': 'Preparation', 'url': 'cams/prep/',
+    tpl_vars = {'title': 'Preparation', 'url': 'cams/prep/',
                 'show_all': show_all}
     add_common_tpl_vars (request, tpl_vars, 'prep', acts)
     return render_to_response (tpl, tpl_vars)
@@ -148,7 +148,7 @@ def preparation (request):
 def prep_event (request, event_id):
     ev = get_object_or_404 (Event, pk = event_id)
     form = get_form_if_actor (request, event_id)
-    tpl_vars = {'page_title': 'Event', 'ev': ev, 'form': form,
+    tpl_vars = {'title': 'Event', 'ev': ev, 'form': form,
                 'url': 'cams/prep/%d/' % ev.id}
     add_common_tpl_vars (request, tpl_vars, 'prep', get_comments (ev), 4)
     return render_to_response ('cams/prep_event.html', tpl_vars,
@@ -198,7 +198,7 @@ def programme (request):
     listings = FairEventType.objects.all ()
     listings = listings.values ('id', 'name')
 
-    tpl_vars = {'page_title': 'Programme', 'url': 'cams/prog/',
+    tpl_vars = {'title': 'Programme', 'url': 'cams/prog/',
                 'listings': listings, 'current': listing,
                 'search_form': search_form}
     add_common_tpl_vars (request, tpl_vars, 'prog', prog, 8)
@@ -216,7 +216,7 @@ def prog_event (request, event_id):
     else:
         admin_type = 'fairevent'
 
-    tpl_vars = {'page_title': 'Fair Event', 'ev': ev, 'form': form,
+    tpl_vars = {'title': 'Fair Event', 'ev': ev, 'form': form,
                 'url': 'cams/prog/%d/' % ev.id, 'admin_type': admin_type}
     add_common_tpl_vars (request, tpl_vars, 'prog', get_comments (ev), 4)
     return render_to_response ('cams/prog_event.html', tpl_vars,
@@ -239,7 +239,7 @@ def applications (request):
         stats = {'pending': pending.count (), 'accepted': accepted.count (),
                  'rejected': rejected.count (), 'total': applis.count ()}
         cats.append ((cat_type, stats))
-    tpl_vars = {'page_title': 'Applications', 'cats': cats}
+    tpl_vars = {'title': 'Applications', 'cats': cats}
     add_common_tpl_vars (request, tpl_vars, 'appli')
     return render_to_response ('cams/applications.html', tpl_vars)
 
@@ -249,7 +249,7 @@ def appli_type (request, type_id):
     applis = FairEventApplication.objects.filter (subtype = type_id)
     applis = applis.order_by ('-created')
     type_name = FairEventApplication.xtypes[type_id][1]
-    tpl_vars = {'page_title': 'Applications: %ss' % type_name,
+    tpl_vars = {'title': 'Applications: %ss' % type_name,
                 'url': 'cams/application/%d/' % type_id,
                 'applis': applis, 'type_id': type_id}
     add_common_tpl_vars (request, tpl_vars, 'appli', applis, 10)
@@ -281,7 +281,7 @@ def appli_detail (request, type_id, appli_id):
     else:
         detail = None
 
-    tpl_vars = {'page_title': 'Application', 'type_id': type_id,
+    tpl_vars = {'title': 'Application', 'type_id': type_id,
                 'appli': appli, 'detail': detail}
     add_common_tpl_vars (request, tpl_vars, 'appli')
     type_name = FairEventApplication.xtypes[type_id][1]
@@ -308,7 +308,7 @@ def invoices (request):
     elif fil == 'Banked':
         invs = invs.filter (status = Invoice.BANKED)
 
-    tpl_vars = {'page_title': 'Invoices', 'url': 'cams/invoice/',
+    tpl_vars = {'title': 'Invoices', 'url': 'cams/invoice/',
                 'filters': filters, 'filter': fil}
     add_common_tpl_vars (request, tpl_vars, 'invoice', invs, 10)
     return render_to_response ('cams/invoices.html', tpl_vars)
@@ -317,7 +317,7 @@ def invoices (request):
 def select_invoice (request):
     stalls = StallEvent.objects.filter (stallinvoice__isnull = True)
     stalls = stalls.filter (status = Record.ACTIVE)
-    tpl_vars = {'page_title': 'Invoice', 'url': 'cams/invoice/select/'}
+    tpl_vars = {'title': 'Invoice', 'url': 'cams/invoice/select/'}
     add_common_tpl_vars (request, tpl_vars, 'invoice', stalls)
     return render_to_response ('cams/select_stall_invoice.html', tpl_vars)
 
@@ -343,7 +343,7 @@ def add_invoice (request, stall_id):
         amount += stall.n_spaces * SPACE_PRICE
         form = StallInvoiceForm (initial = {'amount': amount})
 
-    tpl_vars = {'page_title': 'New invoice', 'form': form, 'stall': stall,
+    tpl_vars = {'title': 'New invoice', 'form': form, 'stall': stall,
                 'url': 'cams/invoice/'}
     add_common_tpl_vars (request, tpl_vars, 'invoice')
     return render_to_response ("cams/add_invoice.html", tpl_vars,
@@ -366,7 +366,7 @@ def edit_invoice (request, inv_id):
     else:
         form = StallInvoiceEditForm (instance = inv)
 
-    tpl_vars = {'page_title': 'Edit invoice', 'inv': inv, 'form': form}
+    tpl_vars = {'title': 'Edit invoice', 'inv': inv, 'form': form}
     add_common_tpl_vars (request, tpl_vars, 'invoice')
     return render_to_response ('cams/edit_invoice.html', tpl_vars,
                                context_instance = RequestContext (request))
@@ -385,7 +385,7 @@ def stall_invoice (request, inv_id):
                 inv.status = status
                 inv.save ()
 
-    tpl_vars = {'page_title': 'Stall invoice details', 'inv': inv}
+    tpl_vars = {'title': 'Stall invoice details', 'inv': inv}
     add_common_tpl_vars (request, tpl_vars, 'invoice')
     return render_to_response ('cams/stall_invoice.html', tpl_vars)
 
@@ -418,7 +418,7 @@ def invoice_hard_copy (request, inv_id):
                                         'address': address,
                                         'details': details})
         else:
-            tpl_vars = {'page_title': 'Stall invoice', 'form': form,
+            tpl_vars = {'title': 'Stall invoice', 'form': form,
                         'inv': inv}
             add_common_tpl_vars (request, tpl_vars, 'invoice')
             return render_to_response ('cams/invoice_edit_hard_copy.html',
@@ -471,7 +471,7 @@ def invoice_hard_copy (request, inv_id):
                                         'date': datetime.date.today (),
                                         'details': inv_details})
 
-        tpl_vars = {'page_title': 'Stall invoice', 'form': form, 'inv': inv}
+        tpl_vars = {'title': 'Stall invoice', 'form': form, 'inv': inv}
         add_common_tpl_vars (request, tpl_vars, 'invoice')
         return render_to_response ('cams/invoice_edit_hard_copy.html',
                                    tpl_vars,
@@ -480,6 +480,6 @@ def invoice_hard_copy (request, inv_id):
 @login_required
 def fairs (request):
     fair = get_object_or_404 (Fair, current = True)
-    tpl_vars = {'page_title': 'Fairs', 'fair': fair}
+    tpl_vars = {'title': 'Fairs', 'fair': fair}
     add_common_tpl_vars (request, tpl_vars, 'fairs')
     return render_to_response ('cams/fairs.html', tpl_vars)

@@ -85,7 +85,7 @@ def post_error (msg):
 
 
 def stallholder_form (request, form):
-    tpl_vars = {'page_title': 'Stallholder Application',
+    tpl_vars = {'title': 'Stallholder Application',
                 'px': settings.URL_PREFIX, 'form': form}
     return render_to_response ('public/apply.html', tpl_vars,
                                context_instance = RequestContext (request))
@@ -119,5 +119,5 @@ def stallholder (request):
 
 
 def application (request):
-    tpl_vars = {'page_title': 'Application', 'px': settings.URL_PREFIX}
+    tpl_vars = {'title': 'Application', 'px': settings.URL_PREFIX}
     return render_to_response ('public/application.html', tpl_vars)

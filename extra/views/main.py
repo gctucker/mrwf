@@ -84,7 +84,7 @@ class PlayerMixin(object):
 
 class HomeView(SiteView):
     template_name = 'home.html'
-    title = 'Home'
+    title = 'Welcome'
     menu_name = 'home'
 
 

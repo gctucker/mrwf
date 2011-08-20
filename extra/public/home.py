@@ -7,5 +7,5 @@ def index (request):
     except Fair.DoesNotExist:
         fair = None
     return render_to_response ('public/home.html',
-                               {'page_title': 'Public Information',
+                               {'title': 'Public Information',
                                 'fair': fair})
