@@ -49,6 +49,7 @@ input[type=text], input[type=password], textarea, select
 {
   border: 1px solid #848080;
   padding: 2px 3px 2px 3px;
+  margin: 0 0 0 5px;
 }
 
 .textblock

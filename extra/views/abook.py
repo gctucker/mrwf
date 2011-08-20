@@ -7,7 +7,7 @@ from cams.libcams import str2list
 from cams.models import (Record, Contactable, Person, Organisation, Member,
                          Contact)
 from mrwf.extra.views.main import SiteView, get_list_page
-from mrwf.extra.forms import OrganisationForm
+from mrwf.extra.forms import PersonForm, OrganisationForm
 
 class SearchHelper(object):
     def __init__(self, request):
@@ -232,7 +232,37 @@ class PersonView(AbookView):
                     'contacts': contacts,
                     'members': members,
                     'page': get_list_page(self.request, members, 10),
-                    'url': 'abook/person/{:d}'.format(person.id)})
+                    'url': 'abook/person/{0}'.format(person.id)})
+        return ctx
+
+
+class PersonEditView(AbookView):
+    template_name = 'abook/common_edit.html'
+
+    def _set_person(self, **kwargs):
+        self._person = get_object_or_404(Person, pk=kwargs['person_id'])
+
+    def get(self, request, *args, **kwargs):
+        self._set_person(**kwargs)
+        self._f_person = PersonForm(instance=self._person)
+        return super(PersonEditView, self).get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self._set_person(**kwargs)
+        self._f_person = PersonForm(self.request.POST, instance=self._person)
+        if self._f_person.is_valid():
+            print("save");
+            self._f_person.save()
+            return HttpResponseRedirect('/abook/person/{0}/'.
+                                        format(self._person.id))
+        print("error")
+        print(self._f_person.errors)
+        return super(PersonEditView, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        ctx = super(PersonEditView, self).get_context_data(**kwargs)
+        ctx.update({'f_obj': self._f_person, 'obj': self._person,
+                    'url': 'abook/person/{0}'.format(self._person.id)})
         return ctx
 
 
@@ -249,31 +279,31 @@ class OrgView(AbookView):
                     'contacts': contacts,
                     'members': members,
                     'page': get_list_page(self.request, members, 10),
-                    'url': 'abook/org/{:d}'.format(org.id)})
+                    'url': 'abook/org/{0}'.format(org.id)})
         return ctx
 
 
 class OrgEditView(AbookView):
-    template_name = "abook/org_edit.html"
+    template_name = "abook/common_edit.html"
 
     def _set_org(self, **kwargs):
         self._org = get_object_or_404(Organisation, pk=kwargs['org_id'])
 
-    def get(self, request,  *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         self._set_org(**kwargs)
-        self._of = OrganisationForm(instance=self._org)
+        self._f_org = OrganisationForm(instance=self._org)
         return super(OrgEditView, self).get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         self._set_org(**kwargs)
-        self._of = OrganisationForm(self.request.POST, instance=self._org)
-        if self._of.is_valid():
-            self._of.save()
+        self._f_org = OrganisationForm(self.request.POST, instance=self._org)
+        if self._f_org.is_valid():
+            self._f_org.save()
             return HttpResponseRedirect('/abook/org/{0}/'.format(self._org.id))
         return super(OrgEditView, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         ctx = super(OrgEditView, self).get_context_data(**kwargs)
-        ctx.update({'f_org': self._of,
-                    'url': 'abook/org/{:d}'.format(self._org.id)})
+        ctx.update({'f_obj': self._f_org, 'obj': self._org,
+                    'url': 'abook/org/{0}'.format(self._org.id)})
         return ctx

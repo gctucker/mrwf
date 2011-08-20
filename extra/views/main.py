@@ -133,8 +133,7 @@ class ProfileEditView(SiteView, PlayerMixin):
         self._pf = PersonForm(self.request.POST, instance=self.player.person)
 
         if self.contacts.count() > 0:
-            self._cf = ContactForm(self.request.POST,
-                                   instance=self.contacts[0])
+            self._cf = ContactForm(self.request.POST,instance=self.contacts[0])
         else:
             self._cf = ContactForm(self.request.POST)
             self._cf.instance.person = self.player.person

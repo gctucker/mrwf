@@ -1,0 +1,16 @@
+{% extends "nav_layout.html" %}
+
+{% block contents %}
+          <h2>{{ obj }}</h2>
+          <div class="element">
+            <form method="post" action="{{ px }}{{ url }}/edit/">
+              {% csrf_token %}
+              <table class="apply">{% for f in f_obj %}
+{% include "abook/edit_field.html" %}{% endfor %}
+              </table>
+              <p>* required</p>
+              <p><input type="submit" value="save" /></p>
+            </form>
+            <div class="cmd"><a href="{{ px }}{{ url }}/?{{ urlmatch }}">&lt;&lt;&nbsp;cancel</a></div>
+          </div>
+{% endblock %}
