@@ -1,25 +1,22 @@
 {% extends "abook/common_contacts.html" %}
 
-{% block browse_title %}{{ person.first_name }} {{ person.last_name }}{% endblock %}
+{% block browse_title %}{{ obj.first_name }} {{ obj.last_name }}{% endblock %}
 
 {% block detail_name %}
           <div class="element">
             <table class="details separator">
-              <tr><td class="key">first name</td><td class="value">{{ person.first_name }}</td></tr>{% if person.middle_name %}
-              <tr><td class="key">middle name</td><td class="value">{{ person.middle_name }}</td></tr>{% endif %}{% if person.last_name %}
-              <tr><td class="key">last name</td><td class="value">{{ person.last_name }}</td></tr>{% endif %}{% if person.nickname %}
-              <tr><td class="key">nickname</td><td class="value">{{ person.nickname }}</td></tr>{% endif %}
+              <tr><td class="key">first name</td><td class="value">{{ obj.first_name }}</td></tr>{% if obj.middle_name %}
+              <tr><td class="key">middle name</td><td class="value">{{ obj.middle_name }}</td></tr>{% endif %}{% if obj.last_name %}
+              <tr><td class="key">last name</td><td class="value">{{ obj.last_name }}</td></tr>{% endif %}{% if obj.nickname %}
+              <tr><td class="key">nickname</td><td class="value">{{ obj.nickname }}</td></tr>{% endif %}
             </table>
           </div>{% endblock %}
 
 {% block browse_it %}
                 <div class="element">
                   <div class="search-member">
-                    Member of <a href="{{ px }}abook/org/{{ it.organisation.id }}/?{{ urlmatch }}">{{ it.organisation }}{% if it.organisation.nickname %} ({{ it.organisation.nickname }}){% endif %}</a>
+                    Member of <a href="{% url org it.organisation.id %}?{{ urlmatch }}">{{ it.organisation }}{% if it.organisation.nickname %} ({{ it.organisation.nickname }}){% endif %}</a>
                   </div>{% with it.organisation as other %}
 {% include "abook/member_preview.html" %}{% endwith %}
                 </div>
 {% endblock %}
-
-{% block detail_edit %}
-          <div class="cmd"><a href="{{ px }}{{url}}/edit/?{{ urlmatch }}">&lt;edit&gt;</a></div>{% endblock%}

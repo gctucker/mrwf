@@ -3,11 +3,13 @@ from django import forms
 from django.db.models.query import Q
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
+from django.conf import settings
+from django.core.urlresolvers import reverse
 from cams.libcams import str2list
 from cams.models import (Record, Contactable, Person, Organisation, Member,
                          Contact)
 from mrwf.extra.views.main import SiteView, get_list_page
-from mrwf.extra.forms import PersonForm, OrganisationForm
+from mrwf.extra.forms import PersonForm, OrganisationForm, DeleteForm
 
 class SearchHelper(object):
     def __init__(self, request):
@@ -19,8 +21,7 @@ class SearchHelper(object):
             self._keywords = str2list(self._match)
             self._opt_contacts = self.form.cleaned_data['opt_contacts']
             self._urlmatch = urlencode((('match', self._match),
-                                        ('opt_contacts',
-                                         self._opt_contacts)))
+                                        ('opt_contacts', self._opt_contacts)))
         else:
             self._match = ''
             self._keywords = []
@@ -108,22 +109,18 @@ class SearchHelper(object):
 
     def _search_people(self):
         people = Person.objects.all()
-
         for kw in self._keywords:
             people = people.filter(Q(first_name__icontains=kw) |
                                    Q(middle_name__icontains=kw) |
                                    Q(last_name__icontains=kw) |
                                    Q(nickname__icontains=kw))
-
         return people.filter(status=Record.ACTIVE)
 
     def _search_orgs(self):
         orgs = Organisation.objects.all()
-
         for kw in self._keywords:
             orgs = orgs.filter(Q(name__icontains=kw) |
                                Q(nickname__icontains=kw))
-
         return orgs.filter(status=Record.ACTIVE)
 
     def _search_contacts(self):
@@ -136,7 +133,6 @@ class SearchHelper(object):
                     tel_re += r'[^0-9]*' + c
                 elif c != '0':
                     tel_re = c
-
         if not tel_re:
             tel_re = r'^\[\]$'
 
@@ -176,6 +172,91 @@ class AbookView(SiteView):
         ctx = super(AbookView, self).get_context_data(**kwargs)
         ctx['urlmatch'] = self.search.urlmatch
         return ctx
+
+
+class ObjView(AbookView):
+    def get_context_data(self, **kwargs):
+        ctx = super(ObjView, self).get_context_data(**kwargs)
+        self.set_obj(**kwargs)
+        contacts = Contact.objects.filter(obj=self.obj)
+        ctx.update({'url': self.url, 'obj': self.obj, 'contacts': contacts})
+        return ctx
+
+    def redirect(self, url, request):
+        search = SearchHelper(request)
+        if search.urlmatch:
+            url += '?' + search.urlmatch
+        return HttpResponseRedirect(url)
+
+
+class EditView(ObjView):
+    template_name = 'abook/edit.html'
+
+    def get(self, request, *args, **kwargs):
+        self.set_obj(**kwargs)
+        self._f_obj = self.make_obj_form()
+        return super(EditView, self).get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self.set_obj(**kwargs)
+        self._f_obj = self.make_obj_form(self.request.POST)
+        if self._f_obj.is_valid():
+            self._f_obj.save()
+            return self.redirect(self.url, request)
+        return super(EditView, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        ctx = super(EditView, self).get_context_data(**kwargs)
+        ctx.update({'f_obj': self._f_obj})
+        return ctx
+
+
+class DeleteView(ObjView):
+    template_name = "abook/delete.html"
+
+    def get(self, request, *args, **kwargs):
+        self.set_obj(**kwargs)
+        self._form = DeleteForm()
+        return super(DeleteView, self).get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self.set_obj(**kwargs)
+        self._form = DeleteForm(self.request.POST)
+        if self._form.is_valid():
+            self.obj.delete()
+            return self.redirect(reverse('abook_search'), request)
+        return super(DeleteView, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        ctx = super(DeleteView, self).get_context_data(**kwargs)
+        ctx.update({'form': self._form})
+        return ctx
+
+
+class PersonMixin(object):
+    def set_obj(self, **kwargs):
+        self._person = get_object_or_404(Person, pk=kwargs['person_id'])
+
+    @property
+    def obj(self):
+        return self._person
+
+    @property
+    def url(self):
+        return reverse('person', args=[self._person.id])
+
+
+class OrgMixin(object):
+    def set_obj(self, **kwargs):
+        self._org = get_object_or_404(Organisation, pk=kwargs['org_id'])
+
+    @property
+    def obj(self):
+        return self._person
+
+    @property
+    def url(self):
+        return reverse('org', args=[self._org.id])
 
 # -----------------------------------------------------------------------------
 # entry points from url's
@@ -219,91 +300,49 @@ class SearchView(AbookView):
                 return 0
 
 
-class PersonView(AbookView):
+class PersonView(ObjView, PersonMixin):
     template_name = 'abook/person.html'
 
     def get_context_data(self, **kwargs):
         ctx = super(PersonView, self).get_context_data(**kwargs)
-        person = get_object_or_404(Person, pk=kwargs['person_id'])
-        contacts = Contact.objects.filter(obj=person)
-        members = Member.objects.filter(person=person)
+        members = Member.objects.filter(person=self._person)
         members = members.filter(status=Record.ACTIVE)
-        ctx.update({'person': person,
-                    'contacts': contacts,
-                    'members': members,
-                    'page': get_list_page(self.request, members, 10),
-                    'url': 'abook/person/{0}'.format(person.id)})
+        ctx.update({'members': members,
+                    'page': get_list_page(self.request, members, 10)})
         return ctx
 
 
-class PersonEditView(AbookView):
-    template_name = 'abook/edit.html'
-
-    def _set_person(self, **kwargs):
-        self._person = get_object_or_404(Person, pk=kwargs['person_id'])
-
-    def get(self, request, *args, **kwargs):
-        self._set_person(**kwargs)
-        self._f_person = PersonForm(instance=self._person)
-        return super(PersonEditView, self).get(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        self._set_person(**kwargs)
-        self._f_person = PersonForm(self.request.POST, instance=self._person)
-        if self._f_person.is_valid():
-            print("save");
-            self._f_person.save()
-            return HttpResponseRedirect('/abook/person/{0}/'.
-                                        format(self._person.id))
-        print("error")
-        print(self._f_person.errors)
-        return super(PersonEditView, self).get(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        ctx = super(PersonEditView, self).get_context_data(**kwargs)
-        ctx.update({'f_obj': self._f_person, 'obj': self._person,
-                    'url': 'abook/person/{0}'.format(self._person.id)})
-        return ctx
+class PersonEditView(EditView, PersonMixin):
+    def make_obj_form(self, post=None):
+        if post:
+            return PersonForm(post, instance=self._person)
+        else:
+            return PersonForm(instance=self._person)
 
 
-class OrgView(AbookView):
+class PersonDeleteView(DeleteView, PersonMixin):
+    pass
+
+
+class OrgView(ObjView, OrgMixin):
     template_name = 'abook/org.html'
 
     def get_context_data(self, **kwargs):
         ctx = super(OrgView, self).get_context_data(**kwargs)
-        org = get_object_or_404(Organisation, pk=kwargs['org_id'])
-        contacts = Contact.objects.filter(obj=org)
-        members = Member.objects.filter(organisation=org)
+        members = Member.objects.filter(organisation=self._org)
         members = members.filter(status=Record.ACTIVE)
-        ctx.update({'org': org,
-                    'contacts': contacts,
-                    'members': members,
-                    'page': get_list_page(self.request, members, 10),
-                    'url': 'abook/org/{0}'.format(org.id)})
+        ctx.update({'members': members,
+                    'page': get_list_page(self.request, members, 10)})
         return ctx
 
 
-class OrgEditView(AbookView):
-    template_name = "abook/edit.html"
+class OrgEditView(EditView, OrgMixin):
+    def make_obj_form(self, post=None):
+        if post:
+            return OrganisationForm(post, instance=self._org)
+        else:
+            return OrganisationForm(instance=self._org)
 
-    def _set_org(self, **kwargs):
-        self._org = get_object_or_404(Organisation, pk=kwargs['org_id'])
 
-    def get(self, request, *args, **kwargs):
-        self._set_org(**kwargs)
-        self._f_org = OrganisationForm(instance=self._org)
-        return super(OrgEditView, self).get(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        self._set_org(**kwargs)
-        self._f_org = OrganisationForm(self.request.POST, instance=self._org)
-        if self._f_org.is_valid():
-            self._f_org.save()
-            return HttpResponseRedirect('/abook/org/{0}/'.format(self._org.id))
-        return super(OrgEditView, self).get(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        ctx = super(OrgEditView, self).get_context_data(**kwargs)
-        ctx.update({'f_obj': self._f_org, 'obj': self._org,
-                    'url': 'abook/org/{0}'.format(self._org.id)})
-        return ctx
+class OrgDeleteView(DeleteView, OrgMixin):
+    pass

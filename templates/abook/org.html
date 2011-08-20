@@ -1,15 +1,12 @@
 {% extends "abook/common_contacts.html" %}
 
-{% block browse_title %}{{ org.name }}{% if org.nickname %} ({{ org.nickname }}){% endif %}{% endblock %}
+{% block browse_title %}{{ obj.name }}{% if obj.nickname %} ({{ obj.nickname }}){% endif %}{% endblock %}
 
 {% block browse_it %}
                 <div class="element">
                   <div class="search-member">
-                    <a href="{{ px }}abook/person/{{ it.person.id }}/?{{ urlmatch }}">{{ it.person.first_name }} {{ it.person.middle_name }} {{ it.person.last_name }}</a>
+                    <a href="{% url person it.person.id %}?{{ urlmatch }}">{{ it.person.first_name }} {{ it.person.middle_name }} {{ it.person.last_name }}</a>
                   </div>{% with it.person as other %}
 {% include "abook/member_preview.html" %}{% endwith %}
                 </div>
 {% endblock %}
-
-{% block detail_edit %}
-          <div class="cmd"><a href="{{ px }}{{ url }}/edit/?{{ urlmatch }}">&lt;edit&gt;</a></div>{% endblock %}

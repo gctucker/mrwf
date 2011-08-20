@@ -79,7 +79,6 @@ class PlayerMixin(object):
         self.player = get_object_or_404(Player, user=self.request.user)
         self.contacts = Contact.objects.filter(obj=self.player.person)
 
-
 # -----------------------------------------------------------------------------
 # entry points from url's
 

@@ -50,6 +50,19 @@ class ContactForm(forms.ModelForm):
         exclude = ['status', 'person', 'addr_order', 'addr_suborder',
                    'country', 'fax']
 
+
+class DeleteForm(forms.Form):
+    confirm = forms.CharField(initial='confirm', widget=forms.HiddenInput)
+
+    def is_valid(self):
+        return super(DeleteForm, self).is_valid()
+
+    def clean_confirm(self):
+        if self.cleaned_data['confirm'] != 'confirm':
+            raise forms.ValidationError('Failded to confirm deletion')
+        return self.cleaned_data
+
+
 class StallForm(forms.ModelForm):
     attrs = {'cols': '60', 'rows': '3'}
     description = forms.CharField(widget=forms.Textarea(attrs=attrs))

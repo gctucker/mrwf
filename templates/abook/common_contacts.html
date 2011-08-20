@@ -4,7 +4,11 @@
           <div>{% if not contacts %}
             <span class="search-no-contact">Sorry, no contact details</span></p>{% else %}{% for c in contacts %}
 {% include "abook/details.html" %}{% endfor %}{% endif %}
-          </div>{% if user.is_staff %}{% block detail_edit %}{% endblock %}{% endif %}{% endblock %}
+          </div>{% if user.is_staff %}
+          <div class="cmd">
+            <a href="{{ url }}edit/?{{ urlmatch }}">&lt;edit&gt;</a>
+            &nbsp;<a href="{{ url }}delete?{{ urlmatch }}">&lt;delete&gt;</a>
+            </div>{% endif %}{% endblock %}
 
 {% block browse_footer %}
 {% if urlmatch %}          <div class="back"><a href="{{ px }}abook/?{{ urlmatch }}">&lt;&lt;&nbsp;back to the search</a></div>{% endif %}{% endblock %}
