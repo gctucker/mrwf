@@ -237,7 +237,7 @@ class PersonView(AbookView):
 
 
 class PersonEditView(AbookView):
-    template_name = 'abook/common_edit.html'
+    template_name = 'abook/edit.html'
 
     def _set_person(self, **kwargs):
         self._person = get_object_or_404(Person, pk=kwargs['person_id'])
@@ -284,7 +284,7 @@ class OrgView(AbookView):
 
 
 class OrgEditView(AbookView):
-    template_name = "abook/common_edit.html"
+    template_name = "abook/edit.html"
 
     def _set_org(self, **kwargs):
         self._org = get_object_or_404(Organisation, pk=kwargs['org_id'])
