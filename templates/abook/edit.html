@@ -1,4 +1,5 @@
 {% extends "nav_layout.html" %}
+{% load mrwf_extra %}
 
 {% block contents %}
           <h2>{{ obj }}</h2>
@@ -7,7 +8,7 @@
               {% csrf_token %}
               <input type="hidden" name="confirm" value="yes" />
               <table class="apply">{% for f in f_obj %}
-{% include "abook/edit_field.html" %}{% endfor %}
+                {% field_row f %}{% endfor %}
               </table>
               <p>* required</p>
               <p><input type="submit" value="save" name="save" /></p>
