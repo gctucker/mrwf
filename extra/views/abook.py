@@ -44,7 +44,9 @@ class SearchHelper(object):
         return False
 
     def do_search(self):
-        if self._opt_contacts:
+        if not self._match:
+            return
+        elif self._opt_contacts:
             self._search_in_contacts()
         else:
             self._search_in_names()
