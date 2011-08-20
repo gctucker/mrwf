@@ -2,7 +2,7 @@ from sys import version_info
 from smtplib import SMTPException
 from django import get_version as get_django_version
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
-#from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse
 from django.core.mail import send_mail
 from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
@@ -142,8 +142,7 @@ class ProfileEditView(SiteView, PlayerMixin):
             self._uf.save()
             self._pf.save()
             self._cf.save()
-            # ToDo: reverse('profile')
-            return HttpResponseRedirect('/profile/')
+            return HttpResponseRedirect(reverse('profile'))
 
         return super(ProfileEditView, self).get(request, *args, **kwargs)
 
@@ -169,7 +168,7 @@ class PasswordEditView(SiteView):
 
         if self._fpwd.is_valid():
             self._fpwd.save()
-            return HttpResponseRedirect('/profile/')
+            return HttpResponseRedirect(reverse('profile'))
 
         return super(PasswordEditView, self).get(request, *args, **kwargs)
 

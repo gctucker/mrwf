@@ -1,4 +1,4 @@
-from django.conf.urls.defaults import patterns, include
+from django.conf.urls.defaults import patterns, include, url
 from django.contrib import admin
 from settings import DEBUG, STATIC_ROOT
 from mrwf.extra import views
@@ -17,7 +17,7 @@ urlpatterns = patterns('',
  (r'^cams/', include('mrwf.extra.mgmt_urls')),
  (r'^export/', include('mrwf.extra.export_urls')),
  (r'^public/', include('mrwf.extra.public.urls')),
- (r'^profile/$', views.main.ProfileView.as_view()),
+ url(r'^profile/$', views.main.ProfileView.as_view(), name='profile'),
  (r'^profile/edit/$', views.main.ProfileEditView.as_view()),
  (r'^profile/password/$', views.main.PasswordEditView.as_view()),
  (r'^profile/email_test/$', views.main.EmailTestView.as_view()),
