@@ -1,11 +1,13 @@
 from urllib import urlencode
 from django import forms
 from django.db.models.query import Q
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from cams.libcams import str2list
 from cams.models import (Record, Contactable, Person, Organisation, Member,
                          Contact)
 from mrwf.extra.views.main import SiteView, get_list_page
+from mrwf.extra.forms import OrganisationForm
 
 class SearchHelper(object):
     def __init__(self, request):
@@ -248,4 +250,30 @@ class OrgView(AbookView):
                     'members': members,
                     'page': get_list_page(self.request, members, 10),
                     'url': 'abook/org/{:d}'.format(org.id)})
+        return ctx
+
+
+class OrgEditView(AbookView):
+    template_name = "abook/org_edit.html"
+
+    def _set_org(self, **kwargs):
+        self._org = get_object_or_404(Organisation, pk=kwargs['org_id'])
+
+    def get(self, request,  *args, **kwargs):
+        self._set_org(**kwargs)
+        self._of = OrganisationForm(instance=self._org)
+        return super(OrgEditView, self).get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self._set_org(**kwargs)
+        self._of = OrganisationForm(self.request.POST, instance=self._org)
+        if self._of.is_valid():
+            self._of.save()
+            return HttpResponseRedirect('/abook/org/{0}/'.format(self._org.id))
+        return super(OrgEditView, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        ctx = super(OrgEditView, self).get_context_data(**kwargs)
+        ctx.update({'f_org': self._of,
+                    'url': 'abook/org/{:d}'.format(self._org.id)})
         return ctx

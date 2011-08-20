@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
-from cams.models import Person, Contact, Contact
+from cams.models import Person, Organisation, Contact
 from mrwf.extra.models import StallEvent
 
 def check_ibounds(data, name, imin, imax):
@@ -29,6 +29,12 @@ class PersonForm(forms.ModelForm):
     class Meta:
         model = Person
         exclude = ['nickname', 'alter', 'status']
+
+
+class OrganisationForm(forms.ModelForm):
+    class Meta:
+        model = Organisation
+        exclude = ['status', 'members']
 
 
 class ContactForm(forms.ModelForm):
