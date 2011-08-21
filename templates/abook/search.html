@@ -2,7 +2,7 @@
 
 {% block browse_header %}
           <div class="element">
-            <form action="{{ px }}abook/" method="get">
+            <form action="{% url abook_search %}" method="get">
               {{ form.match }}
               <input type="submit" value="search in the Address Book" />
               {{ form.opt_contacts }}<span style="font-size: 0.8em">{{ form.opt_contacts.label }}</span>
@@ -11,7 +11,7 @@
           <div class="element">No match, sorry.</div>{% endif %}{% endblock %}
 
 {% block browse_it %}
-                <a href="{{ px }}abook/{{ it.type }}/{{ it.id }}/?{{ urlmatch }}">{% if it.type = "person" %}
+                <a href="{{ it.url }}?{{ urlmatch }}">{% if it.type = "person" %}
                   {{ it.first_name }} {{ it.middle_name }} {{ it.last_name }}{% else %}{% if it.type = "org" %}
                   {{ it.name }}{% if it.nickname %} ({{ it.nickname }}){% endif %}{% endif %}{% endif %}
                 </a>

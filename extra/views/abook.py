@@ -99,12 +99,14 @@ class SearchHelper(object):
                              'last_name': p.last_name,
                              'nickname': p.nickname,
                              'id': p.id,
+                             'url': reverse('person', args=[p.id]),
                              'contacts': c})
 
     def _append_org(self, o, c):
         self._orgs.append({'name': o.name,
                            'nickname': o.nickname,
                            'id': o.id,
+                           'url': reverse('org', args=[o.id]),
                            'contacts': c})
 
     def _search_people(self):
@@ -252,7 +254,7 @@ class OrgMixin(object):
 
     @property
     def obj(self):
-        return self._person
+        return self._org
 
     @property
     def url(self):

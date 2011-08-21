@@ -7,8 +7,8 @@
           </div>{% if user.is_staff %}
           <div class="cmd">
             <a href="{{ url }}edit/?{{ urlmatch }}">&lt;edit&gt;</a>
-            &nbsp;<a href="{{ url }}delete?{{ urlmatch }}">&lt;delete&gt;</a>
+            &nbsp;<a href="{{ url }}delete/?{{ urlmatch }}">&lt;delete&gt;</a>
             </div>{% endif %}{% endblock %}
 
 {% block browse_footer %}
-{% if urlmatch %}          <div class="back"><a href="{{ px }}abook/?{{ urlmatch }}">&lt;&lt;&nbsp;back to the search</a></div>{% endif %}{% endblock %}
+{% if urlmatch %}          <div class="back"><a href="{% url abook_search %}?{{ urlmatch }}">&lt;&lt;&nbsp;back to the search</a></div>{% endif %}{% endblock %}
