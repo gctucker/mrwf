@@ -85,13 +85,12 @@ class SearchHelper(object):
             # ToDo: transform (cast) a Contactable to its subclass...
             if obj.type == Contactable.ORGANISATION:
                 # ToDo: check whether that reads the Contactable data again
+                # when fetching the sub-class data
                 self._append_org(obj.organisation, (c,))
             elif obj.type == Contactable.PERSON:
                 self._append_person(obj.person, (c,))
             elif obj.type == Contactable.MEMBER:
                 self._append_person(obj.member.person, (c,))
-            else:
-                pass # ToDo: throw exception
 
     def _append_person(self, p, c):
         self._people.append({'first_name': p.first_name,
@@ -179,7 +178,7 @@ class AbookView(SiteView):
 class ObjView(AbookView):
     def get_context_data(self, **kwargs):
         ctx = super(ObjView, self).get_context_data(**kwargs)
-        self.set_obj(**kwargs)
+        self.obj_id = kwargs['obj_id']
         contacts = Contact.objects.filter(obj=self.obj)
         ctx.update({'url': self.url, 'obj': self.obj, 'contacts': contacts})
         return ctx
@@ -195,12 +194,10 @@ class EditView(ObjView):
     template_name = 'abook/edit.html'
 
     def get(self, request, *args, **kwargs):
-        self.set_obj(**kwargs)
         self._f_obj = self.make_obj_form()
         return super(EditView, self).get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        self.set_obj(**kwargs)
         self._f_obj = self.make_obj_form(self.request.POST)
         if self._f_obj.is_valid():
             self._f_obj.save()
@@ -217,12 +214,10 @@ class RemoveView(ObjView):
     template_name = "abook/remove.html"
 
     def get(self, request, *args, **kwargs):
-        self.set_obj(**kwargs)
         self._form = ConfirmForm()
         return super(RemoveView, self).get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        self.set_obj(**kwargs)
         self._form = ConfirmForm(self.request.POST)
         if self._form.is_valid():
             self.remove_obj()
@@ -254,11 +249,10 @@ class DeleteView(RemoveView):
 
 
 class PersonMixin(object):
-    def set_obj(self, **kwargs):
-        self._person = get_object_or_404(Person, pk=kwargs['person_id'])
-
     @property
     def obj(self):
+        if not hasattr(self, '_person'):
+            self._person = get_object_or_404(Person, pk=self.obj_id)
         return self._person
 
     @property
@@ -267,11 +261,10 @@ class PersonMixin(object):
 
 
 class OrgMixin(object):
-    def set_obj(self, **kwargs):
-        self._org = get_object_or_404(Organisation, pk=kwargs['org_id'])
-
     @property
     def obj(self):
+        if not hasattr(self, '_org'):
+            self._org = get_object_or_404(Organisation, pk=self.obj_id)
         return self._org
 
     @property
