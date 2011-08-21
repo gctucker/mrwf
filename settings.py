@@ -78,6 +78,8 @@ INSTALLED_APPS = (
     'mrwf.extra'
 )
 
+SESSION_COOKIE_AGE = 7 * 24 * 60 * 60 # a week
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 IMG_MAX_D = 800
 IMG_MAX_d = 600
