@@ -51,15 +51,15 @@ class ContactForm(forms.ModelForm):
                    'country', 'fax']
 
 
-class DeleteForm(forms.Form):
+class ConfirmForm(forms.Form):
     confirm = forms.CharField(initial='confirm', widget=forms.HiddenInput)
 
     def is_valid(self):
-        return super(DeleteForm, self).is_valid()
+        return super(ConfirmForm, self).is_valid()
 
     def clean_confirm(self):
         if self.cleaned_data['confirm'] != 'confirm':
-            raise forms.ValidationError('Failded to confirm deletion')
+            raise forms.ValidationError('Failded to confirm')
         return self.cleaned_data
 
 

@@ -9,7 +9,7 @@ from cams.libcams import str2list
 from cams.models import (Record, Contactable, Person, Organisation, Member,
                          Contact)
 from mrwf.extra.views.main import SiteView, get_list_page
-from mrwf.extra.forms import PersonForm, OrganisationForm, DeleteForm
+from mrwf.extra.forms import PersonForm, OrganisationForm, ConfirmForm
 
 class SearchHelper(object):
     def __init__(self, request):
@@ -213,26 +213,44 @@ class EditView(ObjView):
         return ctx
 
 
-class DeleteView(ObjView):
-    template_name = "abook/delete.html"
+class RemoveView(ObjView):
+    template_name = "abook/remove.html"
 
     def get(self, request, *args, **kwargs):
         self.set_obj(**kwargs)
-        self._form = DeleteForm()
-        return super(DeleteView, self).get(request, *args, **kwargs)
+        self._form = ConfirmForm()
+        return super(RemoveView, self).get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         self.set_obj(**kwargs)
-        self._form = DeleteForm(self.request.POST)
+        self._form = ConfirmForm(self.request.POST)
         if self._form.is_valid():
-            self.obj.delete()
+            self.remove_obj()
             return self.redirect(reverse('abook_search'), request)
-        return super(DeleteView, self).get(request, *args, **kwargs)
+        return super(RemoveView, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        ctx = super(DeleteView, self).get_context_data(**kwargs)
-        ctx.update({'form': self._form})
+        ctx = super(RemoveView, self).get_context_data(**kwargs)
+        ctx.update({'form': self._form, 'action': self.action,
+                    'remove_cmd': self.remove_cmd})
         return ctx
+
+
+class DisableView(RemoveView):
+    action = "Disable entry"
+    remove_cmd = 'disable'
+
+    def remove_obj(self):
+        self.obj.status = Record.DISABLED;
+        self.obj.save()
+
+
+class DeleteView(RemoveView):
+    action = "Delete entry"
+    remove_cmd = 'delete'
+
+    def remove_obj(self):
+        self.obj.delete()
 
 
 class PersonMixin(object):
@@ -320,6 +338,10 @@ class PersonEditView(EditView, PersonMixin):
             return PersonForm(post, instance=self._person)
         else:
             return PersonForm(instance=self._person)
+
+
+class PersonDisableView(DisableView, PersonMixin):
+    pass
 
 
 class PersonDeleteView(DeleteView, PersonMixin):

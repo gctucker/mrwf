@@ -1,9 +1,9 @@
 {% extends "nav_layout.html" %}
 
 {% block contents %}
-          <h2>Delete {{ obj }}?</h2>
+          <h2>{{ action }} for {{ obj }}?</h2>
           <div class="element">
-            <form method="post" action="{{ url }}delete/?{{ urlmatch }}">
+            <form method="post" action="{{ url }}{{ remove_cmd }}/?{{ urlmatch }}">
               {% csrf_token %}
               {{ form }}
               <input type="submit" value="confirm" />
