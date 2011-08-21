@@ -2,7 +2,7 @@
 {% load mrwf_extra %}
 
 {% block contents %}
-          <h2>{{ obj }}</h2>
+          <h2>{{ obj.name_nn }}</h2>
           <div class="element">
             <form method="post" action="{{ url }}edit/?{{ urlmatch }}">
               {% csrf_token %}
