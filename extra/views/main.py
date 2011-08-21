@@ -11,8 +11,7 @@ from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView
-from cams.libcams import CAMS_VERSION, Menu
-from cams.models import Contact, Player, get_user_email
+from cams.libcams import CAMS_VERSION, Menu, get_user_email
 from mrwf.extra.forms import UserNameForm, PersonForm, ContactForm
 
 MENU_ITEMS = [
@@ -75,9 +74,11 @@ class SiteView(TemplateView):
 
 
 class PlayerMixin(object):
-    def set_player(self):
-        self.player = get_object_or_404(Player, user=self.request.user)
-        self.contacts = Contact.objects.filter(obj=self.player.person)
+    @property
+    def contacts(self):
+        if not hasattr(self, '_contacts'):
+            self._contacts = self.request.user.player.person.contact_set.all()
+        return self._contacts
 
 # -----------------------------------------------------------------------------
 # entry points from url's
@@ -95,7 +96,6 @@ class ProfileView(SiteView, PlayerMixin):
 
     def get_context_data(self, **kwargs):
         ctx = super(ProfileView, self).get_context_data(**kwargs)
-        self.set_player()
 
         if self.contacts.count() > 0:
             ctx['contact'] = self.contacts[0]
@@ -104,7 +104,7 @@ class ProfileView(SiteView, PlayerMixin):
         ctx.update({'python_version': vstring(version_info),
                     'django_version': get_django_version(),
                     'cams_version': vstring(CAMS_VERSION),
-                    'person': self.player.person})
+                    'person': self.request.user.player.person})
         return ctx
 
 
@@ -114,9 +114,8 @@ class ProfileEditView(SiteView, PlayerMixin):
     menu_name = 'profile'
 
     def get(self, request, *args, **kwargs):
-        self.set_player()
-        self._uf = UserNameForm(instance=self.request.user, prefix='user')
-        self._pf = PersonForm(instance=self.player.person)
+        self._uf = UserNameForm(instance=request.user, prefix='user')
+        self._pf = PersonForm(instance=request.user.player.person)
 
         if self.contacts.count() > 0:
             self._cf = ContactForm(instance=self.contacts[0])
@@ -126,16 +125,15 @@ class ProfileEditView(SiteView, PlayerMixin):
         return super(ProfileEditView, self).get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        self.set_player()
-        self._uf = UserNameForm(self.request.POST, instance=self.request.user,
+        self._uf = UserNameForm(request.POST, instance=request.user,
                                 prefix='user')
-        self._pf = PersonForm(self.request.POST, instance=self.player.person)
+        self._pf = PersonForm(request.POST,instance=request.user.player.person)
 
         if self.contacts.count() > 0:
-            self._cf = ContactForm(self.request.POST,instance=self.contacts[0])
+            self._cf = ContactForm(request.POST,instance=self.contacts[0])
         else:
-            self._cf = ContactForm(self.request.POST)
-            self._cf.instance.person = self.player.person
+            self._cf = ContactForm(request.POST)
+            self._cf.instance.person = request.user.player.person
 
         if self._uf.is_valid() and self._pf.is_valid() and self._cf.is_valid():
             self._uf.save()
