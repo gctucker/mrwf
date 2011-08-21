@@ -28,7 +28,7 @@ class PersonForm(forms.ModelForm):
 
     class Meta:
         model = Person
-        exclude = ['nickname', 'alter', 'status']
+        exclude = ['alter', 'status']
 
 
 class OrganisationForm(forms.ModelForm):
