@@ -12,5 +12,6 @@ urlpatterns = patterns('mrwf.extra.views.abook',
   views.abook.PersonDeleteView.as_view()),
  url(r'^org/(?P<obj_id>\d+)/$', views.abook.OrgView.as_view(), name='org'),
  (r'^org/(?P<obj_id>\d+)/edit/$', views.abook.OrgEditView.as_view()),
+ (r'^org/(?P<obj_id>\d+)/disable/$', views.abook.OrgDisableView.as_view()),
  (r'^org/(?P<obj_id>\d+)/delete/$', views.abook.OrgDeleteView.as_view()),
 )

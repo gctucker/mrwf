@@ -20,7 +20,7 @@ class FairEventType(models.Model):
     def __unicode__(self):
         return self.name
 
-    class Meta:
+    class Meta(object):
         verbose_name = 'Fair event listing'
         ordering = ['name']
 
@@ -31,7 +31,7 @@ class FairEventCategory(models.Model):
     def __unicode__(self):
         return self.word
 
-    class Meta:
+    class Meta(object):
         verbose_name_plural = 'Fair event categories'
 
 
@@ -83,7 +83,7 @@ class FairEvent(Event):
 
     # WORKAROUND to make the event contacts more flexible
     def get_composite_contact(self):
-        class CompositeContact:
+        class CompositeContact(object):
             def __init__(self, event):
                 attrs = ['line_1', 'line_2', 'line_3', 'postcode', 'town',
                          'country', 'email', 'website', 'telephone', 'mobile',
@@ -200,5 +200,5 @@ class StallInvoice(Invoice):
     def __unicode__(self):
         return self.stall.__unicode__()
 
-    class Meta:
+    class Meta(Invoice.Meta):
         ordering = ['stall__name']

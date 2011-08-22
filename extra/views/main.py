@@ -4,7 +4,7 @@ from django import get_version as get_django_version
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.core.urlresolvers import reverse
 from django.core.mail import send_mail
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponseForbidden
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.conf import settings
@@ -57,9 +57,13 @@ def add_common_tpl_vars(request, tpl_vars, menu_name, obj_list=None, n=20):
         tpl_vars['page'] = page
 
 class SiteView(TemplateView):
+    perms = []
+
     @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super(SiteView, self).dispatch(*args, **kwargs)
+    def dispatch(self, request, *args, **kwargs):
+        if not self.check_perms(request.user):
+            return HttpResponseForbidden("Access denied")
+        return super(SiteView, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         ctx = super(SiteView, self).get_context_data(**kwargs)
@@ -71,6 +75,12 @@ class SiteView(TemplateView):
                     'user': self.request.user,
                     'menu': menu.get_user_entries(self.request.user)})
         return ctx
+
+    def check_perms(self, user):
+        for p in self.perms:
+            if not user.has_perm(p):
+                return False
+        return True
 
 
 class PlayerMixin(object):

@@ -195,6 +195,7 @@ class ObjView(AbookView):
 
 class EditView(ObjView):
     template_name = 'abook/edit.html'
+    perms = ObjView.perms + ['cams.abook_edit']
 
     def get(self, request, *args, **kwargs):
         self._f_obj = self.make_obj_form()
@@ -215,6 +216,7 @@ class EditView(ObjView):
 
 class RemoveView(ObjView):
     template_name = "abook/remove.html"
+    perms = ObjView.perms + ['cams.abook_edit']
 
     def get(self, request, *args, **kwargs):
         self._form = ConfirmForm()
@@ -246,6 +248,7 @@ class DisableView(RemoveView):
 class DeleteView(RemoveView):
     action = "Delete entry"
     remove_cmd = 'delete'
+    perms = RemoveView.perms + ['cams.abook_delete']
 
     def remove_obj(self):
         self.obj.delete()
@@ -362,6 +365,10 @@ class OrgEditView(EditView, OrgMixin):
             return OrganisationForm(post, instance=self.obj)
         else:
             return OrganisationForm(instance=self.obj)
+
+
+class OrgDisableView(DisableView, OrgMixin):
+    pass
 
 
 class OrgDeleteView(DeleteView, OrgMixin):
