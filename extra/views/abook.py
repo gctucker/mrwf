@@ -176,9 +176,12 @@ class AbookView(SiteView):
 
 
 class ObjView(AbookView):
+    def dispatch(self, *args, **kwargs):
+        self.obj_id = kwargs['obj_id']
+        return super(ObjView, self).dispatch(*args, **kwargs)
+
     def get_context_data(self, **kwargs):
         ctx = super(ObjView, self).get_context_data(**kwargs)
-        self.obj_id = kwargs['obj_id']
         contacts = Contact.objects.filter(obj=self.obj)
         ctx.update({'url': self.url, 'obj': self.obj, 'contacts': contacts})
         return ctx
@@ -328,9 +331,9 @@ class PersonView(ObjView, PersonMixin):
 class PersonEditView(EditView, PersonMixin):
     def make_obj_form(self, post=None):
         if post:
-            return PersonForm(post, instance=self._person)
+            return PersonForm(post, instance=self.obj)
         else:
-            return PersonForm(instance=self._person)
+            return PersonForm(instance=self.obj)
 
 
 class PersonDisableView(DisableView, PersonMixin):
@@ -356,9 +359,9 @@ class OrgView(ObjView, OrgMixin):
 class OrgEditView(EditView, OrgMixin):
     def make_obj_form(self, post=None):
         if post:
-            return OrganisationForm(post, instance=self._org)
+            return OrganisationForm(post, instance=self.obj)
         else:
-            return OrganisationForm(instance=self._org)
+            return OrganisationForm(instance=self.obj)
 
 
 class OrgDeleteView(DeleteView, OrgMixin):
