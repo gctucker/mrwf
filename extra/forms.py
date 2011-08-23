@@ -38,18 +38,28 @@ class OrganisationForm(forms.ModelForm):
 
 
 class ContactForm(forms.ModelForm):
-    line_1 = forms.CharField(max_length=63, required=True)
-    town = forms.CharField(max_length=63, required=True)
-    postcode = forms.CharField(max_length=15, required=True)
-    email = forms.EmailField(max_length=127, required=True,
-                             help_text=Contact.email_help_text,
-                             label="E-mail address")
+    email = forms.EmailField(max_length=127, help_text=Contact.email_help_text,
+                             label="E-mail address", required=False)
+
+    @property
+    def is_empty(self):
+        for f in self:
+            if f.value():
+                return False
+        return True
 
     class Meta:
         model = Contact
         exclude = ['status', 'person', 'addr_order', 'addr_suborder',
                    'country', 'fax']
 
+class ApplicationContactForm(ContactForm):
+    line_1 = forms.CharField(max_length=63, required=True)
+    town = forms.CharField(max_length=63, required=True)
+    postcode = forms.CharField(max_length=15, required=True)
+    email = forms.EmailField(max_length=127, required=True,
+                             help_text=Contact.email_help_text,
+                             label="E-mail address")
 
 class ConfirmForm(forms.Form):
     confirm = forms.CharField(initial='confirm', widget=forms.HiddenInput)

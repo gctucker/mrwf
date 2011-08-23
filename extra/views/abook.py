@@ -9,7 +9,8 @@ from cams.libcams import str2list
 from cams.models import (Record, Contactable, Person, Organisation, Member,
                          Contact)
 from mrwf.extra.views.main import SiteView, get_list_page
-from mrwf.extra.forms import PersonForm, OrganisationForm, ConfirmForm
+from mrwf.extra.forms import (PersonForm, OrganisationForm, ContactForm,
+                              ConfirmForm)
 
 class SearchHelper(object):
     def __init__(self, request):
@@ -198,19 +199,44 @@ class EditView(ObjView):
     perms = ObjView.perms + ['cams.abook_edit']
 
     def get(self, request, *args, **kwargs):
-        self._f_obj = self.make_obj_form()
+        self._objf = self.make_obj_form()
+        self._cf = []
+        for c in self.obj.contact_set.all():
+            self._cf.append(ContactForm(instance=c))
+        if not self._cf: # at least one contact in the form
+            self._cf.append(ContactForm())
         return super(EditView, self).get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        self._f_obj = self.make_obj_form(self.request.POST)
-        if self._f_obj.is_valid():
-            self._f_obj.save()
+        self._objf = self.make_obj_form(self.request.POST)
+        self._cf = []
+        cf_valid = True
+        for c in self.obj.contact_set.all():
+            cf = ContactForm(request.POST, instance=c)
+            if not cf.is_valid():
+                cf_valid = False
+            self._cf.append(cf)
+        if not self._cf: # at least one contact in the form
+            c = ContactForm(request.POST)
+            if not c.is_empty:
+                c.instance.status = Record.NEW
+                c.instance.obj = self.obj
+                if not c.is_valid():
+                    cf_valid = False
+                self._cf.append(c)
+        if cf_valid and self._objf.is_valid():
+            self._objf.save()
+            for cf in self._cf:
+                if cf.is_empty:
+                    cf.instance.delete()
+                else:
+                    cf.save()
             return self.redirect(self.url, request)
         return super(EditView, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         ctx = super(EditView, self).get_context_data(**kwargs)
-        ctx.update({'f_obj': self._f_obj})
+        ctx.update({'objf': self._objf, 'cf_list': self._cf})
         return ctx
 
 
