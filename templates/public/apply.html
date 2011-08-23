@@ -1,15 +1,16 @@
 {% extends "base.html" %}
+{% load mrwf_extra %}
 
 {% block body %}
       <p class="apply-help">Fields with a * are required.</p>
       <form method="post" action="{{ px }}public/apply/">
         {% csrf_token %}
         <table class="apply">
-          <tr><td class="apply-title" colspan="3"><h2>Stallholder</h2></td></tr>{% for f in form.p %}
-{% include "public/apply_field.html" %}{% endfor %}
-          <tr><td class="apply-title" colspan="3"><h2>Address and Contact details</h2></td></tr>{% for f in form.c %}
-{% include "public/apply_field.html" %}{% endfor %}
-          <tr><td class="apply-title" colspan="3"><h2>Stall details</h2></td></tr>
+          {% form_title_row "Stallholder" 2 %}{% for f in form.p %}
+          {% field_row f %}{% endfor %}
+          {% form_title_row "Address and Contact details" 2 %}{% for f in form.c %}
+          {% field_row f %}{% endfor %}
+          {% form_title_row "Stall details" 2 %}
           <tr>
             <th><label for="id_name">Name of your stall*</label></th>
             <td colspan="2">{{ form.s.name.errors }}{{ form.s.name }}</td>

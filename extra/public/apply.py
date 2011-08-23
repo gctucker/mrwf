@@ -9,7 +9,8 @@ from django.conf import settings
 from cams.libcams import get_user_email
 from cams.models import Record, Fair, Application
 from mrwf.extra.models import StallEvent, FairEventApplication, Listener
-from mrwf.extra.forms import PersonForm, ContactForm, StallForm
+from mrwf.extra.forms import (PersonForm, StallForm,
+                              ApplicationContactForm as ContactForm)
 
 class StallApplicationForm ():
     def __init__ (self, p = PersonForm (), c = ContactForm (),

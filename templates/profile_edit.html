@@ -1,4 +1,5 @@
 {% extends "nav_layout.html" %}
+{% load mrwf_extra %}
 
 {% block contents %}
           <h2>Edit profile</h2>
@@ -11,9 +12,9 @@
                 <tr><th>{{ f_user.email.label_tag }}</th><td>{{ f_user.email.errors }}{{ f_user.email }}</td></tr>
                 <tr><td colspan="3" style="font-size: 0.9em">Set this optional email address to receive automatic notifications instead of the main address below.</td></tr>
                 <tr><td class="apply-title" colspan="3"><h3>Personal information</h3></td></tr>{% for f in p_form %}
-{% include "public/apply_field.html" %}{% endfor %}
+                {% field_row f %}{% endfor %}
                 <tr><td class="apply-title" colspan="3"><h3>Contact details</h3></td></tr>{% for f in c_form %}
-{% include "public/apply_field.html" %}{% endfor %}
+                {% field_row f %}{% endfor %}
               </table>
               <p>* required</p>
               <p><input type="submit" value="save" /></p>
