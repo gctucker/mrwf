@@ -182,26 +182,32 @@ class AddView(AbookView):
     perms = AbookView.perms + ['cams.abook_edit', 'cams.abook_add']
 
     def get(self, request, *args, **kwargs):
-        self._objf = self.make_new_obj_form()
+        self._objf = self._make_new_obj_form()
         self._cf = ContactForm()
         return super(AddView, self).get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        self._objf = self.make_new_obj_form(request.POST)
+        self._objf = self._make_new_obj_form(request.POST)
         self._cf = ContactForm(request.POST)
         if self._objf.is_valid() and self._cf.is_valid():
             self._objf.save()
             if not self._cf.is_empty:
                 self._cf.instance.obj = self._objf.instance
                 self._cf.save()
-            return HttpResponseRedirect(self.search_url)
+            return HttpResponseRedirect(self._get_search_url())
         return super(AddView, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         ctx = super(AddView, self).get_context_data(**kwargs)
         ctx.update({'objf': self._objf, 'cf': self._cf,
-                    'add_title': self.add_title, 'url': self.url})
+                    'add_title': self.add_title, 'url': self._get_add_url()})
         return ctx
+
+    def _get_search_url(self):
+        return reverse(self.url_name, args=[self._objf.instance.id])
+
+    def _get_add_url(self):
+        return reverse('abook_add_' + self.url_name)
 
 
 class ObjView(AbookView):
@@ -319,6 +325,9 @@ class PersonMixin(object):
     def url(self):
         return reverse('person', args=[self._person.id])
 
+    def make_obj_form(self, post=None):
+        return PersonForm(post, instance=self.obj)
+
 
 class OrgMixin(object):
     @property
@@ -330,6 +339,9 @@ class OrgMixin(object):
     @property
     def url(self):
         return reverse('org', args=[self._org.id])
+
+    def make_obj_form(self, post=None):
+        return OrganisationForm(post, instance=self.obj)
 
 # -----------------------------------------------------------------------------
 # entry points from url's
@@ -387,34 +399,20 @@ class PersonView(ObjView, PersonMixin):
 
 class PersonAddView(AddView):
     add_title = 'a person'
+    url_name = 'person'
 
-    @property
-    def url(self):
-        return reverse('abook_add_person')
-
-    @property
-    def search_url(self):
-        return reverse('person', args=[self._objf.instance.id])
-
-    def make_new_obj_form(self, post=None):
+    def _make_new_obj_form(self, post=None):
         return PersonForm(post)
 
 
 class PersonEditView(EditView, PersonMixin):
-    def make_obj_form(self, post=None):
-        if post:
-            return PersonForm(post, instance=self.obj)
-        else:
-            return PersonForm(instance=self.obj)
-
+    pass
 
 class PersonDisableView(DisableView, PersonMixin):
     pass
 
-
 class PersonDeleteView(DeleteView, PersonMixin):
     pass
-
 
 class OrgView(ObjView, OrgMixin):
     template_name = 'abook/org.html'
@@ -430,30 +428,17 @@ class OrgView(ObjView, OrgMixin):
 
 class OrgAddView(AddView):
     add_title = 'an organisation'
+    url_name = 'org'
 
-    @property
-    def url(self):
-        return reverse('abook_add_org')
-
-    @property
-    def search_url(self):
-        return reverse('org', args=[self._objf.instance.id])
-
-    def make_new_obj_form(self, post=None):
+    def _make_new_obj_form(self, post=None):
         return OrganisationForm(post)
 
 
 class OrgEditView(EditView, OrgMixin):
-    def make_obj_form(self, post=None):
-        if post:
-            return OrganisationForm(post, instance=self.obj)
-        else:
-            return OrganisationForm(instance=self.obj)
-
+    pass
 
 class OrgDisableView(DisableView, OrgMixin):
     pass
-
 
 class OrgDeleteView(DeleteView, OrgMixin):
     pass
