@@ -1,0 +1,19 @@
+{% extends "nav_layout.html" %}
+{% load mrwf_extra %}
+
+{% block contents %}
+          <h2>Add {{ add_title }}</h2>
+          <div class="element">
+            <form method="post" action="{{ url }}">
+              {% csrf_token %}
+              <table class="apply">{% for f in objf %}
+                {% field_row f %}{% endfor %}
+                {% form_title_row "Contact details" 3 %}{% for f in cf %}
+                {% field_row f %}{% endfor %}
+              </table>
+              <p>* required</p>
+              <p><input type="submit" value="save" name="save" /></p>
+            </form>
+            <div class="cmd"><a href="{% url abook_search %}?{{ urlmatch }}">&lt;&lt;&nbsp;cancel</a></div>
+          </div>
+{% endblock %}

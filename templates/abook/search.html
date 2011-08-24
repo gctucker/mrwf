@@ -4,8 +4,12 @@
           <div class="element">
             <form action="{% url abook_search %}" method="get">
               {{ form.match }}
-              <input type="submit" value="search in the Address Book" />
-              {{ form.opt_contacts }}<span style="font-size: 0.8em">{{ form.opt_contacts.label }}</span>
+              <p>
+                <input type="submit" value="search in the Address Book" />
+                {{ form.opt_contacts }}<span style="font-size: 0.8em">{{ form.opt_contacts.label }}</span>{% if perms.cams.abook_edit and perms.cams.abook_add %}
+                &nbsp;<span class="cmd"><a href="{% url abook_add_person %}">&lt;add person&gt;</a></span>
+                &nbsp;<span class="cmd"><a href="{% url abook_add_org %}">&lt;add organisation&gt;</a></span>{% endif %}
+              </p>
             </form>
           </div>{% block detail %}{% endblock %}{% if not page.object_list and urlmatch %}
           <div class="element">No match, sorry.</div>{% endif %}{% endblock %}

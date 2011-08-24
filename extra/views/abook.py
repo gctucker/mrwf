@@ -157,7 +157,8 @@ class SearchHelper(object):
         return contacts.filter(status=Record.ACTIVE)
 
     class SearchForm(forms.Form):
-        match = forms.CharField(required=True, max_length=64)
+        match = forms.CharField(required=True, max_length=64,
+                                widget=forms.TextInput(attrs={'size':'60'}))
         opt_contacts = forms.BooleanField(required = False,
                                           label = "search within contacts")
 
@@ -173,6 +174,33 @@ class AbookView(SiteView):
     def get_context_data(self, **kwargs):
         ctx = super(AbookView, self).get_context_data(**kwargs)
         ctx['urlmatch'] = self.search.urlmatch
+        return ctx
+
+
+class AddView(AbookView):
+    template_name = 'abook/add.html'
+    perms = AbookView.perms + ['cams.abook_edit', 'cams.abook_add']
+
+    def get(self, request, *args, **kwargs):
+        self._objf = self.make_new_obj_form()
+        self._cf = ContactForm()
+        return super(AddView, self).get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self._objf = self.make_new_obj_form(request.POST)
+        self._cf = ContactForm(request.POST)
+        if self._objf.is_valid() and self._cf.is_valid():
+            self._objf.save()
+            if not self._cf.is_empty:
+                self._cf.instance.obj = self._objf.instance
+                self._cf.save()
+            return HttpResponseRedirect(self.search_url)
+        return super(AddView, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        ctx = super(AddView, self).get_context_data(**kwargs)
+        ctx.update({'objf': self._objf, 'cf': self._cf,
+                    'add_title': self.add_title, 'url': self.url})
         return ctx
 
 
@@ -357,6 +385,21 @@ class PersonView(ObjView, PersonMixin):
         return ctx
 
 
+class PersonAddView(AddView):
+    add_title = 'a person'
+
+    @property
+    def url(self):
+        return reverse('abook_add_person')
+
+    @property
+    def search_url(self):
+        return reverse('person', args=[self._objf.instance.id])
+
+    def make_new_obj_form(self, post=None):
+        return PersonForm(post)
+
+
 class PersonEditView(EditView, PersonMixin):
     def make_obj_form(self, post=None):
         if post:
@@ -383,6 +426,21 @@ class OrgView(ObjView, OrgMixin):
         ctx.update({'members': members,
                     'page': get_list_page(self.request, members, 10)})
         return ctx
+
+
+class OrgAddView(AddView):
+    add_title = 'an organisation'
+
+    @property
+    def url(self):
+        return reverse('abook_add_org')
+
+    @property
+    def search_url(self):
+        return reverse('org', args=[self._objf.instance.id])
+
+    def make_new_obj_form(self, post=None):
+        return OrganisationForm(post)
 
 
 class OrgEditView(EditView, OrgMixin):

@@ -84,15 +84,15 @@ input[type=text], input[type=password], textarea, select
   font-size: 0.85em;
 }
 
-div.element
-{
-  padding: 0 0 8px 0;
-}
-
-div.cmd
+.cmd
 {
   padding: 5px 0 5px 0;
   font-size: 0.8em;
+}
+
+div.element
+{
+  padding: 0 0 8px 0;
 }
 
 div.back
