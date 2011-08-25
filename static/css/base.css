@@ -90,6 +90,20 @@ input[type=text], input[type=password], textarea, select
   font-size: 0.8em;
 }
 
+.status-disabled
+{
+  font-style: italic;
+}
+
+.status-active
+{
+}
+
+.status-new
+{
+    font-weight: bold;
+}
+
 div.element
 {
   padding: 0 0 8px 0;

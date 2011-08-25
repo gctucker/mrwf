@@ -15,18 +15,20 @@ from mrwf.extra.forms import (PersonForm, OrganisationForm, ContactForm,
 class SearchHelper(object):
     def __init__(self, request):
         self.form = SearchHelper.SearchForm(request.GET)
-        self._people = []
-        self._orgs = []
+        self._objs = []
         if self.form.is_valid():
             self._match = self.form.cleaned_data['match']
             self._keywords = str2list(self._match)
             self._opt_contacts = self.form.cleaned_data['opt_contacts']
+            self._opt_disabled = self.form.cleaned_data['opt_disabled']
             self._urlmatch = urlencode((('match', self._match),
-                                        ('opt_contacts', self._opt_contacts)))
+                                        ('opt_contacts', self._opt_contacts),
+                                        ('opt_disabled', self._opt_disabled)))
         else:
             self._match = ''
             self._keywords = []
             self._opt_contacts = False
+            self._opt_disabled = False
             self._urlmatch = ''
 
     @property
@@ -34,16 +36,12 @@ class SearchHelper(object):
         return self._urlmatch
 
     @property
-    def people(self):
-        return self._people
-
-    @property
-    def orgs(self):
-        return self._orgs
+    def objs(self):
+        return self._objs
 
     @property
     def has_results(self):
-        if self._people or self._orgs:
+        if self._objs:
             return True
         return False
 
@@ -65,7 +63,7 @@ class SearchHelper(object):
                 m = Member.objects.filter(person = p)
                 if m.count() > 0:
                     c = m[0].contact_set.all()
-            self._append_person(p, c)
+            self._append_obj(p, 'person', c)
 
         for o in o_list:
             c = o.contact_set.all()
@@ -73,7 +71,7 @@ class SearchHelper(object):
                 m = Member.objects.filter(organisation = o)
                 if m.count() > 0:
                     c = m[0].contact_set.all()
-            self._append_org(o, c)
+            self._append_obj(o, 'org', c)
 
     def _search_in_contacts(self):
         # Note: There may be several matching contacts related to the same
@@ -87,26 +85,16 @@ class SearchHelper(object):
             if obj.type == Contactable.ORGANISATION:
                 # ToDo: check whether that reads the Contactable data again
                 # when fetching the sub-class data
-                self._append_org(obj.organisation, (c,))
+                self._append_obj(obj.organisation, 'org', (c,))
             elif obj.type == Contactable.PERSON:
-                self._append_person(obj.person, (c,))
+                self._append_obj(obj.person, 'person', (c,))
             elif obj.type == Contactable.MEMBER:
-                self._append_person(obj.member.person, (c,))
+                self._append_obj(obj.member.person, 'person', (c,))
 
-    def _append_person(self, p, c):
-        self._people.append({'first_name': p.first_name,
-                             'middle_name': p.middle_name,
-                             'last_name': p.last_name,
-                             'nickname': p.nickname,
-                             'id': p.id,
-                             'url': reverse('person', args=[p.id]),
-                             'contacts': c})
-
-    def _append_org(self, o, c):
-        self._orgs.append({'name': o.name,
-                           'nickname': o.nickname,
-                           'id': o.id,
-                           'url': reverse('org', args=[o.id]),
+    def _append_obj(self, obj, obj_type, c):
+        self._objs.append({'obj': obj,
+                           'type': obj_type,
+                           'url': reverse(obj_type, args=[obj.id]),
                            'contacts': c})
 
     def _search_people(self):
@@ -116,14 +104,14 @@ class SearchHelper(object):
                                    Q(middle_name__icontains=kw) |
                                    Q(last_name__icontains=kw) |
                                    Q(nickname__icontains=kw))
-        return people.filter(status=Record.ACTIVE)
+        return self._filter_status(people)
 
     def _search_orgs(self):
         orgs = Organisation.objects.all()
         for kw in self._keywords:
             orgs = orgs.filter(Q(name__icontains=kw) |
                                Q(nickname__icontains=kw))
-        return orgs.filter(status=Record.ACTIVE)
+        return self._filter_status(orgs)
 
     def _search_contacts(self):
         contacts = Contact.objects.all()
@@ -154,13 +142,22 @@ class SearchHelper(object):
                                        Q(addr_order__icontains=kw) |
                                        Q(addr_suborder__icontains=kw))
 
+        # ToDo: handle disabled contact entries
         return contacts.filter(status=Record.ACTIVE)
+
+    def _filter_status(self, qset):
+        q = Q(status=Record.ACTIVE)
+        if self._opt_disabled:
+            q = (q | Q(status=Record.DISABLED))
+        return qset.filter(q)
 
     class SearchForm(forms.Form):
         match = forms.CharField(required=True, max_length=64,
-                                widget=forms.TextInput(attrs={'size':'60'}))
-        opt_contacts = forms.BooleanField(required = False,
-                                          label = "search within contacts")
+                                widget=forms.TextInput(attrs={'size':'40'}))
+        opt_contacts = forms.BooleanField(required=False,
+                                          label="look into contacts")
+        opt_disabled = forms.BooleanField(required=False,
+                                          label="show disabled entries")
 
 
 class AbookView(SiteView):
@@ -253,7 +250,6 @@ class EditView(ObjView):
         if not self._cf: # at least one contact in the form
             c = ContactForm(request.POST)
             if not c.is_empty:
-                c.instance.status = Record.NEW
                 c.instance.obj = self.obj
                 if not c.is_valid():
                     cf_valid = False
@@ -354,9 +350,7 @@ class SearchView(AbookView):
         self.search.do_search()
 
         if self.search.has_results:
-            results = SearchView.PaginatorStub()
-            results.add_list(self.search.people, 'person')
-            results.add_list(self.search.orgs, 'org')
+            results = SearchView.PaginatorStub(self.search.objs)
             results.limit_list(40)
         else:
             results = None
@@ -365,17 +359,12 @@ class SearchView(AbookView):
         return ctx
 
     class PaginatorStub(object):
-        def __init__(self):
-            self.object_list = []
-
-        def add_list(self, items, type_name):
-            for it in items:
-                it['type'] = type_name
-            self.object_list += items
+        def __init__(self, object_list=[]):
+            self._object_list = object_list
 
         def limit_list(self, max_objects):
-            if len(self.object_list) > max_objects:
-                self.object_list = self.object_list[:max_objects]
+            if len(self._object_list) > max_objects:
+                self._object_list = self._object_list[:max_objects]
 
         @property
         def num_pages(self):
@@ -383,6 +372,10 @@ class SearchView(AbookView):
                 return 1
             else:
                 return 0
+
+        @property
+        def object_list(self):
+            return self._object_list
 
 
 class PersonView(ObjView, PersonMixin):

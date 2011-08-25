@@ -4,22 +4,20 @@
           <div class="element">
             <form action="{% url abook_search %}" method="get">
               {{ form.match }}
-              <p>
-                <input type="submit" value="search in the Address Book" />
-                {{ form.opt_contacts }}<span style="font-size: 0.8em">{{ form.opt_contacts.label }}</span>{% if perms.cams.abook_edit and perms.cams.abook_add %}
+              <input type="submit" value="search" /><br />
+              {{ form.opt_contacts }}<span style="font-size: 0.8em">{{ form.opt_contacts.label }}</span>&nbsp;&nbsp;
+              {{ form.opt_disabled }}<span style="font-size: 0.8em">{{ form.opt_disabled.label }}</span><br />{% if perms.cams.abook_edit and perms.cams.abook_add %}
                 &nbsp;<span class="cmd"><a href="{% url abook_add_person %}">&lt;add person&gt;</a></span>
                 &nbsp;<span class="cmd"><a href="{% url abook_add_org %}">&lt;add organisation&gt;</a></span>{% endif %}
-              </p>
             </form>
           </div>{% block detail %}{% endblock %}{% if not page.object_list and urlmatch %}
           <div class="element">No match, sorry.</div>{% endif %}{% endblock %}
 
 {% block browse_it %}
-                <a href="{{ it.url }}?{{ urlmatch }}">{% if it.type = "person" %}
-                  {{ it.first_name }} {{ it.middle_name }} {{ it.last_name }}{% else %}{% if it.type = "org" %}
-                  {{ it.name }}{% if it.nickname %} ({{ it.nickname }}){% endif %}{% endif %}{% endif %}
-                </a>
-                <div class="search-preview">
-                  {% if not it.contacts %}<span class="search-no-contact">No contact details</span>{% else %}{{ it.contacts|first }}{% endif %}
-                </div>
+                <span class="status-{{ it.obj.status_str }}">
+                  <a href="{{ it.url }}?{{ urlmatch }}">{{ it.obj.name_nn }}</a>{% if it.obj.status_str != "active" %}&nbsp;({{ it.obj.status_str }}){% endif %}
+                  <div class="search-preview">
+                    {% if not it.contacts %}<span class="search-no-contact">No contact details</span>{% else %}{{ it.contacts|first }}{% endif %}
+                  </div>
+                </span>
 {% endblock %}
