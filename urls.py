@@ -18,9 +18,12 @@ urlpatterns = patterns('',
  (r'^export/', include('mrwf.extra.export_urls')),
  (r'^public/', include('mrwf.extra.public.urls')),
  url(r'^profile/$', views.main.ProfileView.as_view(), name='profile'),
- (r'^profile/edit/$', views.main.ProfileEditView.as_view()),
- (r'^profile/password/$', views.main.PasswordEditView.as_view()),
- (r'^profile/email_test/$', views.main.EmailTestView.as_view()),
+ url(r'^profile/edit/$', views.main.ProfileEditView.as_view(),
+     name='edit_profile'),
+ url(r'^profile/password/$', views.main.PasswordEditView.as_view(),
+     name='password'),
+ url(r'^profile/email_test/$', views.main.EmailTestView.as_view(),
+     name='email_test'),
 )
 
 if DEBUG and STATIC_ROOT:
