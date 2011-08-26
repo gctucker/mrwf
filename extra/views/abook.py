@@ -12,6 +12,9 @@ from mrwf.extra.views.main import SiteView, get_list_page
 from mrwf.extra.forms import (PersonForm, OrganisationForm, ContactForm,
                               ConfirmForm)
 
+def reverse_ab(url, **kwargs):
+    return reverse(':'.join(['abook', url]), **kwargs)
+
 class SearchHelper(object):
     def __init__(self, request):
         self.form = SearchHelper.SearchForm(request.GET)
@@ -94,7 +97,7 @@ class SearchHelper(object):
     def _append_obj(self, obj, obj_type, c):
         self._objs.append({'obj': obj,
                            'type': obj_type,
-                           'url': reverse(obj_type, args=[obj.id]),
+                           'url': reverse_ab(obj_type, args=[obj.id]),
                            'contacts': c})
 
     def _search_people(self):
@@ -120,7 +123,7 @@ class SearchHelper(object):
         for c in self._match.strip():
             if c.isdigit():
                 if tel_re:
-                    tel_re += r'[^0-9]*' + c
+                    tel_re = ''.join([tel_re, r'[^0-9]*', c])
                 elif c != '0':
                     tel_re = c
         if not tel_re:
@@ -201,10 +204,10 @@ class AddView(AbookView):
         return ctx
 
     def _get_search_url(self):
-        return reverse(self.url_name, args=[self._objf.instance.id])
+        return reverse_ab(self.obj_type, args=[self._objf.instance.id])
 
     def _get_add_url(self):
-        return reverse('abook_add_' + self.url_name)
+        return reverse_ab('_'.join(['add', self.obj_type]))
 
 
 class ObjView(AbookView):
@@ -221,7 +224,7 @@ class ObjView(AbookView):
     def redirect(self, url, request):
         search = SearchHelper(request)
         if search.urlmatch:
-            url += '?' + search.urlmatch
+            url = '?'.join([url, search.urlmatch])
         return HttpResponseRedirect(url)
 
 
@@ -282,7 +285,7 @@ class RemoveView(ObjView):
         self._form = ConfirmForm(self.request.POST)
         if self._form.is_valid():
             self.remove_obj()
-            return self.redirect(reverse('abook_search'), request)
+            return self.redirect(reverse_ab('search'), request)
         return super(RemoveView, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -319,7 +322,7 @@ class PersonMixin(object):
 
     @property
     def url(self):
-        return reverse('person', args=[self._person.id])
+        return reverse_ab('person', args=[self._person.id])
 
     def make_obj_form(self, post=None):
         return PersonForm(post, instance=self.obj)
@@ -334,7 +337,7 @@ class OrgMixin(object):
 
     @property
     def url(self):
-        return reverse('org', args=[self._org.id])
+        return reverse_ab('org', args=[self._org.id])
 
     def make_obj_form(self, post=None):
         return OrganisationForm(post, instance=self.obj)
@@ -392,7 +395,7 @@ class PersonView(ObjView, PersonMixin):
 
 class PersonAddView(AddView):
     add_title = 'a person'
-    url_name = 'person'
+    obj_type = 'person'
 
     def _make_new_obj_form(self, post=None):
         return PersonForm(post)
@@ -421,7 +424,7 @@ class OrgView(ObjView, OrgMixin):
 
 class OrgAddView(AddView):
     add_title = 'an organisation'
-    url_name = 'org'
+    obj_type = 'org'
 
     def _make_new_obj_form(self, post=None):
         return OrganisationForm(post)

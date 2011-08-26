@@ -14,4 +14,4 @@
           </div>{% endif %}{% endblock %}
 
 {% block browse_footer %}
-{% if urlmatch %}          <div class="back"><a href="{% url abook_search %}?{{ urlmatch }}">&lt;&lt;&nbsp;back to the search</a></div>{% endif %}{% endblock %}
+{% if urlmatch %}          <div class="back"><a href="{% url abook:search %}?{{ urlmatch }}">&lt;&lt;&nbsp;back to the search</a></div>{% endif %}{% endblock %}

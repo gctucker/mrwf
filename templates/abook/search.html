@@ -2,15 +2,15 @@
 
 {% block browse_header %}
           <div class="element">
-            <form action="{% url abook_search %}" method="get">
+            <form action="{% url abook:search %}" method="get">
               {{ form.match }}
               <input type="submit" value="search" /><br />
               {{ form.opt_contacts }}<span style="font-size: 0.8em">{{ form.opt_contacts.label }}</span>&nbsp;&nbsp;
               {{ form.opt_disabled }}<span style="font-size: 0.8em">{{ form.opt_disabled.label }}</span><br />{% if perms.cams.abook_edit and perms.cams.abook_add %}
-                &nbsp;<span class="cmd"><a href="{% url abook_add_person %}">&lt;add person&gt;</a></span>
-                &nbsp;<span class="cmd"><a href="{% url abook_add_org %}">&lt;add organisation&gt;</a></span>{% endif %}
+                &nbsp;<span class="cmd"><a href="{% url abook:add_person %}">&lt;add person&gt;</a></span>
+                &nbsp;<span class="cmd"><a href="{% url abook:add_org %}">&lt;add organisation&gt;</a></span>{% endif %}
             </form>
-          </div>{% block detail %}{% endblock %}{% if not page.object_list and urlmatch %}
+          </div>{% if not page.object_list and urlmatch %}
           <div class="element">No match, sorry.</div>{% endif %}{% endblock %}
 
 {% block browse_it %}
