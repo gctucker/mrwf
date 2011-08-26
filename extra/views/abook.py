@@ -126,27 +126,27 @@ class SearchHelper(object):
                     tel_re = ''.join([tel_re, r'[^0-9]*', c])
                 elif c != '0':
                     tel_re = c
-        if not tel_re:
-            tel_re = r'^\[\]$'
+        if tel_re:
+            tel_q = (Q(telephone__regex=tel_re) |
+                     Q(mobile__regex=tel_re) |
+                     Q(fax__regex=tel_re))
+        else:
+            tel_q = Q()
 
+        q = Q()
         for kw in self._keywords:
-            # ToDo: find a way to avoid testing the same tel_re with each kw
-            contacts = contacts.filter(Q(line_1__icontains=kw) |
-                                       Q(line_2__icontains=kw) |
-                                       Q(line_3__icontains=kw) |
-                                       Q(town__icontains=kw) |
-                                       Q(postcode__icontains=kw) |
-                                       Q(country__icontains=kw) |
-                                       Q(email__icontains=kw) |
-                                       Q(website__icontains=kw) |
-                                       Q(telephone__regex=tel_re) |
-                                       Q(mobile__regex=tel_re) |
-                                       Q(fax__regex=tel_re) |
-                                       Q(addr_order__icontains=kw) |
-                                       Q(addr_suborder__icontains=kw))
+            q = (q & (Q(line_1__icontains=kw) |
+                      Q(line_2__icontains=kw) |
+                      Q(line_3__icontains=kw) |
+                      Q(town__icontains=kw) |
+                      Q(postcode__icontains=kw) |
+                      Q(country__icontains=kw) |
+                      Q(email__icontains=kw) |
+                      Q(website__icontains=kw) |
+                      Q(addr_order__icontains=kw)))
 
-        # ToDo: handle disabled contact entries
-        return contacts.filter(status=Record.ACTIVE)
+        # ToDo: handle disabled and new contact entries
+        return contacts.filter(tel_q | q).filter(status=Record.ACTIVE)
 
     def _filter_status(self, qset):
         q = Q(status=Record.ACTIVE)
