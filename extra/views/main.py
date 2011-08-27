@@ -69,7 +69,6 @@ class SiteView(TemplateView):
         ctx = super(SiteView, self).get_context_data(**kwargs)
         menu = Menu(MENU_ITEMS)
         menu.set_current(self.menu_name)
-        # ToDo: use {% url ... %} tag instead of `px'
         ctx.update({'px': settings.URL_PREFIX,
                     'title': self.title,
                     'user': self.request.user,
@@ -81,6 +80,9 @@ class SiteView(TemplateView):
             if not user.has_perm(p):
                 return False
         return True
+
+    def _set_list_page(self, ctx, obj_list, n=20):
+        ctx['page'] = get_list_page(self.request, obj_list, n)
 
 
 class PlayerMixin(object):

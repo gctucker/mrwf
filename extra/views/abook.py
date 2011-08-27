@@ -63,7 +63,7 @@ class SearchHelper(object):
         for p in p_list:
             c = p.contact_set.all()
             if c.count() == 0:
-                m = Member.objects.filter(person = p)
+                m = Member.objects.filter(person=p)
                 if m.count() > 0:
                     c = m[0].contact_set.all()
             self._append_obj(p, c)
@@ -71,7 +71,7 @@ class SearchHelper(object):
         for o in o_list:
             c = o.contact_set.all()
             if c.count() == 0:
-                m = Member.objects.filter(organisation = o)
+                m = Member.objects.filter(organisation=o)
                 if m.count() > 0:
                     c = m[0].contact_set.all()
             self._append_obj(o, c)
@@ -210,7 +210,9 @@ class ObjView(AbookView):
     def get_context_data(self, **kwargs):
         ctx = super(ObjView, self).get_context_data(**kwargs)
         contacts = Contact.objects.filter(obj=self.obj)
-        ctx.update({'obj': self.obj, 'contacts': contacts})
+        members = self.members.filter(status=Record.ACTIVE)
+        ctx.update({'obj': self.obj, 'contacts': contacts, 'members': members})
+        self._set_list_page(ctx, members, 10)
         return ctx
 
     def redirect(self, url, request):
@@ -317,6 +319,10 @@ class PersonMixin(object):
             self._person = get_object_or_404(Person, pk=self.obj_id)
         return self._person
 
+    @property
+    def members(self):
+        return Member.objects.filter(person=self.obj)
+
     def make_obj_form(self, post=None):
         return PersonForm(post, instance=self.obj)
 
@@ -328,11 +334,15 @@ class OrgMixin(object):
             self._org = get_object_or_404(Organisation, pk=self.obj_id)
         return self._org
 
+    @property
+    def members(self):
+        return Member.objects.filter(organisation=self.obj)
+
     def make_obj_form(self, post=None):
         return OrganisationForm(post, instance=self.obj)
 
 # -----------------------------------------------------------------------------
-# entry points from url's
+# entry points from URL's
 
 class SearchView(AbookView):
     template_name = 'abook/search.html'
@@ -373,22 +383,12 @@ class SearchView(AbookView):
 class PersonView(ObjView, PersonMixin):
     template_name = 'abook/person.html'
 
-    def get_context_data(self, **kwargs):
-        ctx = super(PersonView, self).get_context_data(**kwargs)
-        members = Member.objects.filter(person=self._person)
-        members = members.filter(status=Record.ACTIVE)
-        ctx.update({'members': members,
-                    'page': get_list_page(self.request, members, 10)})
-        return ctx
-
-
 class PersonAddView(AddView):
     add_title = 'a person'
     obj_type = 'person'
 
     def _make_new_obj_form(self, post=None):
         return PersonForm(post)
-
 
 class PersonEditView(EditView, PersonMixin):
     pass
@@ -399,17 +399,9 @@ class PersonDisableView(DisableView, PersonMixin):
 class PersonDeleteView(DeleteView, PersonMixin):
     pass
 
+
 class OrgView(ObjView, OrgMixin):
     template_name = 'abook/org.html'
-
-    def get_context_data(self, **kwargs):
-        ctx = super(OrgView, self).get_context_data(**kwargs)
-        members = Member.objects.filter(organisation=self._org)
-        members = members.filter(status=Record.ACTIVE)
-        ctx.update({'members': members,
-                    'page': get_list_page(self.request, members, 10)})
-        return ctx
-
 
 class OrgAddView(AddView):
     add_title = 'an organisation'
@@ -417,7 +409,6 @@ class OrgAddView(AddView):
 
     def _make_new_obj_form(self, post=None):
         return OrganisationForm(post)
-
 
 class OrgEditView(EditView, OrgMixin):
     pass
