@@ -4,7 +4,7 @@
 {% block contents %}
           <h2>{{ obj.name_nn }}</h2>
           <div class="element">
-            <form method="post" action="{{ url }}edit/?{{ urlmatch }}">
+            <form method="post" action="{% abook_url obj %}edit/?{{ urlmatch }}">
               {% csrf_token %}
               <table class="apply">{% for f in objf %}
                 {% field_row f %}{% endfor %}{% for cf in cf_list %}
@@ -14,6 +14,6 @@
               <p>* required</p>
               <p><input type="submit" value="save" name="save" /></p>
             </form>
-            <div class="cmd"><a href="{{ url }}?{{ urlmatch }}">&lt;&lt;&nbsp;cancel</a></div>
+            <div class="cmd"><a href="{% abook_url obj %}?{{ urlmatch }}">&lt;&lt;&nbsp;cancel</a></div>
           </div>
 {% endblock %}

@@ -1,4 +1,5 @@
 {% extends "browser.html" %}
+{% load mrwf_extra %}
 
 {% block browse_header %}
           <div class="element">
@@ -8,14 +9,14 @@
               {{ form.opt_contacts }}<span style="font-size: 0.8em">{{ form.opt_contacts.label }}</span>&nbsp;&nbsp;
               {{ form.opt_disabled }}<span style="font-size: 0.8em">{{ form.opt_disabled.label }}</span><br />{% if perms.cams.abook_edit and perms.cams.abook_add %}
                 &nbsp;<span class="cmd"><a href="{% url abook:add_person %}">&lt;add person&gt;</a></span>
-                &nbsp;<span class="cmd"><a href="{% url abook:add_org %}">&lt;add organisation&gt;</a></span>{% endif %}
+                &nbsp;<span class="cmd"><a href="{% url abook:add_organisation %}">&lt;add organisation&gt;</a></span>{% endif %}
             </form>
           </div>{% if not page.object_list and urlmatch %}
           <div class="element">No match, sorry.</div>{% endif %}{% endblock %}
 
 {% block browse_it %}
                 <span class="status-{{ it.obj.status_str }}">
-                  <a href="{{ it.url }}?{{ urlmatch }}">{{ it.obj.name_nn }}</a>{% if it.obj.status_str != "active" %}&nbsp;({{ it.obj.status_str }}){% endif %}
+                  <a href="{% abook_url it.obj %}?{{ urlmatch }}">{{ it.obj.name_nn }}</a>{% if it.obj.status_str != "active" %}&nbsp;({{ it.obj.status_str }}){% endif %}
                   <div class="search-preview">
                     {% if not it.contacts %}<span class="search-no-contact">No contact details</span>{% else %}{{ it.contacts|first }}{% endif %}
                   </div>

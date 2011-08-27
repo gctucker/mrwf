@@ -1,6 +1,11 @@
 from django import template
+from django.core.urlresolvers import reverse
 
 register = template.Library()
+
+@register.simple_tag
+def abook_url(obj):
+    return reverse(':'.join(['abook', obj.type_str]), args=[obj.id])
 
 @register.simple_tag
 def field_row(f):
@@ -20,5 +25,5 @@ def field_row(f):
 @register.simple_tag
 def form_title_row(title, h):
     return \
-        '<tr><td class="apply-title" colspan="3"><h{0}>{1}</h{0}></td></tr>'\
+        '<tr><td class="apply-title" colspan="3"><h{0}>{1}</h{0}></td></tr>' \
         .format(h, title)

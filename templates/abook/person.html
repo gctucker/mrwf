@@ -1,4 +1,5 @@
 {% extends "abook/common_contacts.html" %}
+{% load mrwf_extra %}
 
 {% block detail_name %}
           <div class="element">
@@ -14,7 +15,7 @@
 {% block browse_it %}
                 <div class="element">
                   <div class="search-member">
-                    Member of <a href="{% url abook:org it.organisation.id %}?{{ urlmatch }}">{{ it.organisation.name_nn }}</a>
+                    Member of <a href="{% abook_url it.organisation %}?{{ urlmatch }}">{{ it.organisation.name_nn }}</a>
                   </div>{% with it.organisation as other %}
 {% include "abook/member_preview.html" %}{% endwith %}
                 </div>

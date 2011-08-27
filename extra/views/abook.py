@@ -66,7 +66,7 @@ class SearchHelper(object):
                 m = Member.objects.filter(person = p)
                 if m.count() > 0:
                     c = m[0].contact_set.all()
-            self._append_obj(p, 'person', c)
+            self._append_obj(p, c)
 
         for o in o_list:
             c = o.contact_set.all()
@@ -74,7 +74,7 @@ class SearchHelper(object):
                 m = Member.objects.filter(organisation = o)
                 if m.count() > 0:
                     c = m[0].contact_set.all()
-            self._append_obj(o, 'org', c)
+            self._append_obj(o, c)
 
     def _search_in_contacts(self):
         # Note: There may be several matching contacts related to the same
@@ -84,21 +84,13 @@ class SearchHelper(object):
 
         for c in contacts:
             obj = Contactable.objects.get(pk=c.obj_id)
-            # ToDo: transform (cast) a Contactable to its subclass...
-            if obj.type == Contactable.ORGANISATION:
-                # ToDo: check whether that reads the Contactable data again
-                # when fetching the sub-class data
-                self._append_obj(obj.organisation, 'org', (c,))
-            elif obj.type == Contactable.PERSON:
-                self._append_obj(obj.person, 'person', (c,))
-            elif obj.type == Contactable.MEMBER:
-                self._append_obj(obj.member.person, 'person', (c,))
+            if obj.type == Contactable.MEMBER:
+                self._append_obj(obj.member.person, (c,))
+            else:
+                self._append_obj(obj, (c,))
 
-    def _append_obj(self, obj, obj_type, c):
-        self._objs.append({'obj': obj,
-                           'type': obj_type,
-                           'url': reverse_ab(obj_type, args=[obj.id]),
-                           'contacts': c})
+    def _append_obj(self, obj, c):
+        self._objs.append({'obj': obj, 'contacts': c})
 
     def _search_people(self):
         people = Person.objects.all()
@@ -218,7 +210,7 @@ class ObjView(AbookView):
     def get_context_data(self, **kwargs):
         ctx = super(ObjView, self).get_context_data(**kwargs)
         contacts = Contact.objects.filter(obj=self.obj)
-        ctx.update({'url': self.url, 'obj': self.obj, 'contacts': contacts})
+        ctx.update({'obj': self.obj, 'contacts': contacts})
         return ctx
 
     def redirect(self, url, request):
@@ -272,6 +264,11 @@ class EditView(ObjView):
         ctx.update({'objf': self._objf, 'cf_list': self._cf})
         return ctx
 
+    @property
+    def url(self):
+        obj = self._objf.instance
+        return reverse_ab(obj.type_str, args=[obj.id])
+
 
 class RemoveView(ObjView):
     template_name = "abook/remove.html"
@@ -320,10 +317,6 @@ class PersonMixin(object):
             self._person = get_object_or_404(Person, pk=self.obj_id)
         return self._person
 
-    @property
-    def url(self):
-        return reverse_ab('person', args=[self._person.id])
-
     def make_obj_form(self, post=None):
         return PersonForm(post, instance=self.obj)
 
@@ -334,10 +327,6 @@ class OrgMixin(object):
         if not hasattr(self, '_org'):
             self._org = get_object_or_404(Organisation, pk=self.obj_id)
         return self._org
-
-    @property
-    def url(self):
-        return reverse_ab('org', args=[self._org.id])
 
     def make_obj_form(self, post=None):
         return OrganisationForm(post, instance=self.obj)
