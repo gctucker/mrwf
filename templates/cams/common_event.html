@@ -1,6 +1,6 @@
 {% extends "browser.html" %}
 
-{% block browse_title %}{{ ev.name }}{% endblock %}
+{% block browse_title %}<h2>{{ ev.name }}</h2>{% endblock %}
 
 {% block browse_header %}{% if ev.status_str == "new" %}
           <p class="notice">THIS EVENT HAS NOT BEEN CONFIRMED YET</p>{% else %}{% if ev.status_str == "disabled" %}

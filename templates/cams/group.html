@@ -1,6 +1,6 @@
 {% extends "browser.html" %}
 
-{% block browse_title %}Group: {{ group.name }}{% endblock %}
+{% block browse_title %}<h2>Group: {{ group.name }}</h2>{% endblock %}
 
 {% block browse_it %}{% if it.contactable.type_str = "person" %}
                 <a href="{{ px }}abook/person/{{ it.person.id }}/">
