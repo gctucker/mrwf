@@ -204,7 +204,7 @@ class AddView(AbookView):
 
 class ObjView(AbookView):
     def dispatch(self, *args, **kwargs):
-        self.obj_id = kwargs['obj_id']
+        self.obj_id = int(kwargs['obj_id'])
         return super(ObjView, self).dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -220,6 +220,12 @@ class ObjView(AbookView):
         if search.urlmatch:
             url = '?'.join([url, search.urlmatch])
         return HttpResponseRedirect(url)
+
+    @property
+    def obj(self):
+        if not hasattr(self, '_obj'):
+            self._obj = get_object_or_404(Contactable, pk=self.obj_id).subobj
+        return self._obj
 
 
 class EditView(ObjView):
@@ -314,12 +320,6 @@ class DeleteView(RemoveView):
 
 class PersonMixin(object):
     @property
-    def obj(self):
-        if not hasattr(self, '_person'):
-            self._person = get_object_or_404(Person, pk=self.obj_id)
-        return self._person
-
-    @property
     def members(self):
         return Member.objects.filter(person=self.obj)
 
@@ -328,12 +328,6 @@ class PersonMixin(object):
 
 
 class OrgMixin(object):
-    @property
-    def obj(self):
-        if not hasattr(self, '_org'):
-            self._org = get_object_or_404(Organisation, pk=self.obj_id)
-        return self._org
-
     @property
     def members(self):
         return Member.objects.filter(organisation=self.obj)
