@@ -1,13 +1,14 @@
 {% extends "nav_layout.html" %}
+{% load mrwf_extra %}
 
 {% block contents %}
           <h2>{{ action }} for {{ obj }}?</h2>
           <div class="element">
-            <form method="post" action="{{ url }}{{ remove_cmd }}/?{{ urlmatch }}">
+            <form method="post" action="{% abook_url obj %}{{ remove_cmd }}/?{{ urlmatch }}">
               {% csrf_token %}
               {{ form }}
               <input type="submit" value="confirm" />
             </form>
-            <p class="cmd"><a href="{{ url }}?{{ urlmatch }}">&lt;&lt;&nbsp;cancel</a></div>
+            <p class="cmd"><a href="{% abook_url obj %}?{{ urlmatch }}">&lt;&lt;&nbsp;cancel</a></div>
           </div>
 {% endblock %}

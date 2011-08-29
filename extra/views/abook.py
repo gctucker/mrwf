@@ -279,7 +279,7 @@ class EditView(ObjView):
 
 
 class StatusEditView(ObjView):
-    template_name = "abook/remove.html"
+    template_name = "abook/status-edit.html"
     perms = ObjView.perms + ['cams.abook_edit']
 
     def get(self, request, *args, **kwargs):

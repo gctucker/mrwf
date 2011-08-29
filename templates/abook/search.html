@@ -12,7 +12,7 @@
                 &nbsp;<span class="cmd"><a href="{% url abook:add_organisation %}">&lt;add organisation&gt;</a></span>{% endif %}
             </form>
           </div>{% if urlmatch %}{% if not page.object_list %}
-          <div class="element">No match, sorry.</div>{% endif %}{% else %}{% if n_new %}
+          <div class="element">No match, sorry.</div>{% endif %}{% else %}{% if perms.cams.abook_edit and n_new %}
           <div class="element">There are <a href="{% url abook:browse_new %}">{{ n_new }} new entries.</a></div>{% endif %}{% endif %}{% endblock %}
 
 {% block browse_it %}
