@@ -115,6 +115,23 @@ input[type=text], input[type=password], textarea, select
     font-weight: bold;
 }
 
+.obj-disabled, .obj-new
+{
+  margin: 12px 0 12px 0;
+}
+
+.obj-disabled
+{
+  color: #C30000;
+  font-style: italic;
+}
+
+.obj-new
+{
+  color: #20A000;
+  font-weight: bold;
+}
+
 div.element
 {
   padding: 0 0 8px 0;

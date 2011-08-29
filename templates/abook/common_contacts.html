@@ -4,7 +4,9 @@
 {% block page_title %}MRWF - {{ obj }}{% endblock %}
 
 {% block browse_header %}
-          <h2>{{ obj.name_nn }}</h2>{% block detail_name %}{% endblock %}
+          <h2>{{ obj.name_nn }}</h2>{% if obj.status_str == "disabled" %}
+          <div class="obj-disabled">This entry has been disabled.</div>{% else %}{% if obj.status_str == "new" %}
+          <div class="obj-new">This is a new entry.</div>{% endif %}{% endif %}{% block detail_name %}{% endblock %}
           <div>{% if not contacts %}
             <span class="search-no-contact">Sorry, no contact details</span></p>{% else %}{% for c in contacts %}
 {% include "abook/details.html" %}{% endfor %}{% endif %}
