@@ -164,8 +164,8 @@ class FairEventApplication(EventApplication):
     subtype = PositiveSmallIntegerField(choices=xtypes)
 
     @property
-    def type_name(self):
-        return xtypes[self.subtype][1]
+    def type_str(self):
+        return FairEventApplication.xtypes[self.subtype][1]
 
     def save(self, *args, **kwargs):
         if (self.status == Application.REJECTED):

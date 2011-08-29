@@ -351,7 +351,8 @@ class SearchView(AbookView):
         else:
             results = None
 
-        ctx.update({'form': self.search.form, 'page': results})
+        n_new = Contactable.objects.all().filter(status=Record.NEW).count()
+        ctx.update({'form': self.search.form, 'page': results, 'n_new': n_new})
         return ctx
 
     class PaginatorStub(object):
@@ -372,6 +373,17 @@ class SearchView(AbookView):
         @property
         def object_list(self):
             return self._object_list
+
+
+class BrowseNewView(AbookView):
+    template_name = 'abook/browse_new.html'
+
+    def get_context_data(self, **kwargs):
+        ctx = super(BrowseNewView, self).get_context_data(**kwargs)
+        new_entries = Contactable.objects.filter(status=Record.NEW)
+        new_entries = new_entries.order_by('-created')
+        self._set_list_page(ctx, new_entries)
+        return ctx
 
 
 class PersonView(ObjView, PersonMixin):

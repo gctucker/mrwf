@@ -79,6 +79,17 @@ input[type=text], input[type=password], textarea, select
   border-width: 1px;
 }
 
+.vertical-separator
+{
+  border-style: none dotted none none;
+  border-width: 1px;
+}
+
+.listing
+{
+  padding: 3px 0 2px 5px;
+}
+
 .sub-menu
 {
   font-size: 0.85em;

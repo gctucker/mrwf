@@ -1,0 +1,20 @@
+{% extends "browser.html" %}
+{% load mrwf_extra %}
+
+{% block browse_title %}<h2>New entries</h2>{% endblock %}
+
+{% block browse_list %}
+          <table class="details">
+            <tr class="separator">
+              <th class="vertical-separator">Entry</th>
+              <th class="vertical-separator">Type</th>
+              <th class="vertical-separator">Application</th>
+              <th>Date of creation</th>
+            </tr>{% for it in page.object_list %}
+            <tr>
+              <td class="listing vertical-separator"><a href="{% abook_url it %}">{{ it }}</a></td>
+              <td class="listing vertical-separator">{{ it.type_str }}</td>
+              <td class="listing vertical-separator">{% appli_link it %}</td>
+              <td class="listing">{{ it.created }}</td></tr>{% endfor %}
+          </table>
+{% endblock %}

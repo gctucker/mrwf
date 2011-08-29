@@ -3,6 +3,7 @@ from mrwf.extra import views
 
 urlpatterns = patterns('mrwf.extra.views.abook',
  url(r'^$', views.abook.SearchView.as_view(), name='search'),
+ url(r'^browse/new/$', views.abook.BrowseNewView.as_view(), name='browse_new'),
  url(r'^add/person/$', views.abook.PersonAddView.as_view(),
      name='add_person'),
  url(r'^person/(?P<obj_id>\d+)/$', views.abook.PersonView.as_view(),

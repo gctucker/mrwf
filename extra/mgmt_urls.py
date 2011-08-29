@@ -1,4 +1,4 @@
-from django.conf.urls.defaults import patterns
+from django.conf.urls.defaults import patterns, url
 
 urlpatterns = patterns('mrwf.extra.views.mgmt',
  (r'^participant/$', 'participants'),
@@ -12,7 +12,8 @@ urlpatterns = patterns('mrwf.extra.views.mgmt',
  (r'^prog/(?P<event_id>\d+)/cmt/$', 'prog_event_cmt'),
  (r'^application/$', 'applications'),
  (r'^application/(?P<type_id>\d+)/$', 'appli_type'),
- (r'^application/(?P<type_id>\d+)/(?P<appli_id>\d+)/$', 'appli_detail'),
+ url(r'^application/(?P<type_id>\d+)/(?P<appli_id>\d+)/$', 'appli_detail',
+     name='appli_detail'),
  (r'^invoice/$', 'invoices'),
  (r'^invoice/select/$', 'select_invoice'),
  (r'^invoice/add/(?P<stall_id>\d+)/$', 'add_invoice'),

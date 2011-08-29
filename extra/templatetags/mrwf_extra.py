@@ -1,11 +1,24 @@
 from django import template
 from django.core.urlresolvers import reverse
+from cams.models import Contactable
 
 register = template.Library()
 
 @register.simple_tag
 def abook_url(obj):
     return reverse(':'.join(['abook', obj.type_str]), args=[obj.id])
+
+@register.simple_tag
+def appli_link(obj):
+    if obj.type == Contactable.PERSON:
+        apps = obj.person.appli_person.all()
+        if len(apps) > 0:
+            app = apps[0]
+            url = reverse('appli_detail',
+                          args=[app.faireventapplication.subtype, app.id])
+            return '<a href={0}>{1}</a> ({2})'. \
+                format(url, app.event, app.faireventapplication.type_str)
+    return ''
 
 @register.simple_tag
 def field_row(f):
