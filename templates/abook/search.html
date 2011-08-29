@@ -13,7 +13,7 @@
             </form>
           </div>{% if urlmatch %}{% if not page.object_list %}
           <div class="element">No match, sorry.</div>{% endif %}{% else %}{% if perms.cams.abook_edit and n_new %}
-          <div class="element">There are <a href="{% url abook:browse_new %}">{{ n_new }} new entries.</a></div>{% endif %}{% endif %}{% endblock %}
+          <div class="element">There {{ n_new|pluralize:"is,are" }} <a href="{% url abook:browse_new %}">{{ n_new }} new entr{{ n_new|pluralize:"y,ies" }}.</a></div>{% endif %}{% endif %}{% endblock %}
 
 {% block browse_it %}
                 <span class="status-{{ it.obj.status_str }}">
