@@ -186,7 +186,7 @@ class AddView(AbookView):
             if not self._cf.is_empty:
                 self._cf.instance.obj = self._objf.instance
                 self._cf.save()
-            return HttpResponseRedirect(self._get_search_url())
+            return HttpResponseRedirect(self._get_details_url())
         return super(AddView, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -195,11 +195,13 @@ class AddView(AbookView):
                     'add_title': self.add_title, 'url': self._get_add_url()})
         return ctx
 
-    def _get_search_url(self):
-        return reverse_ab(self.obj_type, args=[self._objf.instance.id])
+    def _get_details_url(self):
+        obj = self._objf.instance
+        return reverse_ab(obj.type_str, args=[obj.id])
 
     def _get_add_url(self):
-        return reverse_ab('_'.join(['add', self.obj_type]))
+        type_str = Contactable.xtype[self.type_id][1]
+        return reverse_ab('_'.join(['add', type_str]))
 
 
 class ObjView(AbookView):
@@ -396,15 +398,15 @@ class BrowseNewView(AbookView):
         return ctx
 
 
-class PersonView(ObjView, PersonMixin):
-    template_name = 'abook/person.html'
-
 class PersonAddView(AddView):
     add_title = 'a person'
-    obj_type = 'person'
+    type_id = Contactable.PERSON
 
     def _make_new_obj_form(self, post=None):
         return PersonForm(post)
+
+class PersonView(ObjView, PersonMixin):
+    template_name = 'abook/person.html'
 
 class PersonEditView(EditView, PersonMixin):
     pass
@@ -419,15 +421,15 @@ class PersonDeleteView(DeleteView, PersonMixin):
     pass
 
 
-class OrgView(ObjView, OrgMixin):
-    template_name = 'abook/org.html'
-
 class OrgAddView(AddView):
     add_title = 'an organisation'
-    obj_type = 'org'
+    type_id = Contactable.ORGANISATION
 
     def _make_new_obj_form(self, post=None):
         return OrganisationForm(post)
+
+class OrgView(ObjView, OrgMixin):
+    template_name = 'abook/org.html'
 
 class OrgEditView(EditView, OrgMixin):
     pass
