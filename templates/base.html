@@ -4,7 +4,7 @@
     <link href="/static/mrwf/css/base.css" rel="stylesheet" type="text/css" />
     <meta http-equiv="Content-Type" content="application/xhtml+xml;charset=UTF-8" />
     <meta http-equiv="Content-Language" content="en-GB" />
-    <title>MRWF{% if title %} - {{ title }}{% endif %}</title>
+    <title>{% block page_title %}MRWF{% if title %} - {{ title }}{% endif %}{% endblock %}</title>
 {% block head %}{% endblock %}  </head>
   <body>
     <h1>Mill Road Winter Fair - CAMS</h1>{% block body %}{% endblock %}  </body>
