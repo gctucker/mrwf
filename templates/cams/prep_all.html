@@ -1,7 +1,5 @@
 {% extends "cams/show_all.html" %}
 
-{% block browse_title %}<h2>Preparation events</h2>{% endblock %}
-
 {% block browse_it %}
                 <a href="{{ px }}{{ url }}{{ it.id }}/">{{ it.date }}: {{ it }}</a>
 {% endblock %}

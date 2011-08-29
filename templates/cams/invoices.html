@@ -1,8 +1,7 @@
 {% extends "browser.html" %}
 
-{% block browse_title %}<h2>Stall invoices</h2>{% endblock %}
-
 {% block browse_header %}
+          <h2>Stall invoices</h2>
           <p class="sub-menu">{% for f in filters %}
             {% if f == filter %}<span class="current_nav">{{ f }}</span>{% else %}<a href="?filter={{ f }}">{{ f }}</a>{% endif %}{% if not forloop.last %}&nbsp;|{% endif %}{% endfor %}
           </p>

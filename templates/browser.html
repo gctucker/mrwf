@@ -1,7 +1,7 @@
 {% extends "nav_layout.html" %}
 
 {% block contents %}
-          {% block browse_title %}{% endblock %}{% block browse_header %}{% endblock %}{% if page.object_list %}{% block browse_list %}
+          {% block browse_header %}{% endblock %}{% if page.object_list %}{% block browse_list %}
           <div class="element">
             <ul class="plain">{% for it in page.object_list %}
               <li>{% block browse_it %}{% endblock %}              </li>{% endfor %}

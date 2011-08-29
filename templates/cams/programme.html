@@ -1,8 +1,7 @@
 {% extends "browser.html" %}
 
-{% block browse_title %}<h2>Programme: events on the day of the fair</h2>{% endblock %}
-
-{% block browse_header %}{% if listings %}
+{% block browse_header %}
+          <h2>Programme: events on the day of the fair</h2>{% if listings %}
           <p class="sub-menu">
             <a href="?listing=">{% if current < 0 %}<span class="current_nav">All</span>{% else %}All{% endif %}</a>
             |&nbsp;<a href="?listing=_default">{% if current == 0 %}<span class="current_nav">Default</span>{% else %}Default{% endif %}</a>{% for it in listings %}

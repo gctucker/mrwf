@@ -1,6 +1,6 @@
 {% extends "browser.html" %}
 
-{% block browse_title %}<h2>New invoice: select stall</h2>{% endblock %}
+{% block browse_header %}<h2>New invoice: select stall</h2>{% endblock %}
 
 {% block browse_it %}
                 <a href="{{ px }}cams/invoice/add/{{ it.id }}/">{{ it.name }}</a>

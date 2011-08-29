@@ -3,9 +3,8 @@
 
 {% block page_title %}MRWF - {{ obj }}{% endblock %}
 
-{% block browse_title %}<h2>{{ obj.name_nn }}</h2>{% endblock %}
-
-{% block browse_header %}{% block detail_name %}{% endblock %}
+{% block browse_header %}
+          <h2>{{ obj.name_nn }}</h2>{% block detail_name %}{% endblock %}
           <div>{% if not contacts %}
             <span class="search-no-contact">Sorry, no contact details</span></p>{% else %}{% for c in contacts %}
 {% include "abook/details.html" %}{% endfor %}{% endif %}

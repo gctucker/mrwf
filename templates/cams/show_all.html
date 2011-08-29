@@ -1,6 +1,7 @@
 {% extends "browser.html" %}
 
-{% block browse_header %}{% if user.is_staff %}
+{% block browse_header %}
+            <h2>Preparation events</h2>{% if user.is_staff %}
             <div class="cmd">
               <a href="{{ px }}{{ url }}?show_all={% if show_all %}False{% else %}True{% endif %}">&lt;{% if show_all %}show yours{% else %}show all{% endif %}&gt;</a>
             </div>{% endif %}{% endblock %}
