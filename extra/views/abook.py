@@ -224,6 +224,10 @@ class ObjView(AbookView):
         return HttpResponseRedirect(url)
 
     @property
+    def template_name(self):
+        return 'abook/{0}.html'.format(self.obj.type_str)
+
+    @property
     def obj(self):
         if not hasattr(self, '_obj'):
             self._obj = get_object_or_404(Contactable, pk=self.obj_id).subobj
@@ -406,7 +410,7 @@ class PersonAddView(AddView):
         return PersonForm(post)
 
 class PersonView(ObjView, PersonMixin):
-    template_name = 'abook/person.html'
+    pass
 
 class PersonEditView(EditView, PersonMixin):
     pass
@@ -429,7 +433,7 @@ class OrgAddView(AddView):
         return OrganisationForm(post)
 
 class OrgView(ObjView, OrgMixin):
-    template_name = 'abook/org.html'
+    pass
 
 class OrgEditView(EditView, OrgMixin):
     pass
