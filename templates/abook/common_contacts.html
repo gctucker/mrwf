@@ -12,9 +12,9 @@
 {% include "abook/details.html" %}{% endfor %}{% endif %}
           </div>{% if perms.cams.abook_edit %}
           <div class="cmd">
-            <a href="{% abook_url obj %}edit/?{{ urlmatch }}">&lt;edit&gt;</a>{% if obj.status_str == "active" %}
-            &nbsp;<a href="{% abook_url obj %}disable/?{{ urlmatch }}">&lt;disable&gt;</a>{% else %}{% if obj.status_str == "new" or obj.status_str == "disabled" %}
-            &nbsp;<a href="{% abook_url obj %}activate/?{{ urlmatch }}">&lt;activate&gt;</a>{% endif %}{% endif %}{% if perms.cams.abook_delete %}
+            <a href="{% abook_url obj %}edit/?{{ urlmatch }}">&lt;edit&gt;</a>{% if obj.status_str == "new" or obj.status_str == "disabled" %}
+            &nbsp;<a href="{% abook_url obj %}activate/?{{ urlmatch }}">&lt;activate&gt;</a>{% endif %}{% if obj.status_str == "active" or obj.status_str == "new" %}
+            &nbsp;<a href="{% abook_url obj %}disable/?{{ urlmatch }}">&lt;disable&gt;</a>{% endif %}{% if perms.cams.abook_delete %}
             &nbsp;<a href="{% abook_url obj %}delete/?{{ urlmatch }}">&lt;delete&gt;</a>{% endif %}
           </div>{% endif %}{% endblock %}
 
