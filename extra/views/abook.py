@@ -278,43 +278,53 @@ class EditView(ObjView):
         return reverse_ab(obj.type_str, args=[obj.id])
 
 
-class RemoveView(ObjView):
+class StatusEditView(ObjView):
     template_name = "abook/remove.html"
     perms = ObjView.perms + ['cams.abook_edit']
 
     def get(self, request, *args, **kwargs):
         self._form = ConfirmForm()
-        return super(RemoveView, self).get(request, *args, **kwargs)
+        return super(StatusEditView, self).get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         self._form = ConfirmForm(self.request.POST)
         if self._form.is_valid():
-            self.remove_obj()
+            self.edit_obj_status()
             return self.redirect(reverse_ab('search'), request)
-        return super(RemoveView, self).get(request, *args, **kwargs)
+        return super(StatusEditView, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        ctx = super(RemoveView, self).get_context_data(**kwargs)
+        ctx = super(StatusEditView, self).get_context_data(**kwargs)
         ctx.update({'form': self._form, 'action': self.action,
                     'remove_cmd': self.remove_cmd})
         return ctx
 
 
-class DisableView(RemoveView):
+class ActivateView(StatusEditView):
+    action = "Activate entry"
+    remove_cmd = "activate"
+    perms = ObjView.perms + ['cams.abook_edit']
+
+    def edit_obj_status(self):
+        self.obj.status = Record.ACTIVE;
+        self.obj.save()
+
+
+class DisableView(StatusEditView):
     action = "Disable entry"
     remove_cmd = 'disable'
 
-    def remove_obj(self):
+    def edit_obj_status(self):
         self.obj.status = Record.DISABLED;
         self.obj.save()
 
 
-class DeleteView(RemoveView):
+class DeleteView(StatusEditView):
     action = "Delete entry"
     remove_cmd = 'delete'
-    perms = RemoveView.perms + ['cams.abook_delete']
+    perms = StatusEditView.perms + ['cams.abook_delete']
 
-    def remove_obj(self):
+    def edit_obj_status(self):
         self.obj.delete()
 
 
@@ -399,6 +409,9 @@ class PersonAddView(AddView):
 class PersonEditView(EditView, PersonMixin):
     pass
 
+class PersonActivateView(ActivateView, PersonMixin):
+    pass
+
 class PersonDisableView(DisableView, PersonMixin):
     pass
 
@@ -417,6 +430,9 @@ class OrgAddView(AddView):
         return OrganisationForm(post)
 
 class OrgEditView(EditView, OrgMixin):
+    pass
+
+class OrgActivateView(ActivateView, OrgMixin):
     pass
 
 class OrgDisableView(DisableView, OrgMixin):
