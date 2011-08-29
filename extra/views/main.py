@@ -75,8 +75,10 @@ class SiteView(TemplateView):
                     'menu': menu.get_user_items(self.request.user)})
         return ctx
 
-    def check_perms(self, user):
-        for p in self.perms:
+    def check_perms(self, user, perms=None):
+        if not perms:
+            perms = self.perms
+        for p in perms:
             if not user.has_perm(p):
                 return False
         return True

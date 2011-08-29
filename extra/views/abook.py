@@ -223,6 +223,13 @@ class ObjView(AbookView):
             url = '?'.join([url, search.urlmatch])
         return HttpResponseRedirect(url)
 
+    def check_perms(self, user):
+        if self.obj.status == Record.NEW:
+            perms = self.perms + ['cams.abook_edit']
+        else:
+            perms = self.perms
+        return super(ObjView, self).check_perms(user, perms)
+
     @property
     def template_name(self):
         return 'abook/{0}.html'.format(self.obj.type_str)
@@ -393,6 +400,7 @@ class SearchView(AbookView):
 
 class BrowseNewView(AbookView):
     template_name = 'abook/browse_new.html'
+    perms = AbookView.perms + ['cams.abook_edit']
 
     def get_context_data(self, **kwargs):
         ctx = super(BrowseNewView, self).get_context_data(**kwargs)
