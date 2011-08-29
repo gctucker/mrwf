@@ -122,7 +122,7 @@ class ProfileView(SiteView, PlayerMixin):
 
 class ProfileEditView(SiteView, PlayerMixin):
     template_name = 'profile_edit.html'
-    title = 'Edit user profile'
+    title = 'Edit profile'
     menu_name = 'profile'
 
     def get(self, request, *args, **kwargs):

@@ -2,7 +2,7 @@
 {% load mrwf_extra %}
 
 {% block contents %}
-          <h2>Edit profile</h2>
+          <h2>{{ title }}</h2>
           <div class="element">
             <form method="post" action="{% url edit_profile %}">
               {% csrf_token %}
