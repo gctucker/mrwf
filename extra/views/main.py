@@ -50,7 +50,7 @@ def add_common_tpl_vars(request, tpl_vars, menu_name, obj_list=None, n=20):
     tpl_vars['user'] = request.user
     menu = Menu(MENU_ITEMS)
     menu.set_current(menu_name)
-    tpl_vars['menu'] = menu.get_user_entries(request.user)
+    tpl_vars['menu'] = menu.get_user_items(request.user)
 
     if obj_list:
         page = get_list_page(request, obj_list, n)
@@ -72,7 +72,7 @@ class SiteView(TemplateView):
         ctx.update({'px': settings.URL_PREFIX,
                     'title': self.title,
                     'user': self.request.user,
-                    'menu': menu.get_user_entries(self.request.user)})
+                    'menu': menu.get_user_items(self.request.user)})
         return ctx
 
     def check_perms(self, user):
