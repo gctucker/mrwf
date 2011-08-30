@@ -213,8 +213,9 @@ class ObjView(AbookView):
         ctx = super(ObjView, self).get_context_data(**kwargs)
         contacts = Contact.objects.filter(obj=self.obj)
         members = self.members.filter(status=Record.ACTIVE)
+        members = members.order_by('person__last_name')
         ctx.update({'obj': self.obj, 'contacts': contacts, 'members': members})
-        self._set_list_page(ctx, members, 10)
+        self._set_list_page(ctx, members, 5)
         return ctx
 
     def redirect(self, url, request):
