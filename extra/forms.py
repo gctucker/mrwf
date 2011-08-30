@@ -6,19 +6,17 @@ from mrwf.extra.models import StallEvent
 def check_ibounds(data, name, imin, imax):
     try:
         val = int(data[name])
-
         if (val < imin) or (val > imax):
             raise forms.ValidationError(
                 'Value out of bounds (min={0}, max={1})'.format(imin, imax))
         else:
             return val
-
     except ValueError:
         raise forms.ValidationError('Invalid value for {0}'.format(name))
 
 
 class UserNameForm(forms.ModelForm):
-    class Meta:
+    class Meta(object):
         model = User
         fields = ['username', 'email']
 
@@ -26,13 +24,13 @@ class UserNameForm(forms.ModelForm):
 class PersonForm(forms.ModelForm):
     last_name = forms.CharField(max_length=127, required=True)
 
-    class Meta:
+    class Meta(object):
         model = Person
         exclude = ['alter', 'status']
 
 
 class OrganisationForm(forms.ModelForm):
-    class Meta:
+    class Meta(object):
         model = Organisation
         exclude = ['status', 'members']
 
@@ -48,10 +46,11 @@ class ContactForm(forms.ModelForm):
                 return False
         return True
 
-    class Meta:
+    class Meta(object):
         model = Contact
         exclude = ['status', 'person', 'addr_order', 'addr_suborder',
                    'country', 'fax']
+
 
 class ApplicationContactForm(ContactForm):
     line_1 = forms.CharField(max_length=63, required=True)
@@ -83,7 +82,7 @@ class StallForm(forms.ModelForm):
     attrs = {'cols': '60', 'rows': '3'}
     description = forms.CharField(widget=forms.Textarea(attrs=attrs))
 
-    class Meta:
+    class Meta(object):
         model = StallEvent
         fields = ('name', 'n_spaces', 'n_tables', 'main_contact','description')
 
