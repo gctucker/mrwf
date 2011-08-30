@@ -8,8 +8,8 @@
             </ul>
           </div>{% endblock %}{% if page.paginator.num_pages > 1 %}
           <div class="element paginator">{% if page.has_previous %}
-            <a href="{{ px }}{{ url }}?{% if urlmatch %}{{ urlmatch }}&{% endif %}page={{ page.previous_page_number }}">&lt;-&nbsp;</a>{% endif %}
+            <a href="?{% if urlmatch %}{{ urlmatch }}&{% endif %}page={{ page.previous_page_number }}">&lt;-&nbsp;</a>{% endif %}
             <span class="current_page">{{ page.number }}&nbsp;/&nbsp;{{ page.paginator.num_pages }}</span>{% if page.has_next %}
-            <a href="{{ px }}{{ url }}?{% if urlmatch %}{{ urlmatch }}&{% endif %}page={{ page.next_page_number }}">&nbsp;-&gt;</a>{% endif %}
+            <a href="?{% if urlmatch %}{{ urlmatch }}&{% endif %}page={{ page.next_page_number }}">&nbsp;-&gt;</a>{% endif %}
           </div>{% endif %}{% endif %}{% block browse_footer %}{% endblock %}
 {% endblock %}
