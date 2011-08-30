@@ -5,8 +5,12 @@ from cams.models import Contactable
 register = template.Library()
 
 @register.simple_tag
-def abook_url(obj):
-    return reverse(':'.join(['abook', obj.type_str]), args=[obj.id])
+def abook_url(obj, cmd=None):
+    if cmd:
+        base = '_'.join([cmd, obj.type_str])
+    else:
+        base = obj.type_str
+    return reverse(':'.join(['abook', base]), args=[obj.id])
 
 @register.simple_tag
 def appli_link(obj):

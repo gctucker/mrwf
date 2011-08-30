@@ -4,7 +4,7 @@
 {% block contents %}
           <h2>{{ action }} for {{ obj }}?</h2>
           <div class="element">
-            <form method="post" action="{% abook_url obj %}{{ remove_cmd }}/?{{ urlmatch }}">
+            <form method="post" action="{% abook_url obj cmd %}?{{ urlmatch }}">
               {% csrf_token %}
               {{ form }}
               <input type="submit" value="confirm" />

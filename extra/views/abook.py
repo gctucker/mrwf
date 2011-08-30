@@ -314,13 +314,13 @@ class StatusEditView(ObjView):
     def get_context_data(self, **kwargs):
         ctx = super(StatusEditView, self).get_context_data(**kwargs)
         ctx.update({'form': self._form, 'action': self.action,
-                    'remove_cmd': self.remove_cmd})
+                    'cmd': self.status_edit_cmd})
         return ctx
 
 
 class ActivateView(StatusEditView):
     action = "Activate entry"
-    remove_cmd = "activate"
+    status_edit_cmd = "activate"
     perms = ObjView.perms + ['cams.abook_edit']
 
     def edit_obj_status(self):
@@ -330,7 +330,7 @@ class ActivateView(StatusEditView):
 
 class DisableView(StatusEditView):
     action = "Disable entry"
-    remove_cmd = 'disable'
+    status_edit_cmd = 'disable'
 
     def edit_obj_status(self):
         self.obj.status = Record.DISABLED;
@@ -339,7 +339,7 @@ class DisableView(StatusEditView):
 
 class DeleteView(StatusEditView):
     action = "Delete entry"
-    remove_cmd = 'delete'
+    status_edit_cmd = 'delete'
     perms = StatusEditView.perms + ['cams.abook_delete']
 
     def edit_obj_status(self):
