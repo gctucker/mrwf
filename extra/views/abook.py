@@ -208,18 +208,15 @@ class AddView(AbookView):
         return reverse_ab('_'.join(['add', type_str]))
 
 
-class ObjView(AbookView):
+class BaseObjView(AbookView):
     def dispatch(self, *args, **kwargs):
-        self.obj_id = int(kwargs['obj_id'])
-        return super(ObjView, self).dispatch(*args, **kwargs)
+        obj_id = int(kwargs['obj_id'])
+        self.obj = get_object_or_404(Contactable, pk=obj_id).subobj
+        return super(BaseObjView, self).dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        ctx = super(ObjView, self).get_context_data(**kwargs)
-        contacts = Contact.objects.filter(obj=self.obj)
-        members = self.members.filter(status=Record.ACTIVE)
-        members = members.order_by('person__last_name')
-        ctx.update({'obj': self.obj, 'contacts': contacts, 'members': members})
-        self._set_list_page(ctx, members, 5)
+        ctx = super(BaseObjView, self).get_context_data(**kwargs)
+        ctx.update({'obj': self.obj, 'contacts': self.obj.contact_set.all()})
         return ctx
 
     def redirect(self, url, request):
@@ -233,17 +230,20 @@ class ObjView(AbookView):
             perms = self.perms + ['cams.abook_edit']
         else:
             perms = self.perms
-        return super(ObjView, self).check_perms(user, perms)
+        return super(BaseObjView, self).check_perms(user, perms)
+
+
+class ObjView(BaseObjView):
+    def get_context_data(self, **kwargs):
+        ctx = super(ObjView, self).get_context_data(**kwargs)
+        members = self.members.filter(status=Record.ACTIVE)
+        ctx.update({'members': members})
+        self._set_list_page(ctx, members, 5)
+        return ctx
 
     @property
     def template_name(self):
         return 'abook/{0}.html'.format(self.obj.type_str)
-
-    @property
-    def obj(self):
-        if not hasattr(self, '_obj'):
-            self._obj = get_object_or_404(Contactable, pk=self.obj_id).subobj
-        return self._obj
 
 
 class EditView(ObjView):
@@ -349,7 +349,9 @@ class DeleteView(StatusEditView):
 class PersonMixin(object):
     @property
     def members(self):
-        return Member.objects.filter(person=self.obj)
+        members = Member.objects.filter(person=self.obj)
+        return members.order_by('person__last_name')
+
 
     def make_obj_form(self, post=None):
         return PersonForm(post, instance=self.obj)
@@ -358,7 +360,8 @@ class PersonMixin(object):
 class OrgMixin(object):
     @property
     def members(self):
-        return Member.objects.filter(organisation=self.obj)
+        members = Member.objects.filter(organisation=self.obj)
+        return members.order_by('organisation__name')
 
     def make_obj_form(self, post=None):
         return OrganisationForm(post, instance=self.obj)
