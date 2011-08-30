@@ -10,7 +10,7 @@ from cams.models import (Record, Contactable, Person, Organisation, Member,
                          Contact)
 from mrwf.extra.views.main import SiteView, get_list_page
 from mrwf.extra.forms import (PersonForm, OrganisationForm, ContactForm,
-                              ConfirmForm)
+                              ConfirmForm, StatusForm)
 
 def reverse_ab(url, **kwargs):
     return reverse(':'.join(['abook', url]), **kwargs)
@@ -175,13 +175,17 @@ class AddView(AbookView):
 
     def get(self, request, *args, **kwargs):
         self._objf = self._make_new_obj_form()
+        self._stf = StatusForm()
         self._cf = ContactForm()
         return super(AddView, self).get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         self._objf = self._make_new_obj_form(request.POST)
+        self._stf = StatusForm(request.POST)
         self._cf = ContactForm(request.POST)
-        if self._objf.is_valid() and self._cf.is_valid():
+        if self._objf.is_valid() and self._stf.is_valid() \
+                and self._cf.is_valid():
+            self._objf.instance.status = self._stf.cleaned_data['status']
             self._objf.save()
             if not self._cf.is_empty:
                 self._cf.instance.obj = self._objf.instance
@@ -191,7 +195,7 @@ class AddView(AbookView):
 
     def get_context_data(self, **kwargs):
         ctx = super(AddView, self).get_context_data(**kwargs)
-        ctx.update({'objf': self._objf, 'cf': self._cf,
+        ctx.update({'objf': self._objf, 'cf': self._cf, 'stf': self._stf,
                     'add_title': self.add_title, 'url': self._get_add_url()})
         return ctx
 

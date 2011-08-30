@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
-from cams.models import Person, Organisation, Contact
+from cams.models import Record, Person, Organisation, Contact
 from mrwf.extra.models import StallEvent
 
 def check_ibounds(data, name, imin, imax):
@@ -71,6 +71,12 @@ class ConfirmForm(forms.Form):
         if self.cleaned_data['confirm'] != 'confirm':
             raise forms.ValidationError('Failded to confirm')
         return self.cleaned_data
+
+
+class StatusForm(forms.Form):
+    status = forms.TypedChoiceField(coerce=int, empty_value=None,
+                                    initial=Record.ACTIVE,
+                                    choices=Record.xstatus)
 
 
 class StallForm(forms.ModelForm):
