@@ -9,7 +9,7 @@
           <div class="obj-new">This is a new entry.</div>{% endif %}{% endif %}{% block detail_name %}{% endblock %}
           <div>{% if not contacts %}
             <span class="search-no-contact">Sorry, no contact details</span></p>{% else %}{% for c in contacts %}
-{% include "abook/details.html" %}{% endfor %}{% endif %}
+{% include "abook/contact-details.html" %}{% endfor %}{% endif %}
           </div>{% if perms.cams.abook_edit %}
           <div class="cmd">
             <a href="{% abook_url obj %}edit/?{{ urlmatch }}">&lt;edit&gt;</a>{% if obj.status_str == "new" or obj.status_str == "disabled" %}

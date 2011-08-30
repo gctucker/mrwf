@@ -12,7 +12,7 @@
             <tr><td class="key">user email</td><td class="value">{{ user.email }}</td></tr>{% endif %}
           </table>
           <table>{% if contact %}{% with contact as c %}
-{% include "abook/details.html" %}{% endwith %}{% else %}
+{% include "abook/contact-details.html" %}{% endwith %}{% else %}
           <p>No contact details.</p>{% endif %}
           <div class="cmd"><a href="{% url email_test %}">&lt;email test&gt;</a></div>
           <div class="cmd"><a href="{% url edit_profile %}">edit profile&nbsp;&gt;&gt;</a></div>
