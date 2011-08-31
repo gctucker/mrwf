@@ -349,9 +349,7 @@ class DeleteView(StatusEditView):
 class PersonMixin(object):
     @property
     def members(self):
-        members = Member.objects.filter(person=self.obj)
-        return members.order_by('person__last_name')
-
+        return self.obj.member_set.order_by('organisation__name')
 
     def make_obj_form(self, post=None):
         return PersonForm(post, instance=self.obj)
@@ -360,8 +358,7 @@ class PersonMixin(object):
 class OrgMixin(object):
     @property
     def members(self):
-        members = Member.objects.filter(organisation=self.obj)
-        return members.order_by('organisation__name')
+        return self.obj.members.order_by('last_name')
 
     def make_obj_form(self, post=None):
         return OrganisationForm(post, instance=self.obj)
