@@ -159,9 +159,9 @@ class AbookView(SiteView):
     title = 'Address Book'
     menu_name = 'abook'
 
-    def get(self, request, *args, **kwargs):
-        self.search = SearchHelper(request)
-        return super(AbookView, self).get(request, *args, **kwargs)
+    def get(self, *args, **kwargs):
+        self.search = SearchHelper(self.request)
+        return super(AbookView, self).get(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
         ctx = super(AbookView, self).get_context_data(**kwargs)
@@ -173,16 +173,16 @@ class AddView(AbookView):
     template_name = 'abook/add.html'
     perms = AbookView.perms + ['cams.abook_edit', 'cams.abook_add']
 
-    def get(self, request, *args, **kwargs):
+    def get(self, *args, **kwargs):
         self._objf = self._make_new_obj_form()
         self._stf = StatusForm()
         self._cf = ContactForm()
-        return super(AddView, self).get(request, *args, **kwargs)
+        return super(AddView, self).get(*args, **kwargs)
 
-    def post(self, request, *args, **kwargs):
-        self._objf = self._make_new_obj_form(request.POST)
-        self._stf = StatusForm(request.POST)
-        self._cf = ContactForm(request.POST)
+    def post(self, *args, **kwargs):
+        self._objf = self._make_new_obj_form(self.request.POST)
+        self._stf = StatusForm(self.request.POST)
+        self._cf = ContactForm(self.request.POST)
         if self._objf.is_valid() and self._stf.is_valid() \
                 and self._cf.is_valid():
             self._objf.instance.status = self._stf.cleaned_data['status']
@@ -191,7 +191,7 @@ class AddView(AbookView):
                 self._cf.instance.obj = self._objf.instance
                 self._cf.save()
             return HttpResponseRedirect(self._get_details_url())
-        return super(AddView, self).get(request, *args, **kwargs)
+        return super(AddView, self).get(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
         ctx = super(AddView, self).get_context_data(**kwargs)
@@ -250,26 +250,26 @@ class EditView(ObjView):
     template_name = 'abook/edit.html'
     perms = ObjView.perms + ['cams.abook_edit']
 
-    def get(self, request, *args, **kwargs):
+    def get(self, *args, **kwargs):
         self._objf = self.make_obj_form()
         self._cf = []
         for c in self.obj.contact_set.all():
             self._cf.append(ContactForm(instance=c))
         if not self._cf: # at least one contact in the form
             self._cf.append(ContactForm())
-        return super(EditView, self).get(request, *args, **kwargs)
+        return super(EditView, self).get(*args, **kwargs)
 
-    def post(self, request, *args, **kwargs):
+    def post(self, *args, **kwargs):
         self._objf = self.make_obj_form(self.request.POST)
         self._cf = []
         cf_valid = True
         for c in self.obj.contact_set.all():
-            cf = ContactForm(request.POST, instance=c)
+            cf = ContactForm(self.request.POST, instance=c)
             if not cf.is_valid():
                 cf_valid = False
             self._cf.append(cf)
         if not self._cf: # at least one contact in the form
-            c = ContactForm(request.POST)
+            c = ContactForm(self.request.POST)
             if not c.is_empty:
                 c.instance.obj = self.obj
                 if not c.is_valid():
@@ -282,8 +282,8 @@ class EditView(ObjView):
                     cf.instance.delete()
                 else:
                     cf.save()
-            return self.redirect(self.url, request)
-        return super(EditView, self).get(request, *args, **kwargs)
+            return self.redirect(self.url, self.request)
+        return super(EditView, self).get(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
         ctx = super(EditView, self).get_context_data(**kwargs)
@@ -300,16 +300,16 @@ class StatusEditView(ObjView):
     template_name = "abook/status-edit.html"
     perms = ObjView.perms + ['cams.abook_edit']
 
-    def get(self, request, *args, **kwargs):
+    def get(self, *args, **kwargs):
         self._form = ConfirmForm()
-        return super(StatusEditView, self).get(request, *args, **kwargs)
+        return super(StatusEditView, self).get(*args, **kwargs)
 
-    def post(self, request, *args, **kwargs):
+    def post(self, *args, **kwargs):
         self._form = ConfirmForm(self.request.POST)
         if self._form.is_valid():
             self.edit_obj_status()
-            return self.redirect(reverse_ab('search'), request)
-        return super(StatusEditView, self).get(request, *args, **kwargs)
+            return self.redirect(reverse_ab('search'), self.request)
+        return super(StatusEditView, self).get(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
         ctx = super(StatusEditView, self).get_context_data(**kwargs)
