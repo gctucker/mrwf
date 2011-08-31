@@ -1,5 +1,7 @@
                   <div class="search-preview">{% if user.is_staff %}
-                    <span style="font-size: 0.85em"><a href="{{ px }}admin/cams/member/{{ it.id }}">&lt;edit member&gt;</a></span>{% endif %}{% if not it.contact and not other.contact %}
+                    <span style="font-size: 0.85em">
+                      <a href="{% url abook:edit_member it.id %}?{{ urlmatch }}&src_obj_id={{ obj.id }}">&lt;edit&gt;</a>
+                    </span>{% endif %}{% if not it.contact and not other.contact %}
                     <span class="search-no-contact">No contact details</span>{% else %}{% if it.contact %}{% with it.contact as c %}
 {% include "abook/contact-details.html" %}{% endwith %}{% endif %}{% if other.contact %}{% with other.contact as c %}
 {% include "abook/contact-details.html" %}{% endwith %}{% endif %}{% endif %}

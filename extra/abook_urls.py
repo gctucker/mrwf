@@ -28,4 +28,6 @@ urlpatterns = patterns('mrwf.extra.views.abook',
      views.abook.OrgDisableView.as_view(), name='disable_organisation'),
  url(r'^org/(?P<obj_id>\d+)/delete/$',
      views.abook.OrgDeleteView.as_view(), name='delete_organisation'),
+ url(r'^member/(?P<obj_id>\d+)/edit/$',
+     views.abook.MemberEditView.as_view(), name="edit_member"),
 )

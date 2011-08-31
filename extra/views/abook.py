@@ -246,21 +246,30 @@ class ObjView(BaseObjView):
         return 'abook/{0}.html'.format(self.obj.type_str)
 
 
-class EditView(ObjView):
-    template_name = 'abook/edit.html'
-    perms = ObjView.perms + ['cams.abook_edit']
+class BaseEditView(BaseObjView):
+    perms = BaseObjView.perms + ['cams.abook_edit']
 
     def get(self, *args, **kwargs):
-        self._objf = self.make_obj_form()
         self._cf = []
         for c in self.obj.contact_set.all():
             self._cf.append(ContactForm(instance=c))
         if not self._cf: # at least one contact in the form
             self._cf.append(ContactForm())
-        return super(EditView, self).get(*args, **kwargs)
+        return super(BaseEditView, self).get(*args, **kwargs)
 
     def post(self, *args, **kwargs):
-        self._objf = self.make_obj_form(self.request.POST)
+        self._build_post_data()
+        if self._is_post_data_valid():
+            self._save_post_data()
+            return self._redirect()
+        return super(BaseEditView, self).get(*args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        ctx = super(BaseEditView, self).get_context_data(**kwargs)
+        ctx.update({'cf_list': self._cf})
+        return ctx
+
+    def _build_post_data(self):
         self._cf = []
         cf_valid = True
         for c in self.obj.contact_set.all():
@@ -275,28 +284,51 @@ class EditView(ObjView):
                 if not c.is_valid():
                     cf_valid = False
                 self._cf.append(c)
-        if cf_valid and self._objf.is_valid():
-            self._objf.save()
-            for cf in self._cf:
-                if cf.is_empty:
-                    cf.instance.delete()
-                else:
-                    cf.save()
-            return self.redirect(self.url, self.request)
+        self._cf_valid = cf_valid
+
+    def _is_post_data_valid(self):
+        return self._cf_valid
+
+    def _save_post_data(self, *args, **kwargs):
+        for cf in self._cf:
+            if cf.is_empty:
+                cf.instance.delete()
+            else:
+                cf.save()
+
+
+class EditView(BaseEditView):
+    template_name = 'abook/edit.html'
+
+    def get(self, *args, **kwargs):
+        self._objf = self.make_obj_form()
         return super(EditView, self).get(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
         ctx = super(EditView, self).get_context_data(**kwargs)
-        ctx.update({'objf': self._objf, 'cf_list': self._cf})
+        ctx.update({'objf': self._objf})
         return ctx
 
-    @property
-    def url(self):
+    def _build_post_data(self):
+        super(EditView, self)._build_post_data()
+        self._objf = self.make_obj_form(self.request.POST)
+
+    def _is_post_data_valid(self):
+        if not super(EditView, self)._is_post_data_valid():
+            return False
+        return self._objf.is_valid()
+
+    def _save_post_data(self):
+        super(EditView, self)._save_post_data()
+        self._objf.save()
+
+    def _redirect(self):
         obj = self._objf.instance
-        return reverse_ab(obj.type_str, args=[obj.id])
+        url = reverse_ab(obj.type_str, args=[obj.id])
+        return self.redirect(url, self.request)
 
 
-class StatusEditView(ObjView):
+class StatusEditView(BaseObjView):
     template_name = "abook/status-edit.html"
     perms = ObjView.perms + ['cams.abook_edit']
 
@@ -459,3 +491,21 @@ class OrgDisableView(DisableView, OrgMixin):
 
 class OrgDeleteView(DeleteView, OrgMixin):
     pass
+
+
+class MemberEditView(BaseEditView):
+    template_name = "abook/edit-member.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        src_obj_id = int(request.GET['src_obj_id'])
+        self.src_obj = get_object_or_404(Contactable, pk=src_obj_id)
+        return super(MemberEditView, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, *args, **kwargs):
+        ctx = super(MemberEditView, self).get_context_data(*args, **kwargs)
+        ctx.update({'src_obj': self.src_obj})
+        return ctx
+
+    def _redirect(self):
+        url = reverse_ab(self.src_obj.type_str, args=[self.src_obj.id])
+        return self.redirect(url, self.request)
