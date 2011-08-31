@@ -87,7 +87,7 @@ class SearchHelper(object):
             if obj.type == Contactable.MEMBER:
                 self._append_obj(obj.member.person, (c,))
             else:
-                self._append_obj(obj, (c,))
+                self._append_obj(obj.subobj, (c,))
 
     def _append_obj(self, obj, c):
         self._objs.append({'obj': obj, 'contacts': c})
