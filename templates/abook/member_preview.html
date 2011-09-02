@@ -1,4 +1,4 @@
-                  <div class="search-preview">{% if user.is_staff %}
+                  <div class="search-preview">{% if perms.cams.abook_edit %}
                     <span style="font-size: 0.85em">
                       <a href="{% url abook:edit_member it.id %}?{{ urlmatch }}&src_obj_id={{ obj.id }}">&lt;edit&gt;</a>
                     </span>{% endif %}{% if not it.contact and not other.contact %}
