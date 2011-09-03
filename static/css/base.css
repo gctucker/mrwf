@@ -34,7 +34,7 @@ table
   border-collapse: collapse;
 }
 
-td
+td, th
 {
   vertical-align: top;
 }
@@ -225,7 +225,7 @@ td.cmt-message
 
 /* application forms */
 
-ul.errorlist
+.errorlist
 {
   font-size: 0.9em;
   color: #C30000;

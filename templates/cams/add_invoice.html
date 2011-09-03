@@ -7,8 +7,7 @@
               {% csrf_token %}
               <table class="apply">
                 <tr><td class="key">Stall name</td><td class="value">{{ stall.name }}</td></tr>
-                <tr><td class="key">Spaces</td><td class="value">{{ stall.n_spaces }}</td></tr>
-                <tr><td class="key">Tables</td><td class="value">{{ stall.n_tables }}</td></tr>{% for field in form %}
+                <tr><td class="key">Spaces</td><td class="value">{{ stall.n_spaces }}</td></tr>{% for field in form %}
                 <tr><td class="key">{{ field.label_tag }}</td><td class="value">{{ field.errors }}{{ field }}</td></tr>{% endfor %}
               </table>
               <p><input type="submit" value="create invoice" /></p>

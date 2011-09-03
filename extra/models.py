@@ -1,10 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.db.models import (CharField, DateField, BooleanField,
+from django.db.models import (CharField, TextField, DateField, BooleanField,
                               PositiveIntegerField, PositiveSmallIntegerField,
                               ForeignKey, OneToOneField, ManyToManyField,
                               ImageField)
-from cams.models import (Record, Contact, Item, Event, Fair,
+from cams.models import (Record, Contact, Item, Event, Fair, Person,
                          Application, EventApplication, Invoice)
 from cams.libcams import get_obj_address
 from mrwf.settings import IMG_MAX_D, IMG_MAX_d
@@ -122,14 +122,16 @@ class StallEvent(FairEvent):
                 (EMAIL, 'email'),
                 (WEBSITE, 'website'))
 
-    n_spaces = PositiveSmallIntegerField(default=1, verbose_name=
-                                         "Number of spaces")
-    n_tables = PositiveSmallIntegerField(default=0, verbose_name=
-                                         "Number of tables")
-    main_contact = PositiveSmallIntegerField(choices=xcontact,
-                                             blank=True, null=True,
-                                             help_text=
-                                          "Main contact used in the programme")
+    n_spaces = PositiveSmallIntegerField \
+        (default=1, verbose_name="Number of spaces")
+    n_tables = PositiveSmallIntegerField \
+        (default=0, verbose_name="Number of tables")
+    invoice_person = ForeignKey(Person, blank=True, null=True)
+    invoice_contact = ForeignKey(Contact, blank=True, null=True)
+    main_contact = PositiveSmallIntegerField \
+        (choices=xcontact, blank=True, null=True)
+    extra_web_contact = TextField(blank=True)
+    comments = TextField(blank=True)
 
     def get_main_contact_value(self):
         value = None
@@ -162,6 +164,8 @@ class FairEventApplication(EventApplication):
               (SPONSOR, 'sponsor'), (OTHER, 'other'))
 
     subtype = PositiveSmallIntegerField(choices=xtypes)
+    org_name = CharField \
+        (max_length=128, blank=True, verbose_name="Organisation name")
 
     @property
     def type_name(self):

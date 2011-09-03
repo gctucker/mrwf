@@ -1,13 +1,39 @@
 {% extends "base.html" %}
 
 {% block body %}
-      <p class="apply-help">Fields with a * are required.</p>
+      <h2>Mill Road Winter Fair - {{ fair.date|date:"l jS F Y" }}</h2>
+      <p class="apply-help" style="font-weight: bold">Note: Fields with a * are required.</p>{% if form.has_errors %}
+      <p class="errorlist">Some errors were found, please go through the form and correct them as described.</p>{% endif %}
       <form method="post" action="{{ px }}public/apply/">
         {% csrf_token %}
         <table class="apply">
-          <tr><td class="apply-title" colspan="3"><h2>Stallholder</h2></td></tr>{% for f in form.p %}
+          <tr><td class="apply-title" colspan="3"><h2>Your contact details</h2></td></tr>{% for f in form.p %}
 {% include "public/apply_field.html" %}{% endfor %}
-          <tr><td class="apply-title" colspan="3"><h2>Address and Contact details</h2></td></tr>{% for f in form.c %}
+{% with form.s.org_name as f %}{% include "public/apply_field.html" %}{% endwith %}
+          <tr>
+          </tr>{% for f in form.c %}
+{% include "public/apply_field.html" %}{% endfor %}
+          <tr><td class="apply-title" colspan="3"><h2>Invoice contact</h2></td></tr>
+          <tr>
+            <td colspan="3" class="apply-notes">
+              Please fill in this part if you wish to receive the invoice at a different address than the one given above.
+            </td>
+          </tr>
+          <tr>
+            <th>{{ form.ip.title.label_tag }}</th><td colspan="2">{{ form.ip.title }}</td>
+          </tr>
+          <tr>
+            <th>{{ form.ip.first_name.label_tag }}</th>
+            <td colspan="2">{% if not form.ip.is_empty %}{{ form.ip.first_name.errors }}{% endif %}{{ form.ip.first_name }}</td>
+          </tr>
+          <tr>
+            <th>{{ form.ip.middle_name.label_tag }}</th>
+            <td colspan="2">{{ form.ip.middle_name }}</td>
+          </tr>
+          <tr>
+            <th>{{ form.ip.last_name.label_tag }}</th>
+            <td colspan="2">{% if not form.ip.is_empty %}{{ form.ip.last_name.errors }}{% endif %}{{ form.ip.last_name }}</td>
+          </tr>{% for f in form.ic %}
 {% include "public/apply_field.html" %}{% endfor %}
           <tr><td class="apply-title" colspan="3"><h2>Stall details</h2></td></tr>
           <tr>
@@ -37,23 +63,9 @@
           </tr>
           <tr>
             <td colspan="3" class="apply-notes">
-              Minimum 1 space, Maximum 3 spaces<br />
+              Minimum 1 space, maximum 3 spaces, tables included.<br />
               A space is approximately 2m x 1m<br />
-              Price: £20 per space
-            </td>
-          </tr>
-          <tr>
-            <th>
-              <label for="id_n_tables">Tables to rent*</label>
-            </th>
-            <td>{{ form.s.n_tables.errors }}{{ form.s.n_tables }}</td>
-          </tr>
-          <tr>
-            <td colspan="3" class="apply-notes">
-              Maximum 3 tables<br />
-              Please put 0 if you plan to bring your own tables<br />
-              Size of the tables we rent: same size as a space (2m x 1m)<br />
-              Price: £5 per rented table
+              Price: £25 per space
             </td>
           </tr>
           <tr>
@@ -65,6 +77,25 @@
               Would you like to include one of your contact details on the programme of the Fair?<br />
               If so, please state which one.
             </td>
+          </tr>
+          <tr>
+            <th>
+              <label for="id_web_contact">
+                Other contact details<br />
+                you wish to include<br />
+                on the website
+            </label>
+            </th>
+            <td colspan="2">{{ form.s.extra_web_contact }}</td>
+          </tr>
+          <tr>
+            <th>
+              <label for="id_comments">
+                Any other comments<br />
+                you would like to make
+              </label>
+            </th>
+            <td colspan="2">{{ form.s.comments }}</td>
           </tr>
         </table>
         <p><input type="submit" value="apply" /></p>
