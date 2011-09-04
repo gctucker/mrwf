@@ -16,5 +16,5 @@ urlpatterns = patterns('mrwf.extra.public',
  (r'prog/(?P<fair_year>\d+)/search$', 'prog.search'),
  (r'apply/$', 'apply.post'),
  (r'apply/stallholder/$', 'apply.stallholder'),
- (r'application/$', 'apply.application')
+ (r'thank_you/$', 'apply.thank_you')
 )

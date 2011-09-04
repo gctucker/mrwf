@@ -1,0 +1,8 @@
+Thank you for applying on-line to be a stallholder at the Mill Road Winter Fair - {{ fair.date|date:"l jS F Y" }}.
+Your stallholder application was received on {{ form.stall.created|date:"l jS F Y, h:i a" }}
+
+We will go through your application as soon as we can.
+It may take a few weeks before we come back to you.
+
+Best wishes,
+Adeline

@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block style %}
+    <style>
+body {
+  font-family: verdana, sans-serif;
+  padding: 0 0 0 0;
+  border-spacing: 0px 0px;
+  margin: 10px 0 0 10px;
+  background-color: #FFFFFF;
+  color: #686868;
+}
+h1 {
+  font-size: 1.1em;
+  margin: 0 0 5px 0;
+  color: #C30000;
+}
+h2 {
+  font-size: 1.0em;
+  margin: 8px 0 0 0;
+  color: #C30000;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 2px 0 8px 0;
+  font-size: 0.9em;
+}
+td, th {
+  vertical-align: top;
+}
+td.key {
+  padding: 0 8px 2px 0;
+  width: 120px;
+  border-style: none dotted none none;
+  border-width: 1px;
+  border-color: #E0E0E0;
+}
+td.value {
+  padding: 0 0 2px 8px;
+}
+    </style>{% endblock %}
+
+{% block body %}
+<p>
+  Thank you for applying on-line to be a stallholder at the Mill Road Winter Fair - {{ fair.date|date:"l jS F Y" }}.<br />
+  Your stallholder application was received on {{ form.stall.created|date:"l jS F Y, h:i a" }}
+</p>
+<p>
+  We will go through your application as soon as we can.<br />
+  It may take a few weeks before we come back to you.
+</p>
+<p>
+  Best wishes,<br />
+  Adeline
+</p>
+<p>
+  <table>
+    <tr><td colspan="2"><h2>Your contact details</h2></td></tr>
+    <tr>
+      <td class="key">Person</td>
+      <td class="value">
+        {{ form.person.title_str }}
+        {{ form.person.first_name }}
+        {{ form.person.middle_name }}
+        {{ form.person.last_name }}
+      </td>
+    </tr>{% if form.application.org_name %}
+    <tr><td class="key">Organisation</td><td class="value">{{ form.application.org_name }}</td></tr>{% endif %}
+    <tr>
+      <td class="key">Address</td>
+      <td class="value">
+        {{ form.contact.line_1 }}{% if form.contact.line_2 %}<br />
+        {{ form.contact.line_2 }}{% endif %}{% if form.contact.line_3 %}<br />
+        {{ form.contact.line_3 }}{% endif %}
+      </td>
+    </tr>
+    <tr><td class="key">Town</td><td class="value">{{ form.contact.town }}</td></tr>
+    <tr><td class="key">Postcode</td><td class="value">{{ form.contact.postcode }}</td></tr>
+    <tr><td class="key">E-mail address</td><td class="value">{{ form.contact.email }}</td></tr>{% if form.contact.website %}
+    <tr><td class="key">Website</td><td class="value">{{ form.contact.website }}</td></tr>{% endif %}{% if form.contact.telephone %}
+    <tr><td class="key">Telephone</td><td class="value">{{ form.contact.telephone }}</td></tr>{% endif %}{% if form.contact.mobile %}
+    <tr><td class="key">Mobile</td><td class="value">{{ form.contact.mobile }}</td></tr>{% endif %}{% if form.has_invoice_person or form.has_invoice_contact %}
+    <tr><td colspan="2"><h2>Invoice contact</h2></td></tr>{% if form.has_invoice_person %}
+    <tr>
+      <td class="key">Person</td>
+      <td class="value">
+        {{ form.invoice_person.title_str }}
+        {{ form.invoice_person.first_name }}
+        {{ form.invoice_person.middle_name }}
+        {{ form.invoice_person.last_name }}
+      </td>
+    </tr>{% endif %}{% if form.has_invoice_contact %}
+    <tr>
+      <td class="key">Address</td>
+      <td class="value">
+        {{ form.invoice_contact.line_1 }}{% if form.invoice_contact.line_2 %}<br />
+        {{ form.invoice_contact.line_2 }}{% endif %}{% if form.invoice_contact.line_3 %}<br />
+        {{ form.invoice_contact.line_3 }}{% endif %}
+      </td>
+    </tr>
+    <tr><td class="key">Town</td><td class="value">{{ form.invoice_contact.town }}</td></tr>
+    <tr><td class="key">Postcode</td><td class="value">{{ form.invoice_contact.postcode }}</td></tr>
+    <tr><td class="key">E-mail address</td><td class="value">{{ form.invoice_contact.email }}</td></tr>{% endif %}{% endif %}
+    <tr><td colspan="2"><h2>Stall details</h2></td></tr>
+    <tr><td class="key">Name</td><td class="value">{{ form.stall.name }}</td></tr>
+    <tr><td class="key">Description</td><td class="value">{{ form.stall.description|linebreaksbr }}</td></tr>
+    <tr><td class="key">Spaces</td><td class="value">{{ form.stall.n_spaces }}</td></tr>{% if form.main_contact != "none" %}
+    <tr><td class="key">Main contact</td><td class="value">{{ form.main_contact }}</td></tr>{% endif %}{% if form.stall.extra_web_contact %}
+    <tr><td class="key">Web contact</td><td class="value">{{ form.stall.extra_web_contact|linebreaksbr }}</td></tr>{% endif %}{% if form.stall.comments %}
+    <tr><td class="key">Comments</td><td class="value">{{ form.stall.comments|linebreaksbr }}</td></tr>{% endif %}
+  </table>
+</p>
+{% endblock %}

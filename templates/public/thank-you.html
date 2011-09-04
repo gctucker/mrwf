@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block body %}
+<p>
+  Thank you for applying on-line.
+  {% if email %}A confirmation e-mail has been sent to <span style="font-family: courier; font-size: 1.0em;">{{ email }}</span>{% endif %}
+</p>
+<p>
+  We will go through your application as soon as we can.<br />
+  It may take a few weeks before we come back to you.
+</p>
+<p>
+  Best wishes,<br />
+  Adeline<br />
+</p>
+{% endblock %}
