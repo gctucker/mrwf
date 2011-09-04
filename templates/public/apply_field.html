@@ -1,6 +1,6 @@
           <tr>
-            <th>{{ f.label_tag }}{% if f.field.required %}*{% endif %}</th>{% if f.help_text %}
-            <td>{{ f.errors }}{{ f }}</td>
+            <th>{{ f.label_tag }}{% if f.field.required and not empty %}*{% endif %}</th>{% if f.help_text %}
+            <td>{% if not empty %}{{ f.errors }}{% endif %}{{ f }}</td>
             <td class="apply-help">{{ f.help_text }}</td>{% else %}
-            <td colspan="2">{{ f.errors }}{{ f }}</td>{% endif %}
+            <td colspan="2">{% if not empty %}{{ f.errors }}{% endif %}{{ f }}</td>{% endif %}
           </tr>

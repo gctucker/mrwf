@@ -18,23 +18,9 @@
             <td colspan="3" class="apply-notes">
               Please fill in this part if you wish to receive the invoice at a different address than the one given above.
             </td>
-          </tr>
-          <tr>
-            <th>{{ form.ip.title.label_tag }}</th><td colspan="2">{{ form.ip.title }}</td>
-          </tr>
-          <tr>
-            <th>{{ form.ip.first_name.label_tag }}</th>
-            <td colspan="2">{% if not form.ip.is_empty %}{{ form.ip.first_name.errors }}{% endif %}{{ form.ip.first_name }}</td>
-          </tr>
-          <tr>
-            <th>{{ form.ip.middle_name.label_tag }}</th>
-            <td colspan="2">{{ form.ip.middle_name }}</td>
-          </tr>
-          <tr>
-            <th>{{ form.ip.last_name.label_tag }}</th>
-            <td colspan="2">{% if not form.ip.is_empty %}{{ form.ip.last_name.errors }}{% endif %}{{ form.ip.last_name }}</td>
-          </tr>{% for f in form.ic %}
-{% include "public/apply_field.html" %}{% endfor %}
+          </tr>{% with form.ip.is_empty as empty %}{% for f in form.ip %}
+{% include "public/apply_field.html" %}{% endfor %}{% endwith %}{% with form.ic.is_empty as empty %}{% for f in form.ic %}
+{% include "public/apply_field.html" %}{% endfor %}{% endwith %}
           <tr><td class="apply-title" colspan="3"><h2>Stall details</h2></td></tr>
           <tr>
             <th><label for="id_name">Name of your stall*</label></th>
