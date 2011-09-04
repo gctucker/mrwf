@@ -132,7 +132,7 @@ class StallApplicationForm ():
         tpl_txt = template_loader.get_template('public/thank-you-email.txt')
         tpl_html = template_loader.get_template('public/thank-you-email.html')
         subject = "MRWF - Stallholder application"
-        from_email = "no-reply@mangoz.org"
+        from_email = "adelinedouard@free.fr"
         text = tpl_txt.render(ctx)
         html = tpl_html.render(ctx)
         email = EmailMultiAlternatives(subject, text, from_email, rcpts)
