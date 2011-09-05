@@ -228,11 +228,12 @@ def prog_event_cmt (request, event_id):
 
 @login_required
 def applications (request):
-    applis = FairEventApplication.objects.all ()
+    fair = Fair.get_current()
     cats = []
+    all_applis = FairEventApplication.objects.filter (event__fair = fair)
     for cat_id, cat_name in FairEventApplication.xtypes:
         cat_type = {'id': cat_id, 'name': cat_name}
-        applis = FairEventApplication.objects.filter (subtype = cat_id)
+        applis = all_applis.filter (subtype = cat_id)
         pending = applis.filter (status = Application.PENDING)
         accepted = applis.filter (status = Application.ACCEPTED)
         rejected = applis.filter (status = Application.REJECTED)
@@ -247,6 +248,8 @@ def applications (request):
 def appli_type (request, type_id):
     type_id = int (type_id)
     applis = FairEventApplication.objects.filter (subtype = type_id)
+    applis = FairEventApplication.objects.filter \
+        (event__fair = Fair.get_current())
     applis = applis.order_by ('-created')
     type_name = FairEventApplication.xtypes[type_id][1]
     tpl_vars = {'title': 'Applications: %ss' % type_name,
@@ -301,7 +304,8 @@ def invoices (request):
     else:
         fil = filters[0]
 
-    invs = StallInvoice.objects.all ()
+    invs = StallInvoice.objects.filter \
+        (stall__event__fair = Fair.get_current ())
 
     if fil == 'Pending':
         invs = invs.exclude (status = Invoice.BANKED)
@@ -337,10 +341,9 @@ def add_invoice (request, stall_id):
             form.save()
             return HttpResponseRedirect (reverse (invoices))
     else:
-        TABLE_PRICE = 5
-        SPACE_PRICE = 20
-        amount = stall.n_tables * TABLE_PRICE
-        amount += stall.n_spaces * SPACE_PRICE
+        # ToDo: do not hard-code this, use a database table
+        SPACE_PRICE = 25
+        amount = stall.n_spaces * SPACE_PRICE
         form = StallInvoiceForm (initial = {'amount': amount})
 
     tpl_vars = {'title': 'New invoice', 'form': form, 'stall': stall,

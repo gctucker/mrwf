@@ -10,9 +10,12 @@
               <td class="value"><a href="{{ px }}abook/person/{{ appli.person.id }}/">{{ appli.person }}</a></td>
             </tr>
             <tr><td class="key">spaces</td><td class="value">{{ detail.n_spaces }}</td></tr>
-            <tr><td class="key">tables</td><td class="value">{{ detail.n_tables }}</td></tr>
-            <tr><td class="key">chosen contact</td><td class="value">{{ detail.get_main_contact_value }}</td></tr>
-          </table>
+            <tr><td class="key">chosen contact</td><td class="value">{{ detail.get_main_contact_value }}</td></tr>{% if detail.extra_web_contact %}
+            <tr><td class="key">web contact</td><td class="value">{{ detail.extra_web_contact }}</td></tr>{% endif %}{% if detail.comments %}
+            <tr><td class="key">comments</td><td class="value">{{ detail.comments|linebreaksbr }}</td></tr>{% endif %}
+          </table>{% if detail.invoice_contact or detail.invoice_person %}{% if detail.invoice_person %}
+          <p>Invoice recipient: <a href="{{ px }}abook/person/{{ detail.invoice_person.id }}/">{{ detail.invoice_person }}</a>{% endif %}{% if detail.invoice_contact %}
+{% with detail.invoice_contact as c %}{% include "abook/contact-details.html" %}{% endwith %}{% endif %}{% endif %}
           <div class="textblock description">
 {{ appli.event.description|linebreaksbr }}
           </div>

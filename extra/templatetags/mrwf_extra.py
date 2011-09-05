@@ -25,13 +25,16 @@ def appli_link(obj):
     return ''
 
 @register.simple_tag
-def field_row(f):
-    if f.field.required:
+def field_row(f, empty=False):
+    if f.field.required and not empty:
         req = '*'
     else:
         req = ''
     label = '<th>{0}{1}</th>'.format(f.label_tag(), req)
-    field = '{0}{1}'.format(f.errors, f)
+    if f.errors and not empty:
+        field = '{0}{1}'.format(f.errors, f)
+    else:
+        field = f
     if f.help_text:
         full = '<td>{0}</td><td class="apply-help">{1}</td>'.format \
             (field, f.help_text)

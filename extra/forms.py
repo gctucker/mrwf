@@ -15,13 +15,21 @@ def check_ibounds(data, name, imin, imax):
         raise forms.ValidationError('Invalid value for {0}'.format(name))
 
 
+class IsEmptyMixin(object):
+    def is_empty(self):
+        for f in self:
+            if f.value():
+                return False
+        return True
+
+
 class UserNameForm(forms.ModelForm):
     class Meta(object):
         model = User
         fields = ['username', 'email']
 
 
-class PersonForm(forms.ModelForm):
+class PersonForm(forms.ModelForm, IsEmptyMixin):
     last_name = forms.CharField(max_length=127, required=True)
 
     class Meta(object):
@@ -35,16 +43,9 @@ class OrganisationForm(forms.ModelForm):
         exclude = ['status', 'members']
 
 
-class ContactForm(forms.ModelForm):
+class ContactForm(forms.ModelForm, IsEmptyMixin):
     email = forms.EmailField(max_length=127, help_text=Contact.email_help_text,
                              label="E-mail address", required=False)
-
-    @property
-    def is_empty(self):
-        for f in self:
-            if f.value():
-                return False
-        return True
 
     class Meta(object):
         model = Contact
@@ -59,6 +60,7 @@ class ApplicationContactForm(ContactForm):
     email = forms.EmailField(max_length=127, required=True,
                              help_text=Contact.email_help_text,
                              label="E-mail address")
+
 
 class ConfirmForm(forms.Form):
     confirm = forms.CharField(initial='confirm', widget=forms.HiddenInput)
@@ -78,13 +80,20 @@ class StatusForm(forms.Form):
                                     choices=Record.xstatus)
 
 
+
 class StallForm(forms.ModelForm):
     attrs = {'cols': '60', 'rows': '3'}
+    org_name = forms.CharField(max_length=128, required=False)
     description = forms.CharField(widget=forms.Textarea(attrs=attrs))
+    comments = \
+        forms.CharField(widget=forms.Textarea(attrs=attrs), required=False)
+    extra_web_contact = \
+        forms.CharField(widget=forms.Textarea(attrs=attrs), required=False)
 
     class Meta(object):
         model = StallEvent
-        fields = ('name', 'n_spaces', 'n_tables', 'main_contact','description')
+        fields = ('name', 'description', 'n_spaces', 'main_contact',
+                  'extra_web_contact', 'comments')
 
     def clean_n_spaces(self):
         return check_ibounds(self.cleaned_data, 'n_spaces', 1, 3)
