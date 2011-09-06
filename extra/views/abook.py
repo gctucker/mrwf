@@ -187,7 +187,7 @@ class AddView(AbookView):
                 and self._cf.is_valid():
             self._objf.instance.status = self._stf.cleaned_data['status']
             self._objf.save()
-            if not self._cf.is_empty:
+            if not self._cf.is_empty():
                 self._cf.instance.obj = self._objf.instance
                 self._cf.save()
             return HttpResponseRedirect(self._get_details_url())
@@ -279,7 +279,7 @@ class BaseEditView(BaseObjView):
             self._cf.append(cf)
         if not self._cf: # at least one contact in the form
             c = ContactForm(self.request.POST)
-            if not c.is_empty:
+            if not c.is_empty():
                 c.instance.obj = self.obj
                 if not c.is_valid():
                     cf_valid = False
@@ -291,7 +291,7 @@ class BaseEditView(BaseObjView):
 
     def _save_post_data(self, *args, **kwargs):
         for cf in self._cf:
-            if cf.is_empty:
+            if cf.is_empty():
                 cf.instance.delete()
             else:
                 cf.save()
