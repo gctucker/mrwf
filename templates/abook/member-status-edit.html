@@ -1,0 +1,5 @@
+{% extends "abook/status-edit.html" %}
+{% load mrwf_extra %}
+
+{% block action_args %}&src_obj_id={{ src_obj.id }}{% endblock %}
+{% block cancel %}<p class="cmd"><a href="{% abook_url src_obj %}?{{ urlmatch }}">&lt;&lt;&nbsp;cancel</a></p>{% endblock %}

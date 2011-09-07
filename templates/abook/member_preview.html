@@ -1,6 +1,9 @@
+{% load mrwf_extra %}
+
                   <div class="search-preview">{% if perms.cams.abook_edit %}
                     <span style="font-size: 0.85em">
-                      <a href="{% url abook:edit_member it.id %}?{{ urlmatch }}&src_obj_id={{ obj.id }}">&lt;edit&gt;</a>
+                      <a href="{% abook_url it 'edit' %}?{{ urlmatch }}&src_obj_id={{ obj.id }}">&lt;edit&gt;</a>
+                      <a href="{% abook_url it 'disable' %}?{{ urlmatch }}&src_obj_id={{ obj.id }}">&lt;remove&gt;</a>
                     </span>{% endif %}{% if not it.contact and not other.contact %}
                     <span class="search-no-contact">No contact details</span>{% else %}{% if it.contact %}{% with it.contact as c %}
 {% include "abook/contact-details.html" %}{% endwith %}{% endif %}{% if other.contact %}{% with other.contact as c %}

@@ -585,3 +585,16 @@ class MemberEditView(BaseEditView):
     def _redirect(self):
         url = reverse_ab(self.src_obj.type_str, args=[self.src_obj.id])
         return self.redirect(url, self.request)
+
+class MemberDisableView(DisableView):
+    template_name = "abook/member-status-edit.html"
+
+    def dispatch(self, request, *args, **kw):
+        src_obj_id = int(request.GET['src_obj_id'])
+        self.src_obj = get_object_or_404(Contactable, pk=src_obj_id)
+        return super(MemberDisableView, self).dispatch(request, *args, **kw)
+
+    def get_context_data(self, *args, **kwargs):
+        ctx = super(MemberDisableView, self).get_context_data(*args, **kwargs)
+        ctx.update({'src_obj': self.src_obj})
+        return ctx

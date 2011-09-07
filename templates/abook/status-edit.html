@@ -4,11 +4,11 @@
 {% block contents %}
           <h2>{{ action }} for {{ obj }}?</h2>
           <div class="element">
-            <form method="post" action="{% abook_url obj cmd %}?{{ urlmatch }}">
+            <form method="post" action="{% abook_url obj cmd %}?{{ urlmatch }}{% block action_args %}{% endblock %}">
               {% csrf_token %}
               {{ form }}
               <input type="submit" value="confirm" />
             </form>
-            <p class="cmd"><a href="{% abook_url obj %}?{{ urlmatch }}">&lt;&lt;&nbsp;cancel</a></div>
+            {% block cancel %}<p class="cmd"><a href="{% abook_url obj %}?{{ urlmatch }}">&lt;&lt;&nbsp;cancel</a></p>{% endblock %}
           </div>
 {% endblock %}

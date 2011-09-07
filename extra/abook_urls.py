@@ -38,4 +38,6 @@ urlpatterns = patterns('mrwf.extra.views.abook',
      views.abook.OrgSaveMemberView.as_view(),name='save_member_organisation'),
  url(r'^member/(?P<obj_id>\d+)/edit/$',
      views.abook.MemberEditView.as_view(), name="edit_member"),
+ url(r'^member/(?P<obj_id>\d+)/disable/$',
+     views.abook.MemberDisableView.as_view(), name='disable_member'),
 )
