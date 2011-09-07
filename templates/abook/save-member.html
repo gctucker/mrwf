@@ -1,0 +1,17 @@
+{% extends "browser.html" %}
+{% load mrwf_extra %}
+
+{% block browse_header %}
+          <div class="element">
+            Optional details to contact {% if member_obj.type_str = "person" %}{{ member_obj }} at {{ obj }}{% else %}{{ obj }} at {{ member_obj }}{% endif %}
+          </div>
+          <div class="element">
+            <form method="post" action="{% abook_url obj 'save_member' %}?member_obj_id={{ member_obj.id }}">
+              {% csrf_token %}
+              <table class="apply">{% for f in cf %}
+                {% field_row f %}{% endfor %}
+              </table>
+              <p><input type="submit" value="add member{% if obj.type_str = 'person' %}ship{% endif %}" /></p>
+            </form>
+          </div>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "browser.html" %}
+{% load mrwf_extra %}
+
+{% block browse_header %}
+          <div class="element">Choose {{ other_type }} to add to {{ obj }}</div>
+          <div class="element">
+            <form action="{% abook_url obj 'add_member' %}" method="get">
+              {{ form.match }}
+              <input type="submit" value="search {{ other_type }}" />
+            </form>
+          </div>{% if urlmatch and not page.object_list %}
+          <div class="element">No match, sorry.</div>{% endif %}
+{% endblock %}
+
+{% block browse_it %}
+                <span class="status-{{ it.obj.status_str }}">
+                  <a href="{% abook_url obj 'save_member' %}?member_obj_id={{ it.obj.id }}">{{ it.obj.name_nn }}</a>
+                  <div class="search-preview">
+                    {% if not it.contacts %}<span class="search-no-contact">No contact details</span>{% else %}{{ it.contacts|first }}{% endif %}
+                  </div>
+                </span>
+{% endblock %}

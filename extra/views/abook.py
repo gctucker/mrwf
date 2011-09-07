@@ -372,6 +372,54 @@ class DeleteView(StatusEditView):
         self.obj.delete()
 
 
+class ChooseMemberView(BaseObjView):
+    template_name = "abook/choose-member.html"
+    perms = BaseObjView.perms + ['cams.abook_edit', 'cams.abook_add']
+
+    def get_context_data(self, *args, **kw):
+        ctx = super(ChooseMemberView, self).get_context_data(*args, **kw)
+        self._do_search()
+        if self.search.has_results:
+            results = SearchView.PaginatorStub(self.search.objs)
+            results.limit_list(40)
+        else:
+            results = None
+        ctx.update({'form': self.search.form, 'other_type': self.other_type,
+                    'page': results})
+        return ctx
+
+
+class SaveMemberView(BaseObjView):
+    template_name = "abook/save-member.html"
+    perms = BaseObjView.perms + ['cams.abook_edit', 'cams.abook_add']
+
+    def dispatch(self, request, *args, **kw):
+        member_obj_id = int(request.GET['member_obj_id'])
+        self.member_obj = get_object_or_404(Contactable, pk=member_obj_id)
+        return super(SaveMemberView, self).dispatch(request, *args, **kw)
+
+    def get(self, *args, **kwargs):
+        self._cf = ContactForm()
+        return super(SaveMemberView, self).get(*args, **kwargs)
+
+    def post(self, *args, **kwargs):
+        self._cf = ContactForm(self.request.POST)
+        if self._cf.is_empty() or self._cf.is_valid():
+            member = Member(person=self.person_obj, organisation=self.org_obj)
+            member.save()
+            if not self._cf.is_empty():
+                self._cf.instance.obj = member
+                self._cf.save()
+            url = reverse_ab(self.obj.type_str, args=[self.obj.id])
+            return HttpResponseRedirect(url)
+        return super(SaveMemberView, self).get(*args, **kwargs)
+
+    def get_context_data(self, *args, **kw):
+        ctx = super(SaveMemberView, self).get_context_data(*args, **kw)
+        ctx.update({'member_obj': self.member_obj, 'cf': self._cf})
+        return ctx
+
+
 class PersonMixin(object):
     @property
     def members(self):
@@ -397,7 +445,7 @@ class SearchView(AbookView):
 
     def get_context_data(self, **kwargs):
         ctx = super(SearchView, self).get_context_data(**kwargs)
-        self.search.do_search()
+        self.search.do_search() # ToDo: exclude existing members
 
         if self.search.has_results:
             results = SearchView.PaginatorStub(self.search.objs)
@@ -463,6 +511,23 @@ class PersonDisableView(DisableView, PersonMixin):
 class PersonDeleteView(DeleteView, PersonMixin):
     pass
 
+class PersonChooseMemberView(ChooseMemberView):
+    def _do_search(self):
+        self.search.do_search(search_p=False, search_o=True)
+
+    @property
+    def other_type(self):
+        return Contactable.xtype[Contactable.ORGANISATION][1]
+
+class PersonSaveMemberView(SaveMemberView):
+    @property
+    def person_obj(self):
+        return self.obj.person
+
+    @property
+    def org_obj(self):
+        return self.member_obj.organisation
+
 
 class OrgAddView(AddView):
     add_title = 'an organisation'
@@ -485,6 +550,23 @@ class OrgDisableView(DisableView, OrgMixin):
 
 class OrgDeleteView(DeleteView, OrgMixin):
     pass
+
+class OrgChooseMemberView(ChooseMemberView):
+    def _do_search(self):
+        self.search.do_search(search_p=True, search_o=False)
+
+    @property
+    def other_type(self):
+        return Contactable.xtype[Contactable.PERSON][1]
+
+class OrgSaveMemberView(SaveMemberView):
+    @property
+    def person_obj(self):
+        return self.member_obj.person
+
+    @property
+    def org_obj(self):
+        return self.obj.organisation
 
 
 class MemberEditView(BaseEditView):
