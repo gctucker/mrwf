@@ -48,33 +48,27 @@ class SearchHelper(object):
             return True
         return False
 
-    def do_search(self):
+    def do_search(self, search_p=True, search_o=True):
         if not self._match:
             return
         elif self._opt_contacts:
             self._search_in_contacts()
         else:
-            self._search_in_names()
+            self._search_in_names(search_p, search_o)
 
-    def _search_in_names(self):
-        p_list = list(self._search_people())[:30]
-        o_list = list(self._search_orgs())[:30]
-
-        for p in p_list:
-            c = p.contact_set.all()
+    def _search_in_names(self, search_p, search_o):
+        obj_list = []
+        if search_p:
+            obj_list += list(self._search_people())[:30]
+        if search_o:
+            obj_list += list(self._search_orgs())[:30]
+        for obj in obj_list:
+            c = obj.contact_set.all()
             if c.count() == 0:
-                m = Member.objects.filter(person=p)
+                m = obj.members_list.all()
                 if m.count() > 0:
                     c = m[0].contact_set.all()
-            self._append_obj(p, c)
-
-        for o in o_list:
-            c = o.contact_set.all()
-            if c.count() == 0:
-                m = Member.objects.filter(organisation=o)
-                if m.count() > 0:
-                    c = m[0].contact_set.all()
-            self._append_obj(o, c)
+            self._append_obj(obj, c)
 
     def _search_in_contacts(self):
         # Note: There may be several matching contacts related to the same
