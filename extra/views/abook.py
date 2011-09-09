@@ -3,12 +3,11 @@ from django import forms
 from django.db.models.query import Q
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
-from django.conf import settings
 from django.core.urlresolvers import reverse
 from cams.libcams import str2list
 from cams.models import (Record, Contactable, Person, Organisation, Member,
                          Contact)
-from mrwf.extra.views.main import SiteView, get_list_page
+from mrwf.extra.views.main import SiteView
 from mrwf.extra.forms import (PersonForm, OrganisationForm, ContactForm,
                               ConfirmForm, StatusForm)
 
@@ -80,11 +79,10 @@ class SearchHelper(object):
         contacts = list(self._search_contacts())[:40]
 
         for c in contacts:
-            obj = Contactable.objects.get(pk=c.obj_id)
-            if obj.type == Contactable.MEMBER:
-                self._append_obj(obj.member.person, (c,))
+            if c.obj.type == Contactable.MEMBER:
+                self._append_obj(c.obj.member.person, (c,))
             else:
-                self._append_obj(obj.subobj, (c,))
+                self._append_obj(c.obj.subobj, (c,))
 
     def _append_obj(self, obj, c):
         self._objs.append({'obj': obj, 'contacts': c})
@@ -242,8 +240,7 @@ class ObjView(BaseObjView):
         self._set_list_page(ctx, members, 5)
         return ctx
 
-    @property
-    def template_name(self):
+    def get_template_names(self):
         return 'abook/{0}.html'.format(self.obj.type_str)
 
 
@@ -460,7 +457,7 @@ class SearchView(AbookView):
         else:
             results = None
 
-        n_new = Contactable.objects.all().filter(status=Record.NEW).count()
+        n_new = Contactable.objects.filter(status=Record.NEW).count()
         ctx.update({'form': self.search.form, 'page': results, 'n_new': n_new})
         return ctx
 
