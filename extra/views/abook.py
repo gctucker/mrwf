@@ -423,7 +423,7 @@ class SaveMemberView(BaseObjView):
 class PersonMixin(object):
     @property
     def members(self):
-        return self.obj.member_set.order_by('organisation__name')
+        return self.obj.members_list.order_by('organisation__name')
 
     def make_obj_form(self, post=None):
         return PersonForm(post, instance=self.obj)
@@ -432,7 +432,7 @@ class PersonMixin(object):
 class OrgMixin(object):
     @property
     def members(self):
-        return self.obj.members.order_by('last_name')
+        return self.obj.members_list.order_by('person__last_name')
 
     def make_obj_form(self, post=None):
         return OrganisationForm(post, instance=self.obj)
