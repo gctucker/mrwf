@@ -15,6 +15,9 @@ from mrwf.extra.forms import (PersonForm, OrganisationForm, ContactForm,
 def reverse_ab(url, **kwargs):
     return reverse(':'.join(['abook', url]), **kwargs)
 
+def obj_url(obj):
+    return reverse_ab(obj.type_str, args=[obj.id])
+
 class SearchHelper(object):
     def __init__(self, request):
         self.form = SearchHelper.SearchForm(request.GET)
@@ -194,8 +197,7 @@ class AddView(AbookView):
         return ctx
 
     def _get_details_url(self):
-        obj = self._objf.instance
-        return reverse_ab(obj.type_str, args=[obj.id])
+        return obj_url(self._objf.instance)
 
     def _get_add_url(self):
         type_str = Contactable.xtype[self.type_id][1]
@@ -213,8 +215,8 @@ class BaseObjView(AbookView):
         ctx.update({'obj': self.obj, 'contacts': self.obj.contact_set.all()})
         return ctx
 
-    def redirect(self, url, request):
-        search = SearchHelper(request)
+    def redirect(self, url):
+        search = SearchHelper(self.request)
         if search.urlmatch:
             url = '?'.join([url, search.urlmatch])
         return HttpResponseRedirect(url)
@@ -317,9 +319,7 @@ class EditView(BaseEditView):
         self._objf.save()
 
     def _redirect(self):
-        obj = self._objf.instance
-        url = reverse_ab(obj.type_str, args=[obj.id])
-        return self.redirect(url, self.request)
+        return self.redirect(obj_url(self._objf.instance))
 
 
 class StatusEditView(BaseObjView):
@@ -333,8 +333,8 @@ class StatusEditView(BaseObjView):
     def post(self, *args, **kwargs):
         self._form = ConfirmForm(self.request.POST)
         if self._form.is_valid():
-            self.edit_obj_status()
-            return self.redirect(reverse_ab('search'), self.request)
+            self._edit_obj_status()
+            return self._redirect()
         return super(StatusEditView, self).get(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -343,13 +343,16 @@ class StatusEditView(BaseObjView):
                     'cmd': self.status_edit_cmd})
         return ctx
 
+    def _redirect(self):
+        return self.redirect(reverse_ab('search'))
+
 
 class ActivateView(StatusEditView):
     action = "Activate entry"
     status_edit_cmd = "activate"
     perms = ObjView.perms + ['cams.abook_edit']
 
-    def edit_obj_status(self):
+    def _edit_obj_status(self):
         self.obj.status = Record.ACTIVE;
         self.obj.save()
 
@@ -358,7 +361,7 @@ class DisableView(StatusEditView):
     action = "Disable entry"
     status_edit_cmd = 'disable'
 
-    def edit_obj_status(self):
+    def _edit_obj_status(self):
         self.obj.status = Record.DISABLED;
         self.obj.save()
 
@@ -368,7 +371,7 @@ class DeleteView(StatusEditView):
     status_edit_cmd = 'delete'
     perms = StatusEditView.perms + ['cams.abook_delete']
 
-    def edit_obj_status(self):
+    def _edit_obj_status(self):
         self.obj.delete()
 
 
@@ -410,8 +413,7 @@ class SaveMemberView(BaseObjView):
             if not self._cf.is_empty():
                 self._cf.instance.obj = member
                 self._cf.save()
-            url = reverse_ab(self.obj.type_str, args=[self.obj.id])
-            return HttpResponseRedirect(url)
+            return HttpResponseRedirect(obj_url(self.obj))
         return super(SaveMemberView, self).get(*args, **kwargs)
 
     def get_context_data(self, *args, **kw):
@@ -583,8 +585,7 @@ class MemberEditView(BaseEditView):
         return ctx
 
     def _redirect(self):
-        url = reverse_ab(self.src_obj.type_str, args=[self.src_obj.id])
-        return self.redirect(url, self.request)
+        return self.redirect(obj_url(self.src_obj))
 
 class MemberDisableView(DisableView):
     template_name = "abook/member-status-edit.html"
@@ -598,3 +599,6 @@ class MemberDisableView(DisableView):
         ctx = super(MemberDisableView, self).get_context_data(*args, **kwargs)
         ctx.update({'src_obj': self.src_obj})
         return ctx
+
+    def _redirect(self):
+        return self.redirect(obj_url(self.src_obj))
