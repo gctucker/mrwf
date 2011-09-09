@@ -19,5 +19,14 @@
             <a href="{% abook_url obj 'add_member' %}">&lt;add member{% if obj.type_str = "person" %}ship{% endif %}&gt;</a>{% endif %}
           </div>{% endif %}{% endblock %}
 
+{% block browse_list %}
+          <div class="element">
+            <table class="member-list">{% for it in page.object_list %}
+              <tr><td colspan="2" class="member-spacer"></td></tr>
+            {% block browse_it %}{% endblock %}{% endfor %}
+            </table>
+          </div>
+{% endblock %}
+
 {% block browse_footer %}
 {% if urlmatch %}          <div class="back"><a href="{% url abook:search %}?{{ urlmatch }}">&lt;&lt;&nbsp;back to the search</a></div>{% endif %}{% endblock %}

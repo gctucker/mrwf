@@ -190,7 +190,7 @@ ul#navlist
 
 /* search */
 
-div.search-preview
+.search-preview
 {
   padding: 5px 0 15px 15px;
   font-size: 0.75em;
@@ -200,13 +200,6 @@ div.search-preview
 {
   font-style: italic;
   color: #AAAAAA;
-}
-
-.search-member
-{
-  font-size: 0.9em;
-  padding: 2px 0 2px 5px;
-  background-color: #F0F0F0;
 }
 
 /* detail table */
@@ -230,6 +223,44 @@ td.key
 td.value
 {
   padding: 0 0 2px 8px;
+}
+
+/* member contacts */
+
+table.member-list
+{
+  width: 100%;
+}
+
+td.member-spacer
+{
+  height: 12px;
+}
+
+td.member-left
+{
+  padding: 0 20px 0 5px;
+  border-style: none dashed none none;
+  border-width: 1px;
+  border-color: #E0E0E0;
+}
+
+td.member-right
+{
+  padding: 0 5px 0 20px;
+}
+
+td.member-header
+{
+  font-size: 0.9em;
+  padding: 2px 0 2px 5px;
+  background-color: #F0F0F0;
+}
+
+div.member-title
+{
+  padding: 0 0 5px 0;
+  color: #C30000;
 }
 
 /* comment table */

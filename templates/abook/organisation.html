@@ -10,10 +10,10 @@
           </div>{% endblock %}
 
 {% block browse_it %}
-                <div class="element">
-                  <div class="search-member">
-                    <a href="{% abook_url it.person %}?{{ urlmatch }}">{{ it.person }}</a>
-                  </div>{% with it.person as other %}
+                    <tr>
+                      <td colspan="2" class="member-header">
+                        <a href="{% abook_url it.person %}?{{ urlmatch }}">{{ it.person }}</a>
+                      </td>
+                    </tr>{% with it.person as other %}
 {% include "abook/member_preview.html" %}{% endwith %}
-                </div>
 {% endblock %}

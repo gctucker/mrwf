@@ -1,11 +1,27 @@
 {% load mrwf_extra %}
 
-                  <div class="search-preview">{% if perms.cams.abook_edit %}
-                    <span style="font-size: 0.85em">
+                  {% if perms.cams.abook_edit %}
+                  <tr>
+                    <td colspan="2" style="font-size: 0.7em">
+                      <a href="{% abook_url it 'disable' %}?{{ urlmatch }}&src_obj_id={{ obj.id }}">&lt;remove membership&gt;</a>
+                    </td>
+                  </tr>{% endif %}{% if not other.contact and not it.contact %}
+                  <tr>
+                    <td colspan="2" class="search-preview search-no-contact">Sorry, no contact details.</td>
+                  </tr>{% else %}
+                  <tr>
+                    <td class="search-preview member-left">{% if other.contact %}
+                      {% with other.contact as c %}{% include "abook/contact-details.html" %}{% endwith %}{% else %}
+                      <span class="search-no-contact">Sorry, no contact details.</span>{% endif %}
+                    </td>
+                    <td class="search-preview member-right">
+                      <div class="member-title">
+                        {% if obj.type_str = "person" %}{{ obj }} at {{ other }}{% else %}{{ other }} at {{ obj }}{% endif %}
+                      </div>
+                    <div style="font-size: 0.75em">
                       <a href="{% abook_url it 'edit' %}?{{ urlmatch }}&src_obj_id={{ obj.id }}">&lt;edit&gt;</a>
-                      <a href="{% abook_url it 'disable' %}?{{ urlmatch }}&src_obj_id={{ obj.id }}">&lt;remove&gt;</a>
-                    </span>{% endif %}{% if not it.contact and not other.contact %}
-                    <span class="search-no-contact">No contact details</span>{% else %}{% if it.contact %}{% with it.contact as c %}
-{% include "abook/contact-details.html" %}{% endwith %}{% endif %}{% if other.contact %}{% with other.contact as c %}
-{% include "abook/contact-details.html" %}{% endwith %}{% endif %}{% endif %}
-                  </div>
+                    </div>{% if it.contact %}
+                      {% with it.contact as c %}{% include "abook/contact-details.html" %}{% endwith %}{% else %}
+                      <span class="search-no-contact">Sorry, no contact details.</span>{% endif %}
+                    </td>
+                  </tr>{% endif %}
