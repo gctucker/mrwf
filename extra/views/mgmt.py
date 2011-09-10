@@ -8,7 +8,7 @@ from django.template import RequestContext
 from django.db.models.query import Q
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response, get_object_or_404
-from mrwf.extra.views.main import add_common_tpl_vars
+from mrwf.extra.views.main import add_common_tpl_vars, SiteView
 from cams.libcams import str2list
 from cams.models import (Record, Player, Fair, Group, Actor,
                          Role, Event, EventComment, Application, Invoice)
@@ -257,191 +257,224 @@ def appli_detail (request, type_id, appli_id):
     template = "cams/appli_%s.html" % type_name
     return render_to_response (template, tpl_vars)
 
-@login_required
-def invoices (request):
-    filters = ('All', 'Pending', 'Banked')
-    if 'filter' in request.GET:
-        fil = request.GET['filter']
-        if not fil in filters:
-            fil = filters[0]
-        request.session['invoice_filter'] = fil
-    elif 'invoice_filter' in request.session:
-        fil = request.session['invoice_filter']
-    else:
-        fil = filters[0]
+class DefaultInvoiceView(SiteView):
+    perms = ['cams.invoices_view']
+    menu_name = 'invoices'
+    title = "Invoices"
 
-    invs = StallInvoice.objects.filter \
-        (stall__event__fair = Fair.get_current ())
 
-    if fil == 'Pending':
-        invs = invs.exclude (status = Invoice.BANKED)
-    elif fil == 'Banked':
-        invs = invs.filter (status = Invoice.BANKED)
+class InvoicesView(DefaultInvoiceView):
+    template_name = 'cams/invoices.html'
 
-    tpl_vars = {'title': 'Invoices', 'url': 'cams/invoice/',
-                'filters': filters, 'filter': fil}
-    add_common_tpl_vars (request, tpl_vars, 'invoices', invs, 10)
-    return render_to_response ('cams/invoices.html', tpl_vars)
+    def get_context_data(self, *args, **kw):
+        ctx = super(InvoicesView, self).get_context_data(*args, **kw)
 
-@login_required
-def select_invoice (request):
-    stalls = StallEvent.objects.filter (stallinvoice__isnull = True)
-    stalls = stalls.filter (status = Record.ACTIVE)
-    tpl_vars = {'title': 'Invoice', 'url': 'cams/invoice/select/'}
-    add_common_tpl_vars (request, tpl_vars, 'invoices', stalls)
-    return render_to_response ('cams/select_stall_invoice.html', tpl_vars)
+        filters = ('All', 'Pending', 'Banked')
+        filter_name = self.request.GET.get('filter')
+        if filter_name is not None:
+            if not filter_name in filters:
+                filter_name = filters[0]
+            self.request.session['invoice_filter'] = filter_name
+        else:
+            filter_name = self.request.session.get('invoice_filter')
+            if filter_name is None:
+                filter_name = filters[0]
 
-@login_required
-def add_invoice (request, stall_id):
-    class StallInvoiceForm (forms.ModelForm):
+        fair = Fair.get_current()
+        invoices = StallInvoice.objects.filter(stall__event__fair=fair)
+        if filter_name == 'Pending':
+            invoices = invoices.exclude(status=Invoice.BANKED)
+        elif filter_name == 'Banked':
+            invoices = invoices.filter(status=Invoice.BANKED)
+
+        self._set_list_page(ctx, invoices, 10)
+        ctx.update({'filters': filters, 'filter': filter_name})
+        return ctx
+
+
+class SelectInvoiceView(DefaultInvoiceView):
+    template_name = 'cams/select_stall_invoice.html'
+    perms = DefaultInvoiceView.perms + ['cams.invoices_add']
+    title = "Invoice"
+
+    def get_context_data(self, *args, **kw):
+        ctx = super(SelectInvoiceView, self).get_context_data(*args, **kw)
+        stalls = StallEvent.objects.filter (stallinvoice__isnull = True)
+        stalls = stalls.filter (status = Record.ACTIVE)
+        self._set_list_page(ctx, stalls)
+        return ctx
+
+
+class AddInvoiceView(DefaultInvoiceView):
+    template_name = 'cams/add_invoice.html'
+    perms = DefaultInvoiceView.perms + ['cams.invoices_add']
+
+    class StallInvoiceForm(forms.ModelForm):
         class Meta:
             model = StallInvoice
             exclude = ['stall', 'sent', 'paid', 'banked']
 
-    stall = get_object_or_404 (StallEvent, pk = int (stall_id))
+    def dispatch(self, *args, **kw):
+        stall_id = int(kw['stall_id'])
+        self._stall = get_object_or_404(StallEvent, pk=stall_id)
+        return super(AddInvoiceView, self).dispatch(*args, **kw)
 
-    if request.method == 'POST':
-        form = StallInvoiceForm (request.POST)
-        form.instance.stall = stall
-        if form.is_valid ():
-            form.save()
-            return HttpResponseRedirect (reverse (invoices))
-    else:
+    def post(self, *args, **kw):
+        self._form = self.StallInvoiceForm(self.request.POST)
+        if self._form.is_valid():
+            self._form.instance.stall = stall
+            self._form.save()
+            return HttpResponseRedirect(reverse('invoices'))
+        return super(AddInvoiceView, self).get(*args, **kw)
+
+    def get(self, *args, **kw):
         # ToDo: do not hard-code this, use a database table
         SPACE_PRICE = 25
-        amount = stall.n_spaces * SPACE_PRICE
-        form = StallInvoiceForm (initial = {'amount': amount})
+        amount = self._stall.n_spaces * SPACE_PRICE
+        self._form = self.StallInvoiceForm(initial={'amount': amount})
+        return super(AddInvoiceView, self).get(*args, **kw)
 
-    tpl_vars = {'title': 'New invoice', 'form': form, 'stall': stall,
-                'url': 'cams/invoice/'}
-    add_common_tpl_vars (request, tpl_vars, 'invoices')
-    return render_to_response ("cams/add_invoice.html", tpl_vars,
-                               context_instance = RequestContext (request))
+    def get_context_data(self, *args, **kw):
+        ctx = super(AddInvoiceView, self).get_context_data(*args, **kw)
+        ctx.update({'form': self._form, 'stall': self._stall})
+        return ctx
 
-@login_required
-def edit_invoice (request, inv_id):
-    class StallInvoiceEditForm (forms.ModelForm):
+
+class BaseInvoiceView(DefaultInvoiceView):
+    def dispatch(self, *args, **kw):
+        inv_id = int(kw['inv_id'])
+        self._invoice = get_object_or_404(StallInvoice, pk=inv_id)
+        return super(BaseInvoiceView, self).dispatch(*args, **kw)
+
+    def get_context_data(self, *args, **kw):
+        ctx = super(BaseInvoiceView, self).get_context_data(*args, **kw)
+        ctx.update({'inv': self._invoice})
+        return ctx
+
+
+class StallInvoiceView(BaseInvoiceView):
+    template_name = 'cams/stall_invoice.html'
+
+    def get(self, *args, **kw):
+        # ToDo: that should happen with POST
+        status_set = self.request.GET.get('set')
+        if status_set is not None:
+            status_keywords = {'sent': Invoice.SENT, 'paid': Invoice.PAID,
+                               'banked': Invoice.BANKED}
+            status = status.keywords.get(status_set)
+            if status is not None:
+                if self._invoice.status < status:
+                    self._invoice.status = status
+                    self._invoice.save()
+        return super(StallInvoiceView, self).get(*args, **kw)
+
+
+class EditInvoiceView(BaseInvoiceView):
+    template_name = 'cams/edit_invoice.html'
+    perms = BaseInvoiceView.perms + ['cams.invoices_edit']
+    title = "Edit invoice"
+
+    class StallInvoiceEditForm(forms.ModelForm):
         class Meta:
             model = StallInvoice
             fields = ['amount', 'status', 'reference']
 
-    inv = get_object_or_404 (StallInvoice, pk = int (inv_id))
-    if request.method == 'POST':
-        form = StallInvoiceEditForm (request.POST, instance = inv)
-        if form.is_valid ():
-            form.save ()
-            return HttpResponseRedirect (
-                reverse (stall_invoice, args = [inv_id]))
-    else:
-        form = StallInvoiceEditForm (instance = inv)
+    def post(self, *args, **kw):
+        self._form = self.StallInvoiceEditForm(self.request.POST,
+                                               instance=self._invoice)
+        if self._form.is_valid():
+            self._form.save()
+            url = reverse('stall_invoice', args=[self._invoice.id])
+            return HttpResponseRedirect(url)
+        return super(EditInvoiceView, self).get(*args, **kw)
 
-    tpl_vars = {'title': 'Edit invoice', 'inv': inv, 'form': form}
-    add_common_tpl_vars (request, tpl_vars, 'invoices')
-    return render_to_response ('cams/edit_invoice.html', tpl_vars,
-                               context_instance = RequestContext (request))
+    def get(self, *args, **kw):
+        self._form = self.StallInvoiceEditForm(instance=self._invoice)
+        return super(EditInvoiceView, self).get(*args, **kw)
 
-@login_required
-def stall_invoice (request, inv_id):
-    status_keywords = {'sent': Invoice.SENT, 'paid': Invoice.PAID,
-                       'banked': Invoice.BANKED}
+    def get_context_data(self, *args, **kw):
+        ctx = super(EditInvoiceView, self).get_context_data(*args, **kw)
+        ctx.update({'form': self._form, 'inv': self._invoice})
+        return ctx
 
-    inv = get_object_or_404 (StallInvoice, pk = int (inv_id))
-    if 'set' in request.GET:
-        set = request.GET['set']
-        if set in status_keywords:
-            status = status_keywords[set]
-            if inv.status < status:
-                inv.status = status
-                inv.save ()
 
-    tpl_vars = {'title': 'Stall invoice details', 'inv': inv}
-    add_common_tpl_vars (request, tpl_vars, 'invoices')
-    return render_to_response ('cams/stall_invoice.html', tpl_vars)
+# ToDo: PDF instead?
+# ToDo: use GET method instead of POST for the form
+class InvoiceHardCopyView(BaseInvoiceView):
+    title = "Stall invoice"
 
-@login_required
-def invoice_hard_copy (request, inv_id):
     class HardCopyForm (forms.Form):
-        address = forms.CharField (required = True,
-            widget = forms.Textarea (attrs = {'cols': '40', 'rows': '5'}))
-        date = forms.DateField (required = True, widget = SelectDateWidget)
-        details = forms.CharField (required = True,
-            widget = forms.Textarea (attrs = {'cols': '40', 'rows': '3'}))
+        address = forms.CharField \
+            (required=True,
+             widget=forms.Textarea(attrs={'cols': '40', 'rows': '5'}))
+        date = forms.DateField(required=True, widget=SelectDateWidget)
+        details = forms.CharField \
+            (required=True,
+             widget=forms.Textarea(attrs={'cols': '40', 'rows': '3'}))
 
-    inv = get_object_or_404 (StallInvoice, pk = int (inv_id))
+    def dispatch(self, *args, **kw):
+        self._invoice_ready = False
+        return super(InvoiceHardCopyView, self).dispatch(*args, **kw)
 
-    if request.method == 'POST':
-        form = HardCopyForm (request.POST)
-        if form.is_valid ():
-            details = [("Date", form.cleaned_data['date'])]
+    def post(self, *args, **kw):
+        self._form = self.HardCopyForm(self.request.POST)
+        if self._form.is_valid():
+            details = [("Date", self._form.cleaned_data['date'])]
+            if self._invoice.reference:
+                details.append(('Invoice number', self._invoice.reference))
+            details.append(("Details", self._form.cleaned_data['details']))
+            details.append(("Amount",
+                            '&#163;{:2f}'.format(self._invoice.amount)))
+            self._address = self._form.cleaned_data['address']
+            self._details = details
+            self._invoice_ready = True
+        return super(InvoiceHardCopyView, self).get(*args, **kw)
 
-            if inv.reference:
-                details.append (('Invoice number', inv.reference))
+    def get(self, *args, **kw):
+        self._form = self._make_hard_copy_form()
+        return super(InvoiceHardCopyView, self).get(*args, **kw)
 
-            details.append (("Details", form.cleaned_data['details']))
-            details.append (("Amount", '&#163;%.2f' % inv.amount))
-
-            address = form.cleaned_data['address']
-
-            return render_to_response ('cams/invoice_hard_copy.html',
-                                       {'inv': inv,
-                                        'address': address,
-                                        'details': details})
+    def get_context_data(self, *args, **kw):
+        ctx = super(InvoiceHardCopyView, self).get_context_data(*args, **kw)
+        if self._invoice_ready:
+            self.template_name = 'cams/invoice_hard_copy.html'
+            ctx.update({'address': self._address, 'details': self._details})
         else:
-            tpl_vars = {'title': 'Stall invoice', 'form': form,
-                        'inv': inv}
-            add_common_tpl_vars (request, tpl_vars, 'invoices')
-            return render_to_response ('cams/invoice_edit_hard_copy.html',
-                                       tpl_vars,
-                                   context_instance = RequestContext (request))
-    else:
-        if inv.stall.owner.contact_set.count () > 0:
-            c = inv.stall.owner.contact_set.all ()[0]
-            if not c.get_address (): # ToDo: that's not so good
-                c = None
-        else:
-            c = None
+            self.template_name = 'cams/invoice_edit_hard_copy.html'
+            ctx.update({'form': self._form})
+        return ctx
 
-        if not c and inv.stall.org and inv.stall.org.contact_set.count () > 0:
-            org_name = inv.stall.org.name
-            c = inv.stall.org.contact_set.all ()[0]
-        else:
-            org_name = None
+    def _make_hard_copy_form(self):
+        inv = self._invoice
 
-        address = "%s %s\n" % (inv.stall.owner.first_name,
-                               inv.stall.owner.last_name)
+        address_list = [inv.stall.owner.__unicode__()]
 
-        if org_name:
-            address += "%s\n" % org_name
-
+        c = inv.stall.owner.contact
         if c:
-            if c.line_1:
-                address += "%s\n" % c.line_1
-                if c.line_2:
-                    address += "%s\n" % c.line_2
-                    if c.line_3:
-                        address += "%s\n" % c.line_3
-            if c.town:
-                if c.postcode:
-                    address += "%s %s\n" % (c.town, c.postcode)
-                else:
-                    address += "%s\n" % c.town
+            c_address = c.get_address('\n')
+            if not c_address:
+                c = None
+
+        if not c and inv.stall.org:
+            address_list.append(inv.stall.org.name)
+            c = inv.stall.org.contact
+            if c:
+                c_address = c.get_address('\n')
+
+        if c_address:
+            address_list.append(c_address)
+
+        address = '\n'.join(address_list)
 
         if inv.stall.etype:
-            listing = "%s:\n" % inv.stall.etype
+            listing = "{}:\n".format(inv.stall.etype)
         else:
             listing = ''
 
-        inv_details = "%s%i x Stall space" % (listing, inv.stall.n_spaces)
-
+        inv_details = "{}{} x Stall space".format(listing, inv.stall.n_spaces)
         if inv.stall.n_tables:
-            inv_details += " and %i x table hire" % inv.stall.n_tables
+            inv_details += " and {} x table hire".format(inv.stall.n_tables)
 
-        form = HardCopyForm (initial = {'address': address,
-                                        'date': datetime.date.today (),
-                                        'details': inv_details})
-
-        tpl_vars = {'title': 'Stall invoice', 'form': form, 'inv': inv}
-        add_common_tpl_vars (request, tpl_vars, 'invoices')
-        return render_to_response ('cams/invoice_edit_hard_copy.html',
-                                   tpl_vars,
-                                   context_instance = RequestContext (request))
+        return self.HardCopyForm(initial={'address': address,
+                                          'date': datetime.date.today(),
+                                          'details': inv_details})

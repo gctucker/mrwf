@@ -1,4 +1,6 @@
 from django.conf.urls.defaults import patterns, url
+from cams.libcams import urlcls
+from mrwf.extra import views
 
 urlpatterns = patterns('mrwf.extra.views.mgmt',
  url(r'^participant/$', 'participants', name='groups'),
@@ -10,10 +12,16 @@ urlpatterns = patterns('mrwf.extra.views.mgmt',
  (r'^application/(?P<type_id>\d+)/$', 'appli_type'),
  url(r'^application/(?P<type_id>\d+)/(?P<appli_id>\d+)/$', 'appli_detail',
      name='appli_detail'),
- url(r'^invoice/$', 'invoices', name='invoices'),
- (r'^invoice/select/$', 'select_invoice'),
- (r'^invoice/add/(?P<stall_id>\d+)/$', 'add_invoice'),
- (r'^invoice/(?P<inv_id>\d+)/$', 'stall_invoice'),
- (r'^invoice/(?P<inv_id>\d+)/edit/$', 'edit_invoice'),
- (r'^invoice/(?P<inv_id>\d+)/hard_copy/$', 'invoice_hard_copy'),
+ urlcls(r'^invoice/$',
+        views.mgmt.InvoicesView, name='invoices'),
+ urlcls(r'^invoice/select/$',
+        views.mgmt.SelectInvoiceView, name='select_invoice'),
+ urlcls(r'^invoice/add/(?P<stall_id>\d+)/$',
+        views.mgmt.AddInvoiceView, name='add_invoice'),
+ urlcls(r'^invoice/(?P<inv_id>\d+)/$',
+        views.mgmt.StallInvoiceView, name='stall_invoice'),
+ urlcls(r'^invoice/(?P<inv_id>\d+)/edit/$',
+        views.mgmt.EditInvoiceView, name='edit_invoice'),
+ urlcls(r'^invoice/(?P<inv_id>\d+)/hard_copy/$',
+        views.mgmt.InvoiceHardCopyView, name='invoice_hard_copy'),
 )
