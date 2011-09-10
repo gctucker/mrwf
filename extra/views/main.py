@@ -124,7 +124,7 @@ class ProfileView(SiteView, PlayerMixin):
         if self.contacts.count() > 0:
             ctx['contact'] = self.contacts[0]
 
-        vstring = lambda v: 'v{:d}.{:d}.{:d}'.format(v[0], v[1], v[2])
+        vstring = lambda ver: '.'.join([str(x) for x in ver])
         ctx.update({'python_version': vstring(version_info),
                     'django_version': get_django_version(),
                     'cams_version': vstring(CAMS_VERSION),
