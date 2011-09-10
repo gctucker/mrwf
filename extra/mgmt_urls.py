@@ -2,11 +2,7 @@ from django.conf.urls.defaults import patterns, url
 
 urlpatterns = patterns('mrwf.extra.views.mgmt',
  url(r'^participant/$', 'participants', name='groups'),
-# (r'^participant/(?P<part_id>\d+)/$', 'part_details'),
  (r'^participant/group/(?P<group_id>\d+)/$', 'group'),
- (r'^prep/$', 'preparation'),
- (r'^prep/(?P<event_id>\d+)/$', 'prep_event'),
- (r'^prep/(?P<event_id>\d+)/cmt/$', 'prep_event_cmt'),
  url(r'^prog/$', 'programme', name='programme'),
  (r'^prog/(?P<event_id>\d+)/$', 'prog_event'),
  (r'^prog/(?P<event_id>\d+)/cmt/$', 'prog_event_cmt'),
@@ -20,5 +16,4 @@ urlpatterns = patterns('mrwf.extra.views.mgmt',
  (r'^invoice/(?P<inv_id>\d+)/$', 'stall_invoice'),
  (r'^invoice/(?P<inv_id>\d+)/edit/$', 'edit_invoice'),
  (r'^invoice/(?P<inv_id>\d+)/hard_copy/$', 'invoice_hard_copy'),
-# (r'^fair/$', 'fairs'),
 )

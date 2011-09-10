@@ -125,40 +125,6 @@ def post_event_cmt (request, event_id, view):
     return HttpResponseRedirect (reverse (view, args = [event_id]))
 
 @login_required
-def preparation (request):
-    show_all = get_show_all (request)
-
-    if show_all:
-        acts = Event.objects.all ()
-        acts = acts.order_by ('date', 'time')
-        tpl = 'cams/prep_all.html'
-    else:
-        player = get_object_or_404 (Player, user = request.user)
-        acts = Actor.objects.filter (person = player.person)
-        acts = acts.order_by ('event__date', 'event__time')
-        tpl = 'cams/preparation.html'
-
-    # ToDo: filter past events and add option to see them
-    tpl_vars = {'title': 'Preparation', 'url': 'cams/prep/',
-                'show_all': show_all}
-    add_common_tpl_vars (request, tpl_vars, 'prep', acts)
-    return render_to_response (tpl, tpl_vars)
-
-@login_required
-def prep_event (request, event_id):
-    ev = get_object_or_404 (Event, pk = event_id)
-    form = get_form_if_actor (request, event_id)
-    tpl_vars = {'title': 'Event', 'ev': ev, 'form': form,
-                'url': 'cams/prep/%d/' % ev.id}
-    add_common_tpl_vars (request, tpl_vars, 'prep', get_comments (ev), 4)
-    return render_to_response ('cams/prep_event.html', tpl_vars,
-                               context_instance = RequestContext (request))
-
-@login_required
-def prep_event_cmt (request, event_id):
-    return post_event_cmt (request, event_id, prep_event)
-
-@login_required
 def programme (request):
     class SearchForm (forms.Form):
         match = forms.CharField (required = True, max_length = 64)
@@ -479,10 +445,3 @@ def invoice_hard_copy (request, inv_id):
         return render_to_response ('cams/invoice_edit_hard_copy.html',
                                    tpl_vars,
                                    context_instance = RequestContext (request))
-
-@login_required
-def fairs (request):
-    fair = get_object_or_404 (Fair, current = True)
-    tpl_vars = {'title': 'Fairs', 'fair': fair}
-    add_common_tpl_vars (request, tpl_vars, 'fairs')
-    return render_to_response ('cams/fairs.html', tpl_vars)

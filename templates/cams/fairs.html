@@ -1,8 +1,0 @@
-{% extends "nav_layout.html" %}
-
-{% block contents %}
-          <h2>Current fair: {{ fair.date }}</h2>{% if fair.description %}
-          <div class="textblock description">
-{{ fair.description|linebreaksbr }}
-          </div>{% endif %}
-{% endblock %}
