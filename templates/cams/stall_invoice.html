@@ -1,11 +1,12 @@
 {% extends "nav_layout.html" %}
+{% load mrwf_extra %}
 
 {% block contents %}
           <h2>{{ inv.stall }}</h2>
           <table class="details">
             <tr><td class="key">event</td><td class="value"><a href="{{ px }}cams/prog/{{ inv.stall.id }}/">{{ inv.stall.name }}</a></td></tr>
-            <tr><td class="key">owner</td><td class="value"><a href="{{ px }}abook/person/{{ inv.stall.owner.id }}/">{{ inv.stall.owner }}</a></td></tr>{% if inv.stall.org %}
-            <tr><td class="key">organisation</td><td class="value"><a href="{{ px }}abook/org/{{ inv.stall.org.id }}/">{{ inv.stall.org }}</a></td></tr>{% endif %}
+            <tr><td class="key">owner</td><td class="value"><a href="{% abook_url inv.stall.owner %}">{{ inv.stall.owner }}</a></td></tr>{% if inv.stall.org %}
+            <tr><td class="key">organisation</td><td class="value"><a href="{% abook_url inv.stall.org %}">{{ inv.stall.org }}</a></td></tr>{% endif %}
             <tr><td class="key">spaces</td><td class="value">{{ inv.stall.n_spaces }}</td></tr>
             <tr class="separator"><td class="key">tables</td><td class="value">{{ inv.stall.n_tables }}</td></tr>
             <tr><td class="key">amount</td><td class="value">{{ inv.amount }}</td></tr>
@@ -20,5 +21,5 @@
             <a href="edit/">&lt;edit&gt;</a>
             <a href="hard_copy/">&lt;hard copy&gt;</a>
           </div>
-          <div class="back"><a href="{{ px }}cams/invoice/">&lt;&lt;back</a></div>
+          <div class="back"><a href="{% url invoices %}">&lt;&lt;back</a></div>
 {% endblock %}

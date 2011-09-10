@@ -3,7 +3,7 @@
 {% block contents %}
           <h2>New stall invoice</h2>
           <div class="element">
-            <form action="{{ px }}cams/invoice/add/{{ stall.id }}/" method="POST">
+            <form action="{% url add_invoice stall.id %}" method="POST">
               {% csrf_token %}
               <table class="apply">
                 <tr><td class="key">Stall name</td><td class="value">{{ stall.name }}</td></tr>
@@ -13,5 +13,5 @@
               <p><input type="submit" value="create invoice" /></p>
             </form>
           </div>
-          <div class="cmd"><a href="{{ px }}cams/invoice/select/">&lt;&lt;cancel</a></div>
+          <div class="cmd"><a href="{% url select_invoice %}">&lt;&lt;cancel</a></div>
 {% endblock %}
