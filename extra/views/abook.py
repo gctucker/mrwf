@@ -152,7 +152,7 @@ class SearchHelper(object):
 
 class AbookView(SiteView):
     title = 'Address Book'
-    menu_name = 'abook'
+    menu_name = 'abook:search'
 
     def get(self, *args, **kwargs):
         self.search = SearchHelper(self.request)

@@ -13,19 +13,6 @@ from django.views.generic import TemplateView
 from cams.libcams import CAMS_VERSION, Menu, get_user_email
 from mrwf.extra.forms import UserNameForm, PersonForm, ContactForm
 
-MENU_ITEMS = [
-    Menu.Item('home',    '',                 'welcome',      Menu.Item.COMMON),
-    Menu.Item('profile', 'profile/',         'user profile', Menu.Item.COMMON),
-    Menu.Item('abook',   'abook/',           'address book', Menu.Item.COMMON),
-    Menu.Item('parts',   'cams/participant/','groups',       Menu.Item.COMMON),
-#   Menu.Item('prep',    'cams/prep/',       'preparation',  Menu.Item.COMMON),
-    Menu.Item('prog',    'cams/prog/',       'programme',    Menu.Item.COMMON),
-    Menu.Item('appli',   'cams/application/','applications', Menu.Item.ADMIN),
-    Menu.Item('invoice', 'cams/invoice/',    'invoices',     Menu.Item.ADMIN),
-#   Menu.Item('fairs',   'cams/fair/',       'winter fairs', Menu.Item.COMMON),
-    Menu.Item('admin',   'admin/',           'admin',        Menu.Item.ADMIN),
-    Menu.Item('logout',  'accounts/logout/', 'log out',      Menu.Item.COMMON)]
-
 def get_list_page(request, obj_list, n):
     pagin = Paginator(obj_list, n)
 
@@ -44,16 +31,40 @@ def get_list_page(request, obj_list, n):
 
     return page
 
+def make_menu():
+    from mrwf.urls import urlpatterns as urls
+    from mrwf.extra.abook_urls import urlpatterns as abook_urls
+    from mrwf.extra.mgmt_urls import urlpatterns as mgmt_urls
+    from cams.libcams import Menu
+
+    m = Menu()
+    m.add(urlpatterns=urls, items=[ \
+            Menu.Item('home', 'welcome'),
+            Menu.Item('profile', 'profile')])
+    m.add(urlpatterns=abook_urls, namespace='abook', items=[ \
+            Menu.Item('search', 'address book')])
+    m.add(urlpatterns=mgmt_urls, items=[ \
+            Menu.Item('groups'),
+            Menu.Item('programme'),
+            Menu.Item('applications'),
+            Menu.Item('invoices', perms=['cams.invoices_edit'])])
+    m.add(namespace='admin', items=[ \
+            Menu.StaffItem('index', 'admin')])
+    m.add(items=[ \
+            Menu.Item('logout', 'log out')])
+    return m
+
 def add_common_tpl_vars(request, tpl_vars, menu_name, obj_list=None, n=20):
     tpl_vars['px'] = settings.URL_PREFIX
     tpl_vars['user'] = request.user
-    menu = Menu(MENU_ITEMS)
+    menu = make_menu()
     menu.set_current(menu_name)
     tpl_vars['menu'] = menu.get_user_items(request.user)
 
     if obj_list:
         page = get_list_page(request, obj_list, n)
         tpl_vars['page'] = page
+
 
 class SiteView(TemplateView):
     perms = []
@@ -66,7 +77,7 @@ class SiteView(TemplateView):
 
     def get_context_data(self, **kwargs):
         ctx = super(SiteView, self).get_context_data(**kwargs)
-        menu = Menu(MENU_ITEMS)
+        menu = make_menu()
         menu.set_current(self.menu_name)
         ctx.update({'px': settings.URL_PREFIX,
                     'title': self.title,

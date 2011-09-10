@@ -84,7 +84,7 @@ def participants (request):
     fair = get_object_or_404 (Fair, current = True)
     groups = groups.filter (Q (fair = fair) | Q (fair__isnull = True))
     tpl_vars = {'title': 'Groups', 'url': 'cams/participant/'}
-    add_common_tpl_vars (request, tpl_vars, 'parts', groups)
+    add_common_tpl_vars (request, tpl_vars, 'groups', groups)
     return render_to_response ('cams/participants.html', tpl_vars)
 
 @login_required
@@ -96,7 +96,7 @@ def group (request, group_id):
     # people and orgs!
     tpl_vars = {'title': group, 'group': group,
                 'url': 'cams/participant/group/%d/' % group.id}
-    add_common_tpl_vars (request, tpl_vars, 'parts', roles)
+    add_common_tpl_vars (request, tpl_vars, 'groups', roles)
     return render_to_response ('cams/group.html', tpl_vars)
 
 @login_required
@@ -201,7 +201,7 @@ def programme (request):
     tpl_vars = {'title': 'Programme', 'url': 'cams/prog/',
                 'listings': listings, 'current': listing,
                 'search_form': search_form}
-    add_common_tpl_vars (request, tpl_vars, 'prog', prog, 8)
+    add_common_tpl_vars (request, tpl_vars, 'programme', prog, 8)
     return render_to_response ('cams/programme.html', tpl_vars)
 
 @login_required
@@ -218,7 +218,7 @@ def prog_event (request, event_id):
 
     tpl_vars = {'title': 'Fair Event', 'ev': ev, 'form': form,
                 'url': 'cams/prog/%d/' % ev.id, 'admin_type': admin_type}
-    add_common_tpl_vars (request, tpl_vars, 'prog', get_comments (ev), 4)
+    add_common_tpl_vars (request, tpl_vars, 'programme', get_comments (ev), 4)
     return render_to_response ('cams/prog_event.html', tpl_vars,
                                context_instance = RequestContext (request))
 
@@ -241,7 +241,7 @@ def applications (request):
                  'rejected': rejected.count (), 'total': applis.count ()}
         cats.append ((cat_type, stats))
     tpl_vars = {'title': 'Applications', 'cats': cats}
-    add_common_tpl_vars (request, tpl_vars, 'appli')
+    add_common_tpl_vars (request, tpl_vars, 'applications')
     return render_to_response ('cams/applications.html', tpl_vars)
 
 @login_required
@@ -255,7 +255,7 @@ def appli_type (request, type_id):
     tpl_vars = {'title': 'Applications: %ss' % type_name,
                 'url': 'cams/application/%d/' % type_id,
                 'applis': applis, 'type_id': type_id}
-    add_common_tpl_vars (request, tpl_vars, 'appli', applis, 10)
+    add_common_tpl_vars (request, tpl_vars, 'applications', applis, 10)
     template = "cams/appli_list.html"
     return render_to_response (template, tpl_vars)
 
@@ -286,7 +286,7 @@ def appli_detail (request, type_id, appli_id):
 
     tpl_vars = {'title': 'Application', 'type_id': type_id,
                 'appli': appli, 'detail': detail}
-    add_common_tpl_vars (request, tpl_vars, 'appli')
+    add_common_tpl_vars (request, tpl_vars, 'applications')
     type_name = FairEventApplication.xtypes[type_id][1]
     template = "cams/appli_%s.html" % type_name
     return render_to_response (template, tpl_vars)
@@ -314,7 +314,7 @@ def invoices (request):
 
     tpl_vars = {'title': 'Invoices', 'url': 'cams/invoice/',
                 'filters': filters, 'filter': fil}
-    add_common_tpl_vars (request, tpl_vars, 'invoice', invs, 10)
+    add_common_tpl_vars (request, tpl_vars, 'invoices', invs, 10)
     return render_to_response ('cams/invoices.html', tpl_vars)
 
 @login_required
@@ -322,7 +322,7 @@ def select_invoice (request):
     stalls = StallEvent.objects.filter (stallinvoice__isnull = True)
     stalls = stalls.filter (status = Record.ACTIVE)
     tpl_vars = {'title': 'Invoice', 'url': 'cams/invoice/select/'}
-    add_common_tpl_vars (request, tpl_vars, 'invoice', stalls)
+    add_common_tpl_vars (request, tpl_vars, 'invoices', stalls)
     return render_to_response ('cams/select_stall_invoice.html', tpl_vars)
 
 @login_required
@@ -348,7 +348,7 @@ def add_invoice (request, stall_id):
 
     tpl_vars = {'title': 'New invoice', 'form': form, 'stall': stall,
                 'url': 'cams/invoice/'}
-    add_common_tpl_vars (request, tpl_vars, 'invoice')
+    add_common_tpl_vars (request, tpl_vars, 'invoices')
     return render_to_response ("cams/add_invoice.html", tpl_vars,
                                context_instance = RequestContext (request))
 
@@ -370,7 +370,7 @@ def edit_invoice (request, inv_id):
         form = StallInvoiceEditForm (instance = inv)
 
     tpl_vars = {'title': 'Edit invoice', 'inv': inv, 'form': form}
-    add_common_tpl_vars (request, tpl_vars, 'invoice')
+    add_common_tpl_vars (request, tpl_vars, 'invoices')
     return render_to_response ('cams/edit_invoice.html', tpl_vars,
                                context_instance = RequestContext (request))
 
@@ -389,7 +389,7 @@ def stall_invoice (request, inv_id):
                 inv.save ()
 
     tpl_vars = {'title': 'Stall invoice details', 'inv': inv}
-    add_common_tpl_vars (request, tpl_vars, 'invoice')
+    add_common_tpl_vars (request, tpl_vars, 'invoices')
     return render_to_response ('cams/stall_invoice.html', tpl_vars)
 
 @login_required
@@ -423,7 +423,7 @@ def invoice_hard_copy (request, inv_id):
         else:
             tpl_vars = {'title': 'Stall invoice', 'form': form,
                         'inv': inv}
-            add_common_tpl_vars (request, tpl_vars, 'invoice')
+            add_common_tpl_vars (request, tpl_vars, 'invoices')
             return render_to_response ('cams/invoice_edit_hard_copy.html',
                                        tpl_vars,
                                    context_instance = RequestContext (request))
@@ -475,7 +475,7 @@ def invoice_hard_copy (request, inv_id):
                                         'details': inv_details})
 
         tpl_vars = {'title': 'Stall invoice', 'form': form, 'inv': inv}
-        add_common_tpl_vars (request, tpl_vars, 'invoice')
+        add_common_tpl_vars (request, tpl_vars, 'invoices')
         return render_to_response ('cams/invoice_edit_hard_copy.html',
                                    tpl_vars,
                                    context_instance = RequestContext (request))
