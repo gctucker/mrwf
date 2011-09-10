@@ -325,7 +325,7 @@ class EditView(BaseEditView):
 
 
 class StatusEditView(BaseObjView):
-    template_name = "abook/status-edit.html"
+    template_name = 'abook/status-edit.html'
     perms = ObjView.perms + ['cams.abook_edit']
 
     def get(self, *args, **kwargs):
@@ -378,7 +378,7 @@ class DeleteView(StatusEditView):
 
 
 class ChooseMemberView(BaseObjView):
-    template_name = "abook/choose-member.html"
+    template_name = 'abook/choose-member.html'
     perms = BaseObjView.perms + ['cams.abook_edit', 'cams.abook_add']
 
     def get_context_data(self, *args, **kw):
@@ -395,7 +395,7 @@ class ChooseMemberView(BaseObjView):
 
 
 class SaveMemberView(BaseObjView):
-    template_name = "abook/save-member.html"
+    template_name = 'abook/save-member.html'
     perms = BaseObjView.perms + ['cams.abook_edit', 'cams.abook_add']
 
     def dispatch(self, request, *args, **kw):
@@ -574,7 +574,7 @@ class OrgSaveMemberView(SaveMemberView):
 
 
 class MemberEditView(BaseEditView):
-    template_name = "abook/edit-member.html"
+    template_name = 'abook/edit-member.html'
 
     def dispatch(self, request, *args, **kwargs):
         src_obj_id = int(request.GET['src_obj_id'])
@@ -590,7 +590,7 @@ class MemberEditView(BaseEditView):
         return self.redirect(obj_url(self.src_obj))
 
 class MemberDisableView(DisableView):
-    template_name = "abook/member-status-edit.html"
+    template_name = 'abook/member-status-edit.html'
 
     def dispatch(self, request, *args, **kw):
         src_obj_id = int(request.GET['src_obj_id'])
