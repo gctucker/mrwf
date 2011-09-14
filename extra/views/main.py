@@ -71,7 +71,7 @@ class SiteView(TemplateView):
 
     def __init__(self, *args, **kwargs):
         super(SiteView, self).__init__(*args, **kwargs)
-        self.history = History('cams.history')
+        self.history = History('cams.history', 'cams')
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):

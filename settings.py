@@ -144,7 +144,6 @@ LOGGING['loggers'].update({ \
         'cams.history': {
             'handlers': ['history'],
             'level': 'INFO',
-            # do not propagate until the formatting is appropriate in `cams'
             'propagate': False,
             },
         })
