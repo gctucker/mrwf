@@ -3,7 +3,7 @@
 {% block browse_header %}<h2>Group: {{ group.name }}</h2>{% endblock %}
 
 {% block browse_it %}{% if it.contactable.type_str = "person" %}
-                <a href="{{ px }}abook/person/{{ it.person.id }}/">
+                <a href="{{ px }}abook/person/{{ it.contactable.person.id }}/">
                   {{ it.contactable.person.first_name }} {{ it.contactable.person.middle_name }} {{ it.contactable.person.last_name }}{% if it.role %}
                   &nbsp;({{ it.role }}){% endif %}
                 </a>{% else %}
