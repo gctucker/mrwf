@@ -41,6 +41,6 @@ urlpatterns = patterns('mrwf.extra.views.abook',
         views.abook.OrgSaveMemberView,name='save_member_organisation'),
  urlcls(r'^member/(?P<obj_id>\d+)/edit/$',
         views.abook.MemberEditView, name="edit_member"),
- urlcls(r'^member/(?P<obj_id>\d+)/disable/$',
-        views.abook.MemberDisableView, name='disable_member'),
+ urlcls(r'^member/(?P<obj_id>\d+)/delete/$',
+        views.abook.MemberRemoveView, name='delete_member'),
 )

@@ -182,9 +182,13 @@ class AddView(AbookView):
                 and self._cf.is_valid():
             self._objf.instance.status = self._stf.cleaned_data['status']
             self._objf.save()
+            f = self._objf.fields.keys() + self._stf.fields.keys()
+            self.history.create(self.request.user, self._objf.instance, f)
             if not self._cf.is_empty():
                 self._cf.instance.obj = self._objf.instance
                 self._cf.save()
+                self.history.create(self.request.user, self._cf.instance,
+                                    self._cf.fields.keys() + ['obj'])
             return HttpResponseRedirect(self._get_details_url())
         return super(AddView, self).get(*args, **kwargs)
 
@@ -290,9 +294,11 @@ class BaseEditView(BaseObjView):
     def _save_post_data(self, *args, **kwargs):
         for cf in self._cf:
             if cf.is_empty():
+                self.history.delete(self.request.user, cf.instance)
                 cf.instance.delete()
-            else:
+            elif cf.has_changed():
                 cf.save()
+                self.history.edit_form(self.request.user, cf)
 
 
 class EditView(BaseEditView):
@@ -318,7 +324,9 @@ class EditView(BaseEditView):
 
     def _save_post_data(self):
         super(EditView, self)._save_post_data()
-        self._objf.save()
+        if self._objf.has_changed():
+            self._objf.save()
+            self.history.edit_form(self.request.user, self._objf)
 
     def _redirect(self):
         return self.redirect(obj_url(self._objf.instance))
@@ -357,6 +365,7 @@ class ActivateView(StatusEditView):
     def _edit_obj_status(self):
         self.obj.status = Record.ACTIVE;
         self.obj.save()
+        self.history.edit(self.request.user, self.obj, ['status'])
 
 
 class DisableView(StatusEditView):
@@ -366,6 +375,7 @@ class DisableView(StatusEditView):
     def _edit_obj_status(self):
         self.obj.status = Record.DISABLED;
         self.obj.save()
+        self.history.edit(self.request.user, self.obj, ['status'])
 
 
 class DeleteView(StatusEditView):
@@ -374,6 +384,7 @@ class DeleteView(StatusEditView):
     perms = StatusEditView.perms + ['cams.abook_delete']
 
     def _edit_obj_status(self):
+        self.history.delete(self.request.user, self.obj)
         self.obj.delete()
 
 
@@ -412,9 +423,13 @@ class SaveMemberView(BaseObjView):
         if self._cf.is_empty() or self._cf.is_valid():
             member = Member(person=self.person_obj, organisation=self.org_obj)
             member.save()
+            self.history.create(self.request.user, member,
+                                ['person', 'organisation'])
             if not self._cf.is_empty():
                 self._cf.instance.obj = member
                 self._cf.save()
+                self.history.create(self.request.user, self._cf.instance,
+                                    self._cf.fields.keys() + ['obj'])
             return HttpResponseRedirect(obj_url(self.obj))
         return super(SaveMemberView, self).get(*args, **kwargs)
 
@@ -589,16 +604,16 @@ class MemberEditView(BaseEditView):
     def _redirect(self):
         return self.redirect(obj_url(self.src_obj))
 
-class MemberDisableView(DisableView):
+class MemberRemoveView(DeleteView):
     template_name = 'abook/member-status-edit.html'
 
     def dispatch(self, request, *args, **kw):
         src_obj_id = int(request.GET['src_obj_id'])
         self.src_obj = get_object_or_404(Contactable, pk=src_obj_id)
-        return super(MemberDisableView, self).dispatch(request, *args, **kw)
+        return super(MemberRemoveView, self).dispatch(request, *args, **kw)
 
     def get_context_data(self, *args, **kwargs):
-        ctx = super(MemberDisableView, self).get_context_data(*args, **kwargs)
+        ctx = super(MemberRemoveView, self).get_context_data(*args, **kwargs)
         ctx.update({'src_obj': self.src_obj})
         return ctx
 

@@ -3,7 +3,7 @@
                   {% if perms.cams.abook_edit %}
                   <tr>
                     <td colspan="2" style="font-size: 0.7em">
-                      <a href="{% abook_url it 'disable' %}?{{ urlmatch }}&src_obj_id={{ obj.id }}">&lt;remove membership&gt;</a>
+                      <a href="{% abook_url it 'delete' %}?{{ urlmatch }}&src_obj_id={{ obj.id }}">&lt;remove membership&gt;</a>
                     </td>
                   </tr>{% endif %}{% if not other.contact and not it.contact %}
                   <tr>

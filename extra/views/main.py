@@ -10,7 +10,7 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.conf import settings
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView
-from cams.libcams import CAMS_VERSION, Menu, get_user_email
+from cams.libcams import CAMS_VERSION, Menu, get_user_email, History
 from mrwf.extra.forms import UserNameForm, PersonForm, ContactForm
 
 def get_list_page(request, obj_list, n):
@@ -68,6 +68,10 @@ def add_common_tpl_vars(request, tpl_vars, menu_name, obj_list=None, n=20):
 
 class SiteView(TemplateView):
     perms = []
+
+    def __init__(self, *args, **kwargs):
+        super(SiteView, self).__init__(*args, **kwargs)
+        self.history = History('cams.history')
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):

@@ -78,6 +78,26 @@ INSTALLED_APPS = (
     'mrwf.extra'
 )
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+    },
+    'handlers': {
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler'
+        },
+    },
+    'loggers': {
+        'django.request': {
+            'handlers': ['mail_admins'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+    }
+}
+
 SESSION_COOKIE_AGE = 7 * 24 * 60 * 60 # a week
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
@@ -86,3 +106,45 @@ IMG_MAX_d = 600
 
 # site-dependent settings
 import local_settings
+import os
+from cams import libcams
+
+LOGGING['formatters'].update({ \
+        'short': {
+            'format': '%(asctime)s %(levelname)s %(message)s',
+            'datefmt': '%Y.%m.%d %H.%M.%S',
+            },
+        'history': {
+            'format': libcams.History.format,
+            'datefmt': libcams.History.datefmt,
+            },
+        })
+
+LOGGING['handlers'].update({ \
+        'cams': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(LOG_PATH, 'cams.log'),
+            'formatter': 'short',
+            },
+        'history': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(LOG_PATH, 'history.log'),
+            'formatter': 'history',
+            },
+        })
+
+LOGGING['loggers'].update({ \
+        'cams': {
+            'handlers': ['cams'],
+            'level': 'INFO',
+            'propagate': True,
+            },
+        'cams.history': {
+            'handlers': ['history'],
+            'level': 'INFO',
+            # do not propagate until the formatting is appropriate in `cams'
+            'propagate': False,
+            },
+        })
