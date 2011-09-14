@@ -232,7 +232,12 @@ class BaseObjView(AbookView):
 class ObjView(BaseObjView):
     def get_context_data(self, **kwargs):
         ctx = super(ObjView, self).get_context_data(**kwargs)
-        members = self.members.filter(status=Record.ACTIVE)
+        q = Q(status=Record.ACTIVE)
+        if self.obj.status == Record.DISABLED:
+            q = q | Q(status=Record.DISABLED)
+        if self.request.user.has_perm('cams.abook_edit'):
+            q = q | Q(status=Record.NEW)
+        members = self.members.filter(q)
         ctx.update({'members': members})
         self._set_list_page(ctx, members, 5)
         return ctx
