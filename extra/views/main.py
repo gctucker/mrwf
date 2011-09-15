@@ -48,7 +48,7 @@ def make_menu():
             Menu.Item('groups'),
             Menu.Item('programme'),
             Menu.Item('applications'),
-            Menu.Item('invoices', perms=['cams.invoices_edit'])])
+            Menu.Item('invoices')])
     m.add(namespace='admin', items=[ \
             Menu.StaffItem('index', 'admin')])
     m.add(items=[ \

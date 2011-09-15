@@ -258,7 +258,7 @@ def appli_detail (request, type_id, appli_id):
     return render_to_response (template, tpl_vars)
 
 class DefaultInvoiceView(SiteView):
-    perms = ['cams.invoices_view']
+    perms = ['extra.invoices_view']
     menu_name = 'invoices'
     title = "Invoices"
 
@@ -294,7 +294,7 @@ class InvoicesView(DefaultInvoiceView):
 
 class SelectInvoiceView(DefaultInvoiceView):
     template_name = 'cams/select_stall_invoice.html'
-    perms = DefaultInvoiceView.perms + ['cams.invoices_add']
+    perms = DefaultInvoiceView.perms + ['extra.invoices_add']
     title = "Invoice"
 
     def get_context_data(self, *args, **kw):
@@ -307,7 +307,7 @@ class SelectInvoiceView(DefaultInvoiceView):
 
 class AddInvoiceView(DefaultInvoiceView):
     template_name = 'cams/add_invoice.html'
-    perms = DefaultInvoiceView.perms + ['cams.invoices_add']
+    perms = DefaultInvoiceView.perms + ['extra.invoices_add']
 
     class StallInvoiceForm(forms.ModelForm):
         class Meta:
@@ -371,7 +371,7 @@ class StallInvoiceView(BaseInvoiceView):
 
 class EditInvoiceView(BaseInvoiceView):
     template_name = 'cams/edit_invoice.html'
-    perms = BaseInvoiceView.perms + ['cams.invoices_edit']
+    perms = BaseInvoiceView.perms + ['extra.invoices_edit']
     title = "Edit invoice"
 
     class StallInvoiceEditForm(forms.ModelForm):
