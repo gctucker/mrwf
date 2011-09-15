@@ -37,6 +37,10 @@ class SearchHelper(object):
             self._urlmatch = ''
 
     @property
+    def match_str(self):
+        return self._match
+
+    @property
     def urlmatch(self):
         return self._urlmatch
 
@@ -154,9 +158,9 @@ class AbookView(SiteView):
     title = 'Address Book'
     menu_name = 'abook:search'
 
-    def get(self, *args, **kwargs):
-        self.search = SearchHelper(self.request)
-        return super(AbookView, self).get(*args, **kwargs)
+    def dispatch(self, request, *args, **kwargs):
+        self.search = SearchHelper(request)
+        return super(AbookView, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         ctx = super(AbookView, self).get_context_data(**kwargs)
@@ -207,10 +211,10 @@ class AddView(AbookView):
 
 
 class BaseObjView(AbookView):
-    def dispatch(self, *args, **kwargs):
+    def dispatch(self, request, *args, **kwargs):
         obj_id = int(kwargs['obj_id'])
         self.obj = get_object_or_404(Contactable, pk=obj_id).subobj
-        return super(BaseObjView, self).dispatch(*args, **kwargs)
+        return super(BaseObjView, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         ctx = super(BaseObjView, self).get_context_data(**kwargs)
@@ -229,6 +233,10 @@ class BaseObjView(AbookView):
         else:
             perms = self.perms
         return super(BaseObjView, self).check_perms(user, perms)
+
+    def _log(self, opts):
+        opts.append(self.obj.__unicode__())
+        super(BaseObjView, self)._log(opts)
 
 
 class ObjView(BaseObjView):
@@ -394,7 +402,7 @@ class ChooseMemberView(BaseObjView):
 
     def get_context_data(self, *args, **kw):
         ctx = super(ChooseMemberView, self).get_context_data(*args, **kw)
-        self._do_search()
+        self._do_search() # ToDo: exclude existing members
         if self.search.has_results:
             results = SearchView.PaginatorStub(self.search.objs)
             results.limit_list(40)
@@ -464,7 +472,7 @@ class SearchView(AbookView):
 
     def get_context_data(self, **kwargs):
         ctx = super(SearchView, self).get_context_data(**kwargs)
-        self.search.do_search() # ToDo: exclude existing members
+        self.search.do_search()
 
         if self.search.has_results:
             results = SearchView.PaginatorStub(self.search.objs)
@@ -475,6 +483,10 @@ class SearchView(AbookView):
         n_new = Contactable.objects.filter(status=Record.NEW).count()
         ctx.update({'form': self.search.form, 'page': results, 'n_new': n_new})
         return ctx
+
+    def _log(self, opts):
+        opts.append(u'search: {}'.format(self.search.match_str))
+        super(SearchView, self)._log(opts)
 
     class PaginatorStub(object):
         def __init__(self, object_list=[]):

@@ -1,3 +1,4 @@
+import logging
 from sys import version_info
 from smtplib import SMTPException
 from django import get_version as get_django_version
@@ -72,9 +73,12 @@ class SiteView(TemplateView):
     def __init__(self, *args, **kwargs):
         super(SiteView, self).__init__(*args, **kwargs)
         self.history = History('cams.history', 'cams')
+        self.log = logging.getLogger('cams')
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
+        log_opts = [request.user.username, request.method, request.path]
+        self._log(log_opts)
         if not self.check_perms(request.user):
             return HttpResponseForbidden("Access denied")
         return super(SiteView, self).dispatch(request, *args, **kwargs)
@@ -99,6 +103,9 @@ class SiteView(TemplateView):
 
     def _set_list_page(self, ctx, obj_list, n=20):
         ctx['page'] = get_list_page(self.request, obj_list, n)
+
+    def _log(self, opts):
+        self.log.info(u' '.join(opts))
 
 
 class PlayerMixin(object):
