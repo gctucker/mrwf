@@ -109,23 +109,23 @@ class StallApplicationForm ():
         contact = self.contact
 
         if rcpts:
-            subject = "Stallholder application - %s" % self.person
-            msg = "Date:         %s\n" % self.application.created
-            msg += "Person:       %s\n" % self.person
-            msg += "Line 1:       %s\n" % contact.line_1
-            msg += "Line 2:       %s\n" % contact.line_2
-            msg += "Line 3:       %s\n" % contact.line_3
-            msg += "Town:         %s\n" % contact.town
-            msg += "Postcode:     %s\n" % contact.postcode
-            msg += "E-mail:       %s\n" % contact.email
-            msg += "Website:      %s\n" % contact.website
-            msg += "Telephone:    %s\n" % contact.telephone
-            msg += "Mobile:       %s\n" % contact.mobile
-            msg += "Stall name:   %s\n" % stall.name
-            msg += "Spaces:       %d\n" % stall.n_spaces
-            msg += "Main contact: %s\n" % self.main_contact
-            msg += "Description:  %s\n" % stall.description.strip()
-            msg += "Comments:     %s\n" % stall.comments
+            subject = u"Stallholder application - %s" % self.person
+            msg = u"Date:         %s\n" % self.application.created
+            msg += u"Person:       %s\n" % self.person
+            msg += u"Line 1:       %s\n" % contact.line_1
+            msg += u"Line 2:       %s\n" % contact.line_2
+            msg += u"Line 3:       %s\n" % contact.line_3
+            msg += u"Town:         %s\n" % contact.town
+            msg += u"Postcode:     %s\n" % contact.postcode
+            msg += u"E-mail:       %s\n" % contact.email
+            msg += u"Website:      %s\n" % contact.website
+            msg += u"Telephone:    %s\n" % contact.telephone
+            msg += u"Mobile:       %s\n" % contact.mobile
+            msg += u"Stall name:   %s\n" % stall.name
+            msg += u"Spaces:       %d\n" % stall.n_spaces
+            msg += u"Main contact: %s\n" % self.main_contact
+            msg += u"Description:  %s\n" % stall.description.strip()
+            msg += u"Comments:     %s\n" % stall.comments
             send_mail (subject, msg, "no-reply@mangoz.org", rcpts)
 
     def send_confirmation(self, rcpts):
