@@ -118,6 +118,30 @@ class PlayerMixin(object):
 # -----------------------------------------------------------------------------
 # entry points from url's
 
+def login(request, *args, **kwargs):
+    from django.contrib.auth.views import login as django_login
+    resp = django_login(request, *args, **kwargs)
+    log = logging.getLogger('cams')
+    msg = ['login', request.method]
+    if request.method == 'POST':
+        msg.append(request.POST['username'])
+        if request.user.is_authenticated():
+            msg.append('OK')
+            from cams.models import Player
+            player = Player.objects.filter(user=request.user)
+            if len(player) > 0:
+                msg.append(player[0].__unicode__())
+        else:
+            msg.append('ERROR')
+    log.info(u' '.join(msg))
+    return resp
+
+def logout(request, *args, **kwargs):
+    log = logging.getLogger('cams')
+    log.info(u' '.join(['logout', request.user.username]))
+    from django.contrib.auth.views import logout as django_logout
+    return django_logout(request, *args, **kwargs)
+
 class HomeView(SiteView):
     template_name = 'home.html'
     title = 'Welcome'

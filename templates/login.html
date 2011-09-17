@@ -2,7 +2,7 @@
 
 {% block body %}
 {% if form.errors %}<p>I am sorry but your user name and password did not match.  Please try again.</p>{% endif %}
-    <form method="POST" action="{% url django.contrib.auth.views.login %}">
+    <form method="POST" action="{% url login %}">
       {% csrf_token %}
       <table>
         <tr>
