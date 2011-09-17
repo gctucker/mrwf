@@ -4,7 +4,7 @@
 {% block page_title %}MRWF - {{ obj }}{% endblock %}
 
 {% block browse_header %}
-          <h2>{{ obj.name_nn }}</h2>{% if obj.status_str == "disabled" %}
+          <h2 class="status-{{ obj.status_str }}">{{ obj.name_nn }}</h2>{% if obj.status_str == "disabled" %}
           <div class="obj-disabled">This entry has been disabled.</div>{% else %}{% if obj.status_str == "new" %}
           <div class="obj-new">This is a new entry.</div>{% endif %}{% endif %}{% block detail_name %}{% endblock %}
           <div>{% if not contacts %}
@@ -22,8 +22,16 @@
 {% block browse_list %}
           <div class="element">
             <table class="member-list">{% for it in page.object_list %}
-              <tr><td colspan="2" class="member-spacer"></td></tr>
-            {% block browse_it %}{% endblock %}{% endfor %}
+              <tr>
+                <td colspan="2" class="member-spacer"></td>
+              </tr>
+              <tr>
+                <td colspan="2" class="member-header">
+                  <span{% if it.status_str != obj.status_str%} class="status-{{ it.status_str }}"{% endif %}>
+                    {% block browse_link %}{% endblock %}{% if it.status_str = "disabled" and obj.status_str != "disabled" %} (this entry has been disabled){% endif %}
+                  </span>
+                </td>
+              </tr>{% block browse_member %}{% endblock %}{% endfor %}
             </table>
           </div>
 {% endblock %}

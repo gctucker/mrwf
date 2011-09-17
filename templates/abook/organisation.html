@@ -9,11 +9,6 @@
             </table>
           </div>{% endblock %}
 
-{% block browse_it %}
-                    <tr>
-                      <td colspan="2" class="member-header">
-                        <a href="{% abook_url it.person %}?{{ urlmatch }}">{{ it.person }}</a>
-                      </td>
-                    </tr>{% with it.person as other %}
-{% include "abook/member_preview.html" %}{% endwith %}
-{% endblock %}
+{% block browse_link %}<a href="{% abook_url it.person %}?{{ urlmatch }}">{{ it.person }}</a>{% endblock %}
+
+{% block browse_member %}{% with it.person as other %}{% include "abook/member_preview.html" %}{% endwith %}{% endblock %}

@@ -45,6 +45,10 @@ class SearchHelper(object):
         return self._urlmatch
 
     @property
+    def opt_disabled(self):
+        return self._opt_disabled
+
+    @property
     def objs(self):
         return self._objs
 
@@ -243,7 +247,7 @@ class ObjView(BaseObjView):
     def get_context_data(self, **kwargs):
         ctx = super(ObjView, self).get_context_data(**kwargs)
         q = Q(status=Record.ACTIVE)
-        if self.obj.status == Record.DISABLED:
+        if self.obj.status == Record.DISABLED or self.search.opt_disabled:
             q = q | Q(status=Record.DISABLED)
         if self.request.user.has_perm('cams.abook_edit'):
             q = q | Q(status=Record.NEW)

@@ -1,27 +1,26 @@
-{% load mrwf_extra %}
-
-                  {% if perms.cams.abook_edit %}
-                  <tr>
-                    <td colspan="2" style="font-size: 0.7em">
-                      <a href="{% abook_url it 'delete' %}?{{ urlmatch }}&src_obj_id={{ obj.id }}">&lt;remove membership&gt;</a>
-                    </td>
-                  </tr>{% endif %}{% if not other.contact and not it.contact %}
-                  <tr>
-                    <td colspan="2" class="search-preview search-no-contact">Sorry, no contact details.</td>
-                  </tr>{% else %}
-                  <tr>
-                    <td class="search-preview member-left">{% if other.contact %}
-                      {% with other.contact as c %}{% include "abook/contact-details.html" %}{% endwith %}{% else %}
-                      <span class="search-no-contact">Sorry, no contact details.</span>{% endif %}
-                    </td>
-                    <td class="search-preview member-right">
-                      <div class="member-title">
-                        {% if obj.type_str = "person" %}{{ obj }} at {{ other }}{% else %}{{ other }} at {{ obj }}{% endif %}
-                      </div>
-                    <div style="font-size: 0.75em">
-                      <a href="{% abook_url it 'edit' %}?{{ urlmatch }}&src_obj_id={{ obj.id }}">&lt;edit&gt;</a>
-                    </div>{% if it.contact %}
-                      {% with it.contact as c %}{% include "abook/contact-details.html" %}{% endwith %}{% else %}
-                      <span class="search-no-contact">Sorry, no contact details.</span>{% endif %}
-                    </td>
-                  </tr>{% endif %}
+{% load mrwf_extra %}{% if perms.cams.abook_edit %}
+              <tr>
+                <td colspan="2" style="font-size: 0.7em">
+                  <a href="{% abook_url it 'delete' %}?{{ urlmatch }}&src_obj_id={{ obj.id }}">&lt;remove membership&gt;</a>
+                </td>
+              </tr>{% endif %}{% if not other.contact and not it.contact %}
+              <tr>
+                <td colspan="2" class="search-preview search-no-contact">Sorry, no contact details.</td>
+              </tr>{% else %}
+              <tr>
+                <td class="search-preview member-left">{% if other.contact %}
+                  {% with other.contact as c %}
+{% include "abook/contact-details.html" %}{% endwith %}{% else %}
+                  <span class="search-no-contact">Sorry, no contact details.</span>{% endif %}
+                </td>
+                <td class="search-preview member-right">
+                  <div class="member-title">
+                    {% if obj.type_str = "person" %}{{ obj }} at {{ other }}{% else %}{{ other }} at {{ obj }}{% endif %}
+                  </div>
+                <div style="font-size: 0.75em">
+                  <a href="{% abook_url it 'edit' %}?{{ urlmatch }}&src_obj_id={{ obj.id }}">&lt;edit&gt;</a>
+                </div>{% if it.contact %}
+                  {% with it.contact as c %}{% include "abook/contact-details.html" %}{% endwith %}{% else %}
+                  <span class="search-no-contact">Sorry, no contact details.</span>{% endif %}
+                </td>
+              </tr>{% endif %}
