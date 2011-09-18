@@ -43,4 +43,6 @@ urlpatterns = patterns('mrwf.extra.views.abook',
         views.abook.MemberEditView, name="edit_member"),
  urlcls(r'^member/(?P<obj_id>\d+)/delete/$',
         views.abook.MemberRemoveView, name='delete_member'),
+ urlcls(r'^history/(?P<obj_id>\d+)/$',
+        views.abook.HistoryView, name='history'),
 )

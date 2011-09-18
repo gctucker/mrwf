@@ -4,7 +4,8 @@ from django.db.models.query import Q
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse
-from cams.libcams import str2list
+from django.conf import settings
+from cams import libcams
 from cams.models import (Record, Contactable, Person, Organisation, Member,
                          Contact)
 from mrwf.extra.views.main import SiteView
@@ -23,7 +24,7 @@ class SearchHelper(object):
         self._objs = []
         if self.form.is_valid():
             self._match = self.form.cleaned_data['match']
-            self._keywords = str2list(self._match)
+            self._keywords = libcams.str2list(self._match)
             self._opt_contacts = self.form.cleaned_data['opt_contacts']
             self._opt_disabled = self.form.cleaned_data['opt_disabled']
             self._urlmatch = urlencode((('match', self._match),
@@ -635,3 +636,31 @@ class MemberRemoveView(DeleteView):
 
     def _redirect(self):
         return self.redirect(obj_url(self.src_obj))
+
+class HistoryView(BaseObjView):
+    template_name = 'abook/history.html'
+
+    def get_context_data(self, *args, **kwargs):
+        ctx = super(HistoryView, self).get_context_data(*args, **kwargs)
+        h = libcams.HistoryParser(settings.HISTORY_PATH, self._get_classes())
+        objs = [self.obj]
+        objs += self.obj.members_list.all()
+        objs += self.obj.contact_set.all()
+        obj_hist = h.get_obj_data(objs)
+        for it in obj_hist:
+            if isinstance(it.obj, Contactable):
+                it.target = it.obj.type_str
+            elif it.obj.__class__ == Contact:
+                it.target = 'contact'
+        self._set_list_page(ctx, h.get_obj_data(objs), 50)
+        return ctx
+
+    def _get_classes(self):
+        from django.contrib.auth.models import User
+        from cams import models
+        cls_list = [User, models.Person, models.Organisation, models.Member,
+                    models.Contact]
+        classes = dict()
+        for cls in cls_list:
+            classes[cls.__name__] = cls
+        return classes

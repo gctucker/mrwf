@@ -1,0 +1,36 @@
+{% extends "browser.html" %}
+{% load mrwf_extra %}
+
+{% block browse_empty_list %}
+          <div class="element">
+            History is empty.
+          </div>{% endblock %}
+
+{% block browse_list %}
+          <div class="element">
+            <table class="details history">
+              <tr class="separator">
+                <th class="listing-sep">Date and time</th>
+                <th class="listing-sep">User</th>
+                <th class="listing-sep">Action</th>
+                <th class="listing-sep">Type</th>
+                <th class="listing">Details</th>
+              </tr>{% for it in page.object_list %}
+              <tr>
+                <td class="listing-sep">{{ it.datetime }}</td>
+                <td class="listing-sep">{% player_link it.user %}</td>
+                <td class="listing-sep">{{ it.action }}</td>
+                <td class="listing-sep">{{ it.target }}</td>
+                <td class="listing">
+{{ it.args|wordwrap:50|linebreaksbr }}
+                </td>
+              </tr>{% endfor %}
+            </table>
+          </div>
+{% endblock %}
+
+{% block browse_footer %}
+          <div class="cmd">
+            <a href="{% abook_url obj %}">&lt;&lt;&nbsp;back</a>
+          </div>
+{% endblock %}
