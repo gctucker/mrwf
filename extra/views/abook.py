@@ -18,6 +18,16 @@ def reverse_ab(url, **kwargs):
 def obj_url(obj):
     return reverse_ab(obj.type_str, args=[obj.id])
 
+def abook_classes():
+    from django.contrib.auth.models import User
+    from cams import models
+    cls_list = [User, models.Person, models.Organisation, models.Member,
+                models.Contact]
+    classes = dict()
+    for cls in cls_list:
+        classes[cls.__name__] = cls
+    return classes
+
 class SearchHelper(object):
     def __init__(self, request):
         self.form = SearchHelper.SearchForm(request.GET)
@@ -637,30 +647,54 @@ class MemberRemoveView(DeleteView):
     def _redirect(self):
         return self.redirect(obj_url(self.src_obj))
 
-class HistoryView(BaseObjView):
+
+class HistoryView(AbookView):
     template_name = 'abook/history.html'
+    title = 'History'
+    menu_name = 'search'
 
     def get_context_data(self, *args, **kwargs):
         ctx = super(HistoryView, self).get_context_data(*args, **kwargs)
-        h = libcams.HistoryParser(settings.HISTORY_PATH, self._get_classes())
+        h = libcams.HistoryParser(settings.HISTORY_PATH, abook_classes())
+        self._set_list_page(ctx, self._abook_history(h), 50)
+        return ctx
+
+    def _abook_history(self, hist):
+        from cams.models import Person, Organisation, Contact, Member
+        abook = []
+        for it in hist.data:
+            if it.obj.__class__ not in (Person, Organisation, Contact, Member):
+                continue
+            if it.obj.__class__ in (Contact, Member):
+                it = copy.copy(it)
+                if it.obj.__class__ == Contact:
+                    it.obj = it.obj.obj.subobj
+                    it.args = ': '.join(['contact', it.args])
+                if it.obj.__class__ == Member:
+                    it.obj = it.obj.person
+                    it.args = ': '.join([it.action.lower(), 'member', it.args])
+                    it.action = 'EDIT'
+            abook.append(it)
+        return abook
+
+
+class ObjHistoryView(BaseObjView):
+    template_name = 'abook/obj-history.html'
+
+    def get_context_data(self, *args, **kwargs):
+        ctx = super(ObjHistoryView, self).get_context_data(*args, **kwargs)
+        h = libcams.HistoryParser(settings.HISTORY_PATH, abook_classes())
+        self._set_list_page(ctx, self._obj_history(h), 50)
+        return ctx
+
+    def _obj_history(self, hist):
         objs = [self.obj]
         objs += self.obj.members_list.all()
         objs += self.obj.contact_set.all()
-        obj_hist = h.get_obj_data(objs)
+        obj_hist = hist.get_obj_data(objs)
         for it in obj_hist:
             if isinstance(it.obj, Contactable):
                 it.target = it.obj.type_str
             elif it.obj.__class__ == Contact:
                 it.target = 'contact'
-        self._set_list_page(ctx, h.get_obj_data(objs), 50)
-        return ctx
-
-    def _get_classes(self):
-        from django.contrib.auth.models import User
-        from cams import models
-        cls_list = [User, models.Person, models.Organisation, models.Member,
-                    models.Contact]
-        classes = dict()
-        for cls in cls_list:
-            classes[cls.__name__] = cls
-        return classes
+        return obj_hist

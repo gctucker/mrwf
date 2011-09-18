@@ -27,7 +27,6 @@ urlpatterns = patterns('',
  urlcls(r'^profile/edit/$', views.main.ProfileEditView, name='edit_profile'),
  urlcls(r'^profile/password/$', views.main.PasswordEditView, name='password'),
  urlcls(r'^profile/email_test/$', views.main.EmailTestView, name='email_test'),
- urlcls(r'^history/$', views.main.HistoryView, name='history'),
 )
 
 if DEBUG and STATIC_ROOT:
