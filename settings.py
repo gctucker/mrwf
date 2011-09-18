@@ -107,7 +107,9 @@ IMG_MAX_d = 600
 # site-dependent settings
 import local_settings
 import os
-from cams import libcams
+import cams
+
+HISTORY_PATH = os.path.join(LOG_PATH, 'history.log')
 
 LOGGING['formatters'].update({ \
         'short': {
@@ -115,8 +117,8 @@ LOGGING['formatters'].update({ \
             'datefmt': '%Y.%m.%d %H.%M.%S',
             },
         'history': {
-            'format': libcams.History.format,
-            'datefmt': libcams.History.datefmt,
+            'format': cams.history_format,
+            'datefmt': cams.history_datefmt,
             },
         })
 
@@ -130,7 +132,7 @@ LOGGING['handlers'].update({ \
         'history': {
             'level': 'INFO',
             'class': 'logging.FileHandler',
-            'filename': os.path.join(LOG_PATH, 'history.log'),
+            'filename': HISTORY_PATH,
             'formatter': 'history',
             },
         })

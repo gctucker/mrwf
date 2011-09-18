@@ -5,15 +5,15 @@
           <h2>New entries</h2>
           <table class="details">
             <tr class="separator">
-              <th class="vertical-separator">Entry</th>
-              <th class="vertical-separator">Type</th>
-              <th class="vertical-separator">Application</th>
+              <th class="listing-sep">Entry</th>
+              <th class="listing-sep">Type</th>
+              <th class="listing-sep">Application</th>
               <th>Date of creation</th>
             </tr>{% for it in page.object_list %}
             <tr>
-              <td class="listing vertical-separator"><a href="{% abook_url it %}">{{ it }}</a></td>
-              <td class="listing vertical-separator">{{ it.type_str }}</td>
-              <td class="listing vertical-separator">{% appli_link it %}</td>
+              <td class="listing-sep"><a href="{% abook_url it %}">{{ it }}</a></td>
+              <td class="listing-sep">{{ it.type_str }}</td>
+              <td class="listing-sep">{% appli_link it %}</td>
               <td class="listing">{{ it.created }}</td></tr>{% endfor %}
           </table>
 {% endblock %}

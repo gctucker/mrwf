@@ -68,13 +68,13 @@ input[type=text], input[type=password], textarea, select {
     border-width: 1px;
 }
 
-.vertical-separator {
-    border-style: none dotted none none;
-    border-width: 1px;
+.listing, .listing-sep {
+    padding: 2px 5px 2px 5px;
 }
 
-.listing {
-    padding: 3px 0 2px 5px;
+.listing-sep {
+    border-style: none dotted none none;
+    border-width: 1px;
 }
 
 .sub-menu {
@@ -143,7 +143,6 @@ td#contents {
 }
 
 td#navbar {
-    width: 15%;
     padding: 3px 10px 3px 10px;
     vertical-align: top;
     border-style: none solid none none;
@@ -251,6 +250,32 @@ td.cmt-message {
     font-size: 0.9em;
     text-align: left;
 }
+
+/* history */
+
+table.history {
+    font-size: 0.8em;
+}
+
+/*
+.hist, .hist-sep {
+    border-width: 1px;
+    border-color: #E0E0E0;
+    padding: 2px 8px 2px 8px;
+}
+
+th.hist {
+    border-style: none none dotted none;
+}
+
+th.hist-sep {
+    border-style: none dotted dotted none;
+}
+
+td.hist-sep {
+    border-style: none dotted none none;
+}
+*/
 
 /* application forms */
 

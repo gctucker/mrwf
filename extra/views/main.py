@@ -260,3 +260,24 @@ class EmailTestView(SiteView):
         ctx.update({'result': self._result, 'email': self._email,
                     'error': self._err_str})
         return ctx
+
+class HistoryView(SiteView):
+    template_name = 'history.html'
+    title = 'History'
+    menu_name = 'search'
+
+    def get_context_data(self, *args, **kwargs):
+        ctx = super(HistoryView, self).get_context_data(*args, **kwargs)
+        h = libcams.HistoryParser(settings.HISTORY_PATH, self._get_classes())
+        self._set_list_page(ctx, h.abook(), 50)
+        return ctx
+
+    def _get_classes(self):
+        from django.contrib.auth.models import User
+        from cams import models
+        cls_list = [User, models.Person, models.Organisation, models.Member,
+                    models.Contact]
+        classes = dict()
+        for cls in cls_list:
+            classes[cls.__name__] = cls
+        return classes

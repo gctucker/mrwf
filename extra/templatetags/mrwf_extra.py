@@ -1,6 +1,6 @@
 from django import template
 from django.core.urlresolvers import reverse
-from cams.models import Contactable
+from cams.models import Contactable, Player
 
 register = template.Library()
 
@@ -11,6 +11,15 @@ def abook_url(obj, cmd=None):
     else:
         base = obj.type_str
     return reverse(':'.join(['abook', base]), args=[obj.id])
+
+@register.simple_tag
+def player_link(user):
+    player = Player.objects.filter(user=user)
+    if len(player) > 0:
+        person = player[0].person
+        url = reverse('abook:person', args=[person.id])
+        return u"<a href=\"{}\">{}</a>".format(url, person.__unicode__())
+    return "Unknown user"
 
 @register.simple_tag
 def appli_link(obj):
