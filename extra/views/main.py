@@ -11,7 +11,7 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.conf import settings
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView
-from cams.libcams import CAMS_VERSION, Menu, get_user_email, History
+from cams import libcams
 from mrwf.extra.forms import UserNameForm, PersonForm, ContactForm
 
 def get_list_page(request, obj_list, n):
@@ -72,7 +72,7 @@ class SiteView(TemplateView):
 
     def __init__(self, *args, **kwargs):
         super(SiteView, self).__init__(*args, **kwargs)
-        self.history = History('cams.history', 'cams')
+        self.history = libcams.HistoryLogger('cams.history', 'cams')
         self.log = logging.getLogger('cams')
 
     @method_decorator(login_required)
@@ -162,7 +162,7 @@ class ProfileView(SiteView, PlayerMixin):
         vstring = lambda ver: '.'.join([str(x) for x in ver])
         ctx.update({'python_version': vstring(version_info),
                     'django_version': get_django_version(),
-                    'cams_version': vstring(CAMS_VERSION),
+                    'cams_version': vstring(libcams.CAMS_VERSION),
                     'person': self.request.user.player.person})
         return ctx
 
@@ -240,7 +240,7 @@ class EmailTestView(SiteView):
     menu_name = 'profile'
 
     def get(self, request, *args, **kwargs):
-        self._email = get_user_email(request.user)
+        self._email = libcams.get_user_email(request.user)
         self._result = False
         self._err_str = None
 
