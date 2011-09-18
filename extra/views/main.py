@@ -1,4 +1,5 @@
 import logging
+import copy
 from sys import version_info
 from smtplib import SMTPException
 from django import get_version as get_django_version
@@ -269,7 +270,7 @@ class HistoryView(SiteView):
     def get_context_data(self, *args, **kwargs):
         ctx = super(HistoryView, self).get_context_data(*args, **kwargs)
         h = libcams.HistoryParser(settings.HISTORY_PATH, self._get_classes())
-        self._set_list_page(ctx, h.abook(), 50)
+        self._set_list_page(ctx, self._abook_history(h), 50)
         return ctx
 
     def _get_classes(self):
@@ -281,3 +282,21 @@ class HistoryView(SiteView):
         for cls in cls_list:
             classes[cls.__name__] = cls
         return classes
+
+    def _abook_history(self, hist):
+        from cams.models import Person, Organisation, Contact, Member
+        abook = []
+        for it in hist.data:
+            if it.obj.__class__ not in (Person, Organisation, Contact, Member):
+                continue
+            if it.obj.__class__ in (Contact, Member):
+                it = copy.copy(it)
+                if it.obj.__class__ == Contact:
+                    it.obj = it.obj.obj.subobj
+                    it.args = ': '.join(['contact', it.args])
+                if it.obj.__class__ == Member:
+                    it.obj = it.obj.person
+                    it.args = ': '.join([it.action.lower(), 'member', it.args])
+                    it.action = 'EDIT'
+            abook.append(it)
+        return abook
