@@ -1,3 +1,4 @@
+import copy
 from urllib import urlencode
 from django import forms
 from django.db.models.query import Q
@@ -651,7 +652,7 @@ class MemberRemoveView(DeleteView):
 class HistoryView(AbookView):
     template_name = 'abook/history.html'
     title = 'History'
-    menu_name = 'search'
+    menu_name = 'abook:search'
 
     def get_context_data(self, *args, **kwargs):
         ctx = super(HistoryView, self).get_context_data(*args, **kwargs)

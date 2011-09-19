@@ -1,5 +1,4 @@
 import logging
-import copy
 from sys import version_info
 from smtplib import SMTPException
 from django import get_version as get_django_version
