@@ -663,19 +663,27 @@ class HistoryView(AbookView):
     def _abook_history(self, hist):
         from cams.models import Person, Organisation, Contact, Member
         abook = []
+
+        def get_contact_obj(obj):
+            return obj.obj.subobj
+
+        def get_member_obj(obj):
+            return obj.person
+
+        filters = {Contact: (get_contact_obj, 'contact'),
+                   Member: (get_member_obj, 'member')}
+
         for it in hist.data:
             if it.obj.__class__ not in (Person, Organisation, Contact, Member):
                 continue
-            if it.obj.__class__ in (Contact, Member):
+            fil = filters.get(it.obj.__class__, None)
+            if fil:
                 it = copy.copy(it)
-                if it.obj.__class__ == Contact:
-                    it.obj = it.obj.obj.subobj
-                    it.args = ': '.join(['contact', it.args])
-                if it.obj.__class__ == Member:
-                    it.obj = it.obj.person
-                    it.args = ': '.join([it.action.lower(), 'member', it.args])
-                    it.action = 'EDIT'
+                it.obj = fil[0](it.obj)
+                it.args = ': '.join([it.action.lower(), fil[1]])
+                it.action = 'EDIT'
             abook.append(it)
+
         return abook
 
 
