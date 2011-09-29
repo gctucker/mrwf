@@ -702,12 +702,18 @@ class ObjHistoryView(BaseObjView):
 
     def _obj_history(self, hist):
         objs = [self.obj]
-        objs += self.obj.members_list.all()
+        members = self.obj.members_list.all()
+        objs += members
+        for m in members:
+            objs += m.contact_set.all()
         objs += self.obj.contact_set.all()
         obj_hist = hist.get_obj_data(objs)
         for it in obj_hist:
             if isinstance(it.obj, Contactable):
                 it.target = it.obj.type_str
             elif it.obj.__class__ == Contact:
-                it.target = 'contact'
+                if isinstance(it.obj.obj.subobj, Member):
+                    it.target = 'member contact'
+                else:
+                    it.target = 'contact'
         return obj_hist
