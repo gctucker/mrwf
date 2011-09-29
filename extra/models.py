@@ -106,8 +106,8 @@ class FairEvent(Event):
 
                         setattr(self, att, value)
 
-            def get_address(self):
-                return get_obj_address(self)
+            def get_address(self, *args):
+                return get_obj_address(self, *args)
 
 
         return CompositeContact(self)
