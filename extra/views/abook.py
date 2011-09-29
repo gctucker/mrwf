@@ -661,17 +661,20 @@ class HistoryView(AbookView):
         return ctx
 
     def _abook_history(self, hist):
-        from cams.models import Person, Organisation, Contact, Member
         abook = []
 
         def get_contact_obj(obj):
-            return obj.obj.subobj
+            subobj = obj.obj.subobj
+            arg_str = ['contact']
+            if isinstance(subobj, Member):
+                subobj = subobj.person
+                arg_str.append('member')
+            return subobj, arg_str
 
         def get_member_obj(obj):
-            return obj.person
+            return obj.person, ['member']
 
-        filters = {Contact: (get_contact_obj, 'contact'),
-                   Member: (get_member_obj, 'member')}
+        filters = {Contact: get_contact_obj, Member: get_member_obj}
 
         for it in hist.data:
             if it.obj.__class__ not in (Person, Organisation, Contact, Member):
@@ -679,9 +682,10 @@ class HistoryView(AbookView):
             fil = filters.get(it.obj.__class__, None)
             if fil:
                 it = copy.copy(it)
-                it.obj = fil[0](it.obj)
-                it.args = ': '.join([it.action.lower(), fil[1]])
+                it.obj, arg_str = fil(it.obj)
+                it.args = ': '.join([it.action.lower()] + arg_str)
                 it.action = 'EDIT'
+                fil = filters.get(it.obj.__class__, None)
             abook.append(it)
 
         return abook
