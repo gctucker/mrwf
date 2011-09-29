@@ -77,12 +77,12 @@ def programme(request):
     if listing > 0:
         events = events.filter(etype = listing)
         listing_obj = get_object_or_404(FairEventType, pk = listing)
-        file_name = 'Programme_{0}'.format(listing_obj.name.replace(' ', '_'))
+        file_name = u'Programme_{0}'.format(listing_obj.name.replace(' ', '_'))
     elif listing == 0:
         events = events.filter(etype__isnull = True)
-        file_name = 'Programme_Default'
+        file_name = u'Programme_Default'
     else:
-        file_name = 'Programme'
+        file_name = u'Programme'
 
     if 'fmt' in request.GET:
         fmt = request.GET['fmt']
@@ -106,7 +106,7 @@ def programme(request):
 
                                'n. spaces', 'n. tables'))
 
-        csv.set_file_name('{0}_{1}.csv'.format(file_name, get_time_string()))
+        csv.set_file_name(u'{0}_{1}.csv'.format(file_name, get_time_string()))
 
         for e in events:
             # ToDo: add subtype field in base FairEvent like Contactable ?
@@ -170,7 +170,7 @@ def programme(request):
                        c.get_address(), c.telephone,
                        c.mobile, c.email, c.website,
 
-                       '{0} {1}'.format(e.owner.first_name, e.owner.last_name),
+                       u'{0} {1}'.format(e.owner.first_name,e.owner.last_name),
                        owner_addr, owner_tel, owner_mob, owner_email,
                        owner_website,
 
@@ -183,7 +183,7 @@ def programme(request):
     elif fmt == 'plaintext':
         resp = HttpResponse(mimetype = 'text/plain')
         resp['Content-Disposition'] = \
-            'attachement; filename=\"{0}_{1}.txt\"'.format \
+            u'attachement; filename=\"{0}_{1}.txt\"'.format \
             (file_name, get_time_string())
         t = get_template("cams/prog_event.txt")
         ctx = Context({'e': None, 'c': None})
@@ -250,5 +250,5 @@ def invoices(request):
                     date_str(i.created), date_str(i.sent),
                     date_str(i.paid), date_str(i.banked)))
 
-    resp.set_file_name('Stall_invoices_{0}.csv'.format(get_time_string()))
+    resp.set_file_name(u'Stall_invoices_{0}.csv'.format(get_time_string()))
     return resp.response
