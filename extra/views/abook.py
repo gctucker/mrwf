@@ -230,11 +230,17 @@ class BaseObjView(AbookView):
     def dispatch(self, request, *args, **kwargs):
         obj_id = int(kwargs['obj_id'])
         self.obj = get_object_or_404(Contactable, pk=obj_id).subobj
+        src_obj_id = request.GET.get('src_obj_id', None)
+        if src_obj_id:
+            self.src_obj = get_object_or_404(Contactable, pk=int(src_obj_id))
+        else:
+            self.src_obj = None
         return super(BaseObjView, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         ctx = super(BaseObjView, self).get_context_data(**kwargs)
-        ctx.update({'obj': self.obj, 'contacts': self.obj.contact_set.all()})
+        ctx.update({'obj': self.obj, 'contacts': self.obj.contact_set.all(),
+                    'src_obj': self.src_obj})
         return ctx
 
     def redirect(self, url):
@@ -287,13 +293,18 @@ class BaseEditView(BaseObjView):
         self._build_post_data()
         if self._is_post_data_valid():
             self._save_post_data()
-            return self._redirect()
+            return self.redirect()
         return super(BaseEditView, self).get(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
         ctx = super(BaseEditView, self).get_context_data(**kwargs)
         ctx.update({'cf_list': self._cf})
         return ctx
+
+    def redirect(self):
+        if self.src_obj:
+            return super(BaseEditView, self).redirect(obj_url(self.src_obj))
+        return super(BaseEditView, self).redirect(obj_url(self._objf.instance))
 
     def _build_post_data(self):
         self._cf = []
@@ -352,9 +363,6 @@ class EditView(BaseEditView):
             self._objf.save()
             self.history.edit_form(self.request.user, self._objf)
 
-    def _redirect(self):
-        return self.redirect(obj_url(self._objf.instance))
-
 
 class StatusEditView(BaseObjView):
     template_name = 'abook/status-edit.html'
@@ -368,7 +376,7 @@ class StatusEditView(BaseObjView):
         self._form = ConfirmForm(self.request.POST)
         if self._form.is_valid():
             self._edit_obj_status()
-            return self._redirect()
+            return self.redirect()
         return super(StatusEditView, self).get(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -377,8 +385,8 @@ class StatusEditView(BaseObjView):
                     'cmd': self.status_edit_cmd})
         return ctx
 
-    def _redirect(self):
-        return self.redirect(reverse_ab('search'))
+    def redirect(self):
+        return super(StatusEditView, self).redirect(reverse_ab('search'))
 
 
 class ActivateView(StatusEditView):
@@ -619,34 +627,12 @@ class OrgSaveMemberView(SaveMemberView):
 class MemberEditView(BaseEditView):
     template_name = 'abook/edit-member.html'
 
-    def dispatch(self, request, *args, **kwargs):
-        src_obj_id = int(request.GET['src_obj_id'])
-        self.src_obj = get_object_or_404(Contactable, pk=src_obj_id)
-        return super(MemberEditView, self).dispatch(request, *args, **kwargs)
-
-    def get_context_data(self, *args, **kwargs):
-        ctx = super(MemberEditView, self).get_context_data(*args, **kwargs)
-        ctx.update({'src_obj': self.src_obj})
-        return ctx
-
-    def _redirect(self):
-        return self.redirect(obj_url(self.src_obj))
 
 class MemberRemoveView(DeleteView):
     template_name = 'abook/member-status-edit.html'
 
-    def dispatch(self, request, *args, **kw):
-        src_obj_id = int(request.GET['src_obj_id'])
-        self.src_obj = get_object_or_404(Contactable, pk=src_obj_id)
-        return super(MemberRemoveView, self).dispatch(request, *args, **kw)
-
-    def get_context_data(self, *args, **kwargs):
-        ctx = super(MemberRemoveView, self).get_context_data(*args, **kwargs)
-        ctx.update({'src_obj': self.src_obj})
-        return ctx
-
-    def _redirect(self):
-        return self.redirect(obj_url(self.src_obj))
+    def redirect(self):
+        return super(StatusEditView, self).redirect(obj_url(self.src_obj))
 
 
 class HistoryView(AbookView):

@@ -4,7 +4,7 @@
 {% block contents %}
           <h2>{{ obj.name_nn }}</h2>
           <div class="element">
-            <form method="post" action="{% abook_url obj 'edit' %}?{{ urlmatch }}">
+            <form method="post" action="{% abook_url obj 'edit' %}?{{ urlmatch }}{% if src_obj %}&src_obj_id={{ src_obj.id }}{% endif %}">
               {% csrf_token %}
               <table class="apply">{% for f in objf %}
                 {% field_row f %}{% endfor %}{% for cf in cf_list %}
