@@ -16,6 +16,7 @@ from cams.models import Contact
 
 class FairEventType(models.Model):
     name = CharField(max_length=63)
+    tag = CharField(max_length=3)
 
     def __unicode__(self):
         return self.name
