@@ -216,7 +216,7 @@ def appli_type (request, type_id):
     applis = FairEventApplication.objects.filter (subtype = type_id)
     applis = FairEventApplication.objects.filter \
         (event__fair = Fair.get_current())
-    applis = applis.order_by ('-created')
+    applis = applis.order_by('event__name')
     type_name = FairEventApplication.xtypes[type_id][1]
     tpl_vars = {'title': 'Applications: %ss' % type_name,
                 'url': 'cams/application/%d/' % type_id,
