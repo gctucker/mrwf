@@ -1,0 +1,3 @@
+{% if obj.invoice_contact or obj.invoice_person %}{% if obj.invoice_person %}
+          <p>Invoice recipient: <a href="{{ px }}abook/person/{{ obj.invoice_person.id }}/">{{ obj.invoice_person }}</a>{% endif %}{% if obj.invoice_contact %}
+{% with obj.invoice_contact as c %}{% include "abook/contact-details.html" %}{% endwith %}{% endif %}{% endif %}
