@@ -322,7 +322,7 @@ class AddInvoiceView(DefaultInvoiceView):
     def post(self, *args, **kw):
         self._form = self.StallInvoiceForm(self.request.POST)
         if self._form.is_valid():
-            self._form.instance.stall = stall
+            self._form.instance.stall = self._stall
             self._form.save()
             return HttpResponseRedirect(reverse('invoices'))
         return super(AddInvoiceView, self).get(*args, **kw)
@@ -331,13 +331,21 @@ class AddInvoiceView(DefaultInvoiceView):
         # ToDo: do not hard-code this, use a database table
         SPACE_PRICE = 25
         amount = self._stall.n_spaces * SPACE_PRICE
-        self._form = self.StallInvoiceForm(initial={'amount': amount})
+        self._form = self.StallInvoiceForm \
+            (initial={'amount': amount, 'reference': self._gen_reference()})
         return super(AddInvoiceView, self).get(*args, **kw)
 
     def get_context_data(self, *args, **kw):
         ctx = super(AddInvoiceView, self).get_context_data(*args, **kw)
         ctx.update({'form': self._form, 'stall': self._stall})
         return ctx
+
+    def _gen_reference(self):
+        fair = Fair.get_current()
+        inv = StallInvoice.objects.filter(stall__fair=fair)
+        inv = inv.filter(stall__etype=self._stall.etype)
+        n = 1 + inv.count()
+        return '{:d}{:s}{:03d}'.format(fair.date.year, self._stall.etype.tag,n)
 
 
 class BaseInvoiceView(DefaultInvoiceView):
