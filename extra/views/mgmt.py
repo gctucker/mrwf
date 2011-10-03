@@ -455,9 +455,18 @@ class InvoiceHardCopyView(BaseInvoiceView):
     def _make_hard_copy_form(self):
         inv = self._invoice
 
-        address_list = [inv.stall.owner.__unicode__()]
+        if inv.stall.invoice_person:
+            p = inv.stall.invoice_person
+        else:
+            p = inv.stall.owner
 
-        c = inv.stall.owner.contact
+        address_list = [p.__unicode__()]
+
+        if inv.stall.invoice_contact:
+            c = inv.stall.invoice_contact
+        else:
+            c = inv.stall.owner.contact
+
         if c:
             c_address = c.get_address('\n')
             if not c_address:
