@@ -1,0 +1,24 @@
+{% extends "browser.html" %}
+{% load mrwf_extra %}
+
+{% block page_title %}MRWF - {{ obj }} groups{% endblock %}
+
+{% block browse_list %}
+  <div class="element">
+    <table class="details">
+      {% for it in page.object_list %}
+      <tr>
+        <td class="group-detail"><a href="{% url group it.group.id %}">{{ it.group }}</a></td>
+        <td class="group-detail">{% if it.role %}{{ it.role }}{% endif %}</td>
+        <td class="group-detail">remove</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+{% endblock %}
+
+{% block browse_footer %}
+  <div class="element">
+    Add group
+  </div>
+{% endblock %}

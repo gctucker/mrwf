@@ -8,7 +8,7 @@ from django.core.urlresolvers import reverse
 from django.conf import settings
 from cams import libcams
 from cams.models import (Record, Contactable, Person, Organisation, Member,
-                         Contact)
+                         Contact, Role)
 from mrwf.extra.views.main import SiteView
 from mrwf.extra.forms import (PersonForm, OrganisationForm, ContactForm,
                               ConfirmForm, StatusForm)
@@ -270,7 +270,8 @@ class ObjView(BaseObjView):
         if self.request.user.has_perm('cams.abook_edit'):
             q = q | Q(status=Record.NEW)
         members = self.members.filter(q)
-        ctx.update({'members': members})
+        roles = self.obj.current_roles
+        ctx.update({'members': members, 'roles': roles})
         self._set_list_page(ctx, members, 5)
         return ctx
 
@@ -471,6 +472,16 @@ class SaveMemberView(BaseObjView):
         return ctx
 
 
+class GroupsView(BaseObjView):
+    template_name = 'abook/groups.html'
+    perms = BaseObjView.perms
+
+    def get_context_data(self, *args, **kw):
+        ctx = super(GroupsView, self).get_context_data(*args, **kw)
+        self._set_list_page(ctx, self.obj.current_roles, 10)
+        return ctx
+
+
 class PersonMixin(object):
     @property
     def members(self):
@@ -583,6 +594,9 @@ class PersonSaveMemberView(SaveMemberView):
     def org_obj(self):
         return self.member_obj.organisation
 
+class PersonGroupsView(GroupsView):
+    pass
+
 
 class OrgAddView(AddView):
     add_title = 'an organisation'
@@ -622,6 +636,9 @@ class OrgSaveMemberView(SaveMemberView):
     @property
     def org_obj(self):
         return self.obj.organisation
+
+class OrgGroupsView(GroupsView):
+    pass
 
 
 class MemberEditView(BaseEditView):

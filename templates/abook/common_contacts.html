@@ -17,8 +17,14 @@
             &nbsp;<a href="{% abook_url obj 'disable' %}?{{ urlmatch }}">&lt;disable&gt;</a>{% endif %}{% if perms.cams.abook_delete %}
             &nbsp;<a href="{% abook_url obj 'delete' %}?{{ urlmatch }}">&lt;delete&gt;</a>{% endif %}{% if perms.cams.abook_add %}
             <a href="{% abook_url obj 'add_member' %}">&lt;add member{% if obj.type_str = "person" %}ship{% endif %}&gt;</a>{% endif %}{% if perms.cams.abook_edit %}
-            <a href="{% url abook:obj_history obj.id %}">view history&nbsp;&gt;&gt;</a>{% endif %}
-          </div>{% endif %}{% endblock %}
+            &nbsp;<a href="{% url abook:obj_history obj.id %}">view history&nbsp;&gt;&gt;</a>{% endif %}
+          </div>{% endif %}
+          <div class="element group-list">{% if roles %}
+            Groups: {% for role in roles %}&nbsp;&nbsp;
+            <a href="{% url group role.group.id %}">{{ role.group.name }}</a>{% endfor %}{% else %}
+            No groups.{% endif %}
+            &nbsp;&nbsp;&nbsp;<a href="{% abook_url obj 'groups' %}">manage&nbsp;&gt;&gt;</a>
+          </div>{% endblock %}
 
 {% block browse_list %}
           <div class="element">
