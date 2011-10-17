@@ -269,7 +269,7 @@ class InvoicesView(DefaultInvoiceView):
     def get_context_data(self, *args, **kw):
         ctx = super(InvoicesView, self).get_context_data(*args, **kw)
 
-        filters = ('All', 'Pending', 'Banked')
+        filters = ('All', 'Pending', 'Paid')
         filter_name = self.request.GET.get('filter')
         if filter_name is not None:
             if not filter_name in filters:
@@ -283,9 +283,9 @@ class InvoicesView(DefaultInvoiceView):
         fair = Fair.get_current()
         invoices = StallInvoice.objects.filter(stall__event__fair=fair)
         if filter_name == 'Pending':
-            invoices = invoices.exclude(status=Invoice.BANKED)
-        elif filter_name == 'Banked':
-            invoices = invoices.filter(status=Invoice.BANKED)
+            invoices = invoices.exclude(status=Invoice.PAID)
+        elif filter_name == 'Paid':
+            invoices = invoices.filter(status=Invoice.PAID)
 
         self._set_list_page(ctx, invoices, 10)
         ctx.update({'filters': filters, 'filter': filter_name})
@@ -312,7 +312,7 @@ class AddInvoiceView(DefaultInvoiceView):
     class StallInvoiceForm(forms.ModelForm):
         class Meta:
             model = StallInvoice
-            exclude = ['stall', 'sent', 'paid', 'banked']
+            exclude = ['stall', 'sent', 'paid']
 
     def dispatch(self, *args, **kw):
         stall_id = int(kw['stall_id'])
@@ -367,8 +367,7 @@ class StallInvoiceView(BaseInvoiceView):
         # ToDo: that should happen with POST
         status_set = self.request.GET.get('set')
         if status_set is not None:
-            status_keywords = {'sent': Invoice.SENT, 'paid': Invoice.PAID,
-                               'banked': Invoice.BANKED}
+            status_keywords = {'sent': Invoice.SENT, 'paid': Invoice.PAID}
             status = status_keywords.get(status_set)
             if status is not None:
                 if self._invoice.status < status:

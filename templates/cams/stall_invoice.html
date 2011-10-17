@@ -15,7 +15,6 @@
             <tr><td class="key">created</td><td class="value">{{ inv.created }}</td></tr>
             <tr><td class="key">sent</td><td class="value">{% if inv.sent %}{{ inv.sent }}{% else %}<a href="?set=sent">set as sent</a>{% endif %}</td></tr>
             <tr><td class="key">paid</td><td class="value">{% if inv.paid %}{{ inv.paid }}{% else %}<a href="?set=paid">set as paid</a>{% endif %}</td></tr>
-            <tr><td class="key">banked</td><td class="value">{% if inv.banked %}{{ inv.banked }}{% else %}<a href="?set=banked">set as banked</a>{% endif %}</td></tr>
           </table>{% with inv.stall as obj %}{% include "cams/invoice-contact.html" %}{% endwith %}
           <div class="cmd">
             <a href="edit/">&lt;edit&gt;</a>
