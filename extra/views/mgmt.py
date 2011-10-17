@@ -369,7 +369,7 @@ class StallInvoiceView(BaseInvoiceView):
         if status_set is not None:
             status_keywords = {'sent': Invoice.SENT, 'paid': Invoice.PAID,
                                'banked': Invoice.BANKED}
-            status = status.keywords.get(status_set)
+            status = status_keywords.get(status_set)
             if status is not None:
                 if self._invoice.status < status:
                     self._invoice.status = status
