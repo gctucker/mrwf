@@ -362,19 +362,29 @@ class BaseInvoiceView(DefaultInvoiceView):
 
 class StallInvoiceView(BaseInvoiceView):
     template_name = 'cams/stall_invoice.html'
+    status_kw = ((Invoice.SENT, 'sent'), (Invoice.PAID, 'paid'),
+                 (Invoice.CANCELLED, 'cancelled'))
 
     def get(self, *args, **kw):
         # ToDo: that should happen with POST
-        status_set = self.request.GET.get('set')
-        if status_set is not None:
-            status_keywords = {'sent': Invoice.SENT, 'paid': Invoice.PAID}
-            status = status_keywords.get(status_set)
-            if status is not None:
-                if self._invoice.status < status:
-                    self._invoice.status = status
+        status_str = self.request.GET.get('set')
+        if status_str is not None:
+            for stat in self.status_kw:
+                if stat[1] == status_str:
+                    self._invoice.update_status(stat[0])
                     self._invoice.save()
+                    break
         return super(StallInvoiceView, self).get(*args, **kw)
 
+    def get_context_data(self, *args, **kw):
+        ctx = super(StallInvoiceView, self).get_context_data(*args, **kw)
+        stat_cmd_list = []
+        for trans in self._invoice.stat_trans:
+            for stat in self.status_kw:
+                if stat[0] == trans:
+                    stat_cmd_list.append(stat[1])
+        ctx.update({'stat_cmd_list': stat_cmd_list})
+        return ctx
 
 class EditInvoiceView(BaseInvoiceView):
     template_name = 'cams/edit_invoice.html'
