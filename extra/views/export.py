@@ -5,11 +5,11 @@ from django.template import Context
 from django.template.loader import get_template
 from django.shortcuts import get_object_or_404
 from cams.libcams import CSVFileResponse, get_time_string, make_group_file_name
-from cams.models import Record, Contact, Contactable, Member, Group
+from cams.models import Record, Contact, Contactable, Member, Group, Fair
 from cams.contacts import iterate_group_contacts
 from mrwf.extra.models import (FairEventType, FairEvent,
                                StallEvent, StallInvoice)
-from mrwf.extra.views.mgmt import get_listing_id
+from mrwf.extra.views.mgmt import get_listing_id, get_stall_invoice_address
 
 @login_required
 def group(request, group_id):
@@ -201,53 +201,24 @@ def programme(request):
 def invoices(request):
     def date_str(datetime):
         if datetime:
-            return str(datetime)
+            return str(datetime.date())
         else:
             return ''
 
-    invs = StallInvoice.objects.all()
-    resp = CSVFileResponse(('stall_name', 'owner', 'owner_address',
-                            'owner_telephone', 'owner_email', 'organisation',
-                            'org_address', 'org_telephone', 'org_email',
-                            'tables', 'spaces', 'amount', 'status',
-                            'reference', 'created', 'sent', 'paid'))
-
+    invs = StallInvoice.objects.filter(stall__event__fair=Fair.get_current())
+    resp = CSVFileResponse(('stall_name', 'reference', 'owner', 'organisation',
+                            'invoice address', 'tables', 'spaces', 'amount',
+                            'status', 'created', 'sent', 'paid', 'cancelled'))
     for i in invs:
-        owner_c = Contact.objects.filter(obj = i.stall.owner)
-        if owner_c:
-            c = owner_c[0]
-            owner_address = c.get_address()
-            owner_telephone = c.telephone
-            owner_email = c.email
-        else:
-            owner_address = ''
-            owner_telephone = ''
-            owner_email = ''
-
         if i.stall.org:
             org_name = i.stall.org.__unicode__()
-            org_c = Contact.objects.filter(obj = i.stall.org)
-            if org_c:
-                org_c = org_c[0]
         else:
             org_name = ''
-            org_c = None
-
-        if org_c:
-            org_address = org_c.get_address()
-            org_telephone = org_c.telephone
-            org_email = org_c.email
-        else:
-            org_address = ''
-            org_telephone = ''
-            org_email = ''
-
-        resp.write((i.stall.name, i.stall.owner.__unicode__(),
-                    owner_address, owner_telephone, owner_email, org_name,
-                    org_address, org_telephone, org_email,
-                    str(i.stall.n_tables), str(i.stall.n_spaces),
-                    str(i.amount), i.status_str, i.reference,
-                    date_str(i.created), date_str(i.sent), date_str(i.paid)))
-
+        address = get_stall_invoice_address(i, u', ')
+        resp.write((i.stall.name, i.reference, i.stall.owner.__unicode__(),
+                    org_name, address, str(i.stall.n_tables),
+                    str(i.stall.n_spaces), str(i.amount), i.status_str,
+                    date_str(i.created), date_str(i.sent), date_str(i.paid),
+                    date_str(i.cancelled)))
     resp.set_file_name(u'Stall_invoices_{0}.csv'.format(get_time_string()))
     return resp.response

@@ -75,6 +75,36 @@ def get_listing_id (request):
 
     return listing_id
 
+def get_stall_invoice_address(inv, sep=u'\n'):
+    if inv.stall.invoice_person:
+        p = inv.stall.invoice_person
+    else:
+        p = inv.stall.owner
+
+    address_list = [p.__unicode__()]
+    c_address = None
+
+    if inv.stall.invoice_contact:
+        c = inv.stall.invoice_contact
+    else:
+        c = inv.stall.owner.contact
+
+    if c:
+        c_address = c.get_address(sep)
+        if not c_address:
+            c = None
+
+    if not c and inv.stall.org:
+        address_list.append(inv.stall.org.name)
+        c = inv.stall.org.contact
+        if c:
+            c_address = c.get_address(sep)
+
+    if c_address:
+        address_list.append(c_address)
+
+    return sep.join(address_list)
+
 # -----------------------------------------------------------------------------
 # entry points from url's
 
@@ -464,33 +494,7 @@ class InvoiceHardCopyView(BaseInvoiceView):
     def _make_hard_copy_form(self):
         inv = self._invoice
 
-        if inv.stall.invoice_person:
-            p = inv.stall.invoice_person
-        else:
-            p = inv.stall.owner
-
-        address_list = [p.__unicode__()]
-
-        if inv.stall.invoice_contact:
-            c = inv.stall.invoice_contact
-        else:
-            c = inv.stall.owner.contact
-
-        if c:
-            c_address = c.get_address('\n')
-            if not c_address:
-                c = None
-
-        if not c and inv.stall.org:
-            address_list.append(inv.stall.org.name)
-            c = inv.stall.org.contact
-            if c:
-                c_address = c.get_address('\n')
-
-        if c_address:
-            address_list.append(c_address)
-
-        address = '\n'.join(address_list)
+        address = get_stall_invoice_address(inv)
 
         if inv.stall.etype:
             listing = "{}:\n".format(inv.stall.etype)
