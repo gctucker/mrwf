@@ -395,15 +395,15 @@ class StallInvoiceView(BaseInvoiceView):
     status_kw = ((Invoice.SENT, 'sent'), (Invoice.PAID, 'paid'),
                  (Invoice.CANCELLED, 'cancelled'))
 
-    def get(self, *args, **kw):
-        # ToDo: that should happen with POST
-        status_str = self.request.GET.get('set')
+    def post(self, *args, **kw):
+        status_str = self.request.POST.get('set')
         if status_str is not None:
             for stat in self.status_kw:
                 if stat[1] == status_str:
                     self._invoice.update_status(stat[0])
                     self._invoice.save()
-                    break
+                    url = reverse('stall_invoice', args=[self._invoice.id])
+                    return HttpResponseRedirect(url)
         return super(StallInvoiceView, self).get(*args, **kw)
 
     def get_context_data(self, *args, **kw):

@@ -18,7 +18,11 @@
             <tr><td class="key">cancelled</td><td class="value">{{ inv.cancelled }}</td></tr>{% endif %}
           </table>{% if stat_cmd_list %}
           <div class="element">
-            Update status:{% for stat_cmd in stat_cmd_list %}&nbsp;&nbsp;<a href="?set={{ stat_cmd }}">{{ stat_cmd }}</a>{% endfor %}
+            <form method="POST" action="">
+              {% csrf_token %}
+              Update status:{% for stat_cmd in stat_cmd_list %}&nbsp;&nbsp;
+              <input type="submit" value="{{ stat_cmd }}" name="set" />{% endfor %}
+            </form>
           </div>{% endif %}{% with inv.stall as obj %}{% include "cams/invoice-contact.html" %}{% endwith %}
           <div class="cmd">
             <a href="edit/">&lt;edit&gt;</a>
