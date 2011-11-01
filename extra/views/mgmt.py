@@ -354,6 +354,7 @@ class AddInvoiceView(DefaultInvoiceView):
         if self._form.is_valid():
             self._form.instance.stall = self._stall
             self._form.save()
+            self.history.create_form(self.request.user, self._form, ['stall'])
             return HttpResponseRedirect(reverse('invoices'))
         return super(AddInvoiceView, self).get(*args, **kw)
 
@@ -402,6 +403,8 @@ class StallInvoiceView(BaseInvoiceView):
                 if stat[1] == status_str:
                     self._invoice.update_status(stat[0])
                     self._invoice.save()
+                    self.history.edit(self.request.user, self._invoice,
+                                      ['status'])
                     url = reverse('stall_invoice', args=[self._invoice.id])
                     return HttpResponseRedirect(url)
         return super(StallInvoiceView, self).get(*args, **kw)
@@ -431,6 +434,7 @@ class EditInvoiceView(BaseInvoiceView):
                                                instance=self._invoice)
         if self._form.is_valid():
             self._form.save()
+            self.history.edit_form(self.request.user, self._form)
             url = reverse('stall_invoice', args=[self._invoice.id])
             return HttpResponseRedirect(url)
         return super(EditInvoiceView, self).get(*args, **kw)
