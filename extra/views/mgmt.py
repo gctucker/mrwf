@@ -342,7 +342,7 @@ class AddInvoiceView(DefaultInvoiceView):
     class StallInvoiceForm(forms.ModelForm):
         class Meta:
             model = StallInvoice
-            exclude = ['stall', 'sent', 'paid']
+            exclude = ['stall', 'sent', 'paid', 'cancelled']
 
     def dispatch(self, *args, **kw):
         stall_id = int(kw['stall_id'])
