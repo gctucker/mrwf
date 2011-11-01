@@ -424,7 +424,7 @@ class EditInvoiceView(BaseInvoiceView):
     class StallInvoiceEditForm(forms.ModelForm):
         class Meta:
             model = StallInvoice
-            fields = ['amount', 'status', 'reference']
+            fields = ['amount', 'reference']
 
     def post(self, *args, **kw):
         self._form = self.StallInvoiceEditForm(self.request.POST,
