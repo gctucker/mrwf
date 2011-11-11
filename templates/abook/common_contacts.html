@@ -20,8 +20,8 @@
             &nbsp;<a href="{% url abook:obj_history obj.id %}">view history&nbsp;&gt;&gt;</a>{% endif %}
           </div>{% endif %}
           <div class="element group-list">{% if roles %}
-            Groups: {% for role in roles %}&nbsp;&nbsp;
-            <a href="{% url group role.group.id %}">{{ role.group.name }}</a>{% endfor %}{% else %}
+            Groups:&nbsp;{% for role in roles|slice:":4" %}&nbsp;
+            <a href="{% url group role.group.id %}">{{ role.group.name }}</a>{% if not forloop.last %},{% endif %}{% endfor %}{% if roles|length > 4 %}...{% endif %}{% else %}
             No groups.{% endif %}
             &nbsp;&nbsp;&nbsp;<a href="{% abook_url obj 'groups' %}?{{ urlmatch }}">manage&nbsp;&gt;&gt;</a>
           </div>{% endblock %}
