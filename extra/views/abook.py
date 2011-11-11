@@ -8,7 +8,7 @@ from django.core.urlresolvers import reverse
 from django.conf import settings
 from cams import libcams
 from cams.models import (Record, Contactable, Person, Organisation, Member,
-                         Contact, Role)
+                         Contact, Group, Role, Fair)
 from mrwf.extra.views.main import SiteView
 from mrwf.extra.forms import (PersonForm, OrganisationForm, ContactForm,
                               ConfirmForm, StatusForm)
@@ -16,8 +16,12 @@ from mrwf.extra.forms import (PersonForm, OrganisationForm, ContactForm,
 def reverse_ab(url, **kwargs):
     return reverse(':'.join(['abook', url]), **kwargs)
 
-def obj_url(obj):
-    return reverse_ab(obj.type_str, args=[obj.id])
+def obj_url(obj, cmd=None):
+    if cmd:
+        url_name = '_'.join([cmd, obj.type_str])
+    else:
+        url_name = obj.type_str
+    return reverse_ab(url_name, args=[obj.id])
 
 def abook_classes():
     from django.contrib.auth.models import User
@@ -476,9 +480,40 @@ class GroupsView(BaseObjView):
     template_name = 'abook/groups.html'
     perms = BaseObjView.perms
 
+    class AddRoleForm(forms.Form):
+        def __init__(self, obj, *args, **kw):
+            super(GroupsView.AddRoleForm, self).__init__(*args, **kw)
+            q = Q(fair=Fair.get_current()) | Q(fair__isnull=True)
+            new_groups = Group.objects.filter(q)
+            for r in obj.current_roles:
+                new_groups = new_groups.exclude(pk=r.group.pk)
+            self.fields['group'] = forms.ChoiceField(\
+                choices=[(g.pk, g.__unicode__()) for g in new_groups])
+
+    def get(self, *args, **kw):
+        self._form = GroupsView.AddRoleForm(self.obj)
+        if len(self._form.fields['group'].choices) == 0:
+            self._form_empty = True
+        else:
+            self._form_empty = False
+        return super(GroupsView, self).get(*args, **kw)
+
+    def post(self, *args, **kw):
+        self._form = GroupsView.AddRoleForm(self.obj, self.request.POST)
+        if self._form.is_valid():
+            group_id = int(self._form.cleaned_data['group'])
+            group = Group.objects.get(pk=group_id)
+            role = Role(contactable=self.obj, group=group)
+            role.save()
+            self.history.create(self.request.user, role,
+                                ['contactable', 'group', 'role'])
+            return HttpResponseRedirect(obj_url(self.obj, 'groups'))
+        return super(GroupsView, self).get(*args, **kw)
+
     def get_context_data(self, *args, **kw):
         ctx = super(GroupsView, self).get_context_data(*args, **kw)
         self._set_list_page(ctx, self.obj.current_roles, 10)
+        ctx.update({'form': self._form, 'form_empty': self._form_empty})
         return ctx
 
 

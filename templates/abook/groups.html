@@ -1,24 +1,35 @@
 {% extends "browser.html" %}
 {% load mrwf_extra %}
 
-{% block page_title %}MRWF - {{ obj }} groups{% endblock %}
+{% block page_title %}MRWF - {{ obj }} - groups{% endblock %}
+
+{% block browse_header %}<h2 class="status-{{ obj.status_str }}">{{ obj.name_nn }}</h2>{% endblock %}
 
 {% block browse_list %}
   <div class="element">
-    <table class="details">
-      {% for it in page.object_list %}
+    <table class="details">{% for it in page.object_list %}
       <tr>
         <td class="group-detail"><a href="{% url group it.group.id %}">{{ it.group }}</a></td>
         <td class="group-detail">{% if it.role %}{{ it.role }}{% endif %}</td>
-        <td class="group-detail">remove</td>
-      </tr>
-      {% endfor %}
+      </tr>{% endfor %}
     </table>
   </div>
 {% endblock %}
 
 {% block browse_footer %}
-  <div class="element">
-    Add group
-  </div>
+          <div class="element">{% if form_empty %}
+            {{ obj }} is already in all the groups.{% else %}
+            <form method="POST" action="?{{ urlmatch }}">
+              {% csrf_token %}
+              <table>{% for f in form %}
+                {% field_row f %}{% endfor %}
+              </table>
+              <p>
+                <input type="submit" value="add group" />
+              </p>
+            </form>
+          </div>{% endif %}
+          <div class="cmd">
+            <a href="{% abook_url obj %}?{{ urlmatch }}">&lt;&lt;&nbsp;back</a>
+          </div>
 {% endblock %}

@@ -23,7 +23,7 @@
             Groups: {% for role in roles %}&nbsp;&nbsp;
             <a href="{% url group role.group.id %}">{{ role.group.name }}</a>{% endfor %}{% else %}
             No groups.{% endif %}
-            &nbsp;&nbsp;&nbsp;<a href="{% abook_url obj 'groups' %}">manage&nbsp;&gt;&gt;</a>
+            &nbsp;&nbsp;&nbsp;<a href="{% abook_url obj 'groups' %}?{{ urlmatch }}">manage&nbsp;&gt;&gt;</a>
           </div>{% endblock %}
 
 {% block browse_list %}
