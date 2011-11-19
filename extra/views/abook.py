@@ -479,6 +479,8 @@ class SaveMemberView(BaseObjView):
 class GroupsView(BaseObjView):
     template_name = 'abook/groups.html'
     perms = BaseObjView.perms
+    RoleFormSet = forms.models.modelformset_factory \
+        (Role, fields=('role',), can_delete=True, extra=0)
 
     class AddRoleForm(forms.Form):
         def __init__(self, obj, *args, **kw):
@@ -489,31 +491,59 @@ class GroupsView(BaseObjView):
                 new_groups = new_groups.exclude(pk=r.group.pk)
             self.fields['group'] = forms.ChoiceField(\
                 choices=[(g.pk, g.__unicode__()) for g in new_groups])
+            self.fields['role'] = forms.CharField(max_length=63,required=False)
 
     def get(self, *args, **kw):
-        self._form = GroupsView.AddRoleForm(self.obj)
-        if len(self._form.fields['group'].choices) == 0:
-            self._form_empty = True
-        else:
-            self._form_empty = False
+        self._roles = GroupsView.RoleFormSet(queryset=self.obj.current_roles)
+        self._add_form = GroupsView.AddRoleForm(self.obj)
         return super(GroupsView, self).get(*args, **kw)
 
     def post(self, *args, **kw):
-        self._form = GroupsView.AddRoleForm(self.obj, self.request.POST)
-        if self._form.is_valid():
-            group_id = int(self._form.cleaned_data['group'])
-            group = Group.objects.get(pk=group_id)
-            role = Role(contactable=self.obj, group=group)
-            role.save()
-            self.history.create(self.request.user, role,
-                                ['contactable', 'group', 'role'])
-            return HttpResponseRedirect(obj_url(self.obj, 'groups'))
-        return super(GroupsView, self).get(*args, **kw)
+        cmd = self.request.POST['cmd']
+        if cmd == 'add':
+            resp = self._add_role(*args, **kw)
+        elif cmd == 'update':
+            resp = self._update_roles(*args, **kw)
+        else:
+            resp = None
+        if resp:
+            return resp
+        else:
+            return super(GroupsView, self).get(*args, **kw)
+
+    def _add_role(self, *args, **kw):
+        self._roles = GroupsView.RoleFormSet(queryset=self.obj.current_roles)
+        self._add_form = GroupsView.AddRoleForm(self.obj, self.request.POST)
+        if not self._add_form.is_valid():
+            return False
+        group_id = int(self._add_form.cleaned_data['group'])
+        group = Group.objects.get(pk=group_id)
+        role_title = self._add_form.cleaned_data['role']
+        role = Role(contactable=self.obj, group=group, role=role_title)
+        role.save()
+        self.history.create(self.request.user, role,
+                            ['contactable', 'group', 'role'])
+        return HttpResponseRedirect(obj_url(self.obj, 'groups'))
+
+    def _update_roles(self, *args, **kw):
+        self._add_form = GroupsView.AddRoleForm(self.obj)
+        self._roles = GroupsView.RoleFormSet(self.request.POST,
+                                             queryset=self.obj.current_roles)
+        if not self._roles.is_valid():
+            return False
+        for f in self._roles.deleted_forms:
+            self.history.delete(self.request.user, f.instance)
+        for f in self._roles.forms:
+            if f.changed_data and 'DELETE' not in f.changed_data:
+                self.history.edit_form(self.request.user, f)
+        self._roles.save()
+        return HttpResponseRedirect(obj_url(self.obj))
 
     def get_context_data(self, *args, **kw):
         ctx = super(GroupsView, self).get_context_data(*args, **kw)
-        self._set_list_page(ctx, self.obj.current_roles, 10)
-        ctx.update({'form': self._form, 'form_empty': self._form_empty})
+        form_empty = (len(self._add_form.fields['group'].choices) == 0)
+        ctx.update({'add_form': self._add_form, 'form_empty': form_empty,
+                    'roles_formset': self._roles})
         return ctx
 
 

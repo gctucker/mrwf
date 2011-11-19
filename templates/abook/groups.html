@@ -1,35 +1,47 @@
-{% extends "browser.html" %}
+{% extends "nav_layout.html" %}
 {% load mrwf_extra %}
 
 {% block page_title %}MRWF - {{ obj }} - groups{% endblock %}
 
-{% block browse_header %}<h2 class="status-{{ obj.status_str }}">{{ obj.name_nn }}</h2>{% endblock %}
-
-{% block browse_list %}
-  <div class="element">
-    <table class="details">{% for it in page.object_list %}
-      <tr>
-        <td class="group-detail"><a href="{% url group it.group.id %}">{{ it.group }}</a></td>
-        <td class="group-detail">{% if it.role %}{{ it.role }}{% endif %}</td>
-      </tr>{% endfor %}
-    </table>
+{% block contents %}
+  <h2 class="status-{{ obj.status_str }}">{{ obj.name_nn }}</h2>
+  <div class="element">{% if roles_formset|length == 0 %}{{ obj }} is currently in no groups.{% else %}
+    <form method="POST" action="?{{ urlmatch }}">
+      {% csrf_token %}
+      {{ roles_formset.management_form }}
+      <table class="details">
+        <tr><th>Group</th><th>Role</th><th>Delete</th></tr>
+        <tr>{% for role_form in roles_formset %}
+          {{ role_form.id }}
+          <td class="group-detail"><a href="{% url group role_form.instance.group.id %}">{{ role_form.instance.group }}</td>
+          <td class="group-detail">{{ role_form.role }}</td>
+          <td class="group-detail" style="text-align: center">{{ role_form.DELETE }}</td>
+        </tr>{% endfor %}
+      </table>
+      <input type="submit" name="cmd" value="update" />
+    </form>{% endif %}
   </div>
-{% endblock %}
-
-{% block browse_footer %}
-          <div class="element">{% if form_empty %}
-            {{ obj }} is already in all the groups.{% else %}
-            <form method="POST" action="?{{ urlmatch }}">
-              {% csrf_token %}
-              <table>{% for f in form %}
-                {% field_row f %}{% endfor %}
-              </table>
-              <p>
-                <input type="submit" value="add group" />
-              </p>
-            </form>
-          </div>{% endif %}
-          <div class="cmd">
-            <a href="{% abook_url obj %}?{{ urlmatch }}">&lt;&lt;&nbsp;back</a>
-          </div>
+  <div class="element">
+    <form method="POST" action="?{{ urlmatch }}">
+      {% csrf_token %}
+      <table>{% for f in blah %}
+        {% field_row f %}{% endfor %}
+      </table>
+    </form>
+  </div>
+  <br />
+  <div class="element">{% if form_empty %}
+    {{ obj }} is already in all the groups.{% else %}
+    <p>Add {{ obj }} to another group:</p>
+    <form method="POST" action="?{{ urlmatch }}">
+      {% csrf_token %}
+      <table>{% for f in add_form %}
+        {% field_row f %}{% endfor %}
+      </table>
+      <p><input type="submit" name="cmd" value="add" /></p>
+    </form>
+  </div>{% endif %}
+  <div class="cmd">
+    <a href="{% abook_url obj %}?{{ urlmatch }}">&lt;&lt;&nbsp;back</a>
+  </div>
 {% endblock %}
