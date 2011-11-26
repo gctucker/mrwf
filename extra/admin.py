@@ -49,9 +49,6 @@ class ListenerAdmin (admin.ModelAdmin):
 
 
 # -- CAMS admin --
-admin.site.register (Person, PersonAdmin)
-admin.site.register (Organisation, OrganisationAdmin)
-admin.site.register (Member, MemberAdmin)
 admin.site.register (Group, GroupAdmin)
 admin.site.register (Fair, FairAdmin)
 admin.site.register (Player, PlayerAdmin)
