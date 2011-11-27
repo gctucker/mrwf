@@ -110,9 +110,14 @@ class FairEvent(Event):
             def get_address(self, *args):
                 return get_obj_address(self, *args)
 
-
         return CompositeContact(self)
 
+    @classmethod
+    def get_for_fair(cls, event_id, fair):
+        base_event = super(FairEvent, cls).get_for_fair(event_id, fair)
+        if base_event:
+            return cls.objects.get(pk=base_event.pk)
+        return None
 
 class StallEvent(FairEvent):
     TELEPHONE = 0
