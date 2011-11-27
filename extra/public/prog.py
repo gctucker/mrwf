@@ -20,15 +20,17 @@ def add_time_ele (doc, root, tag, time):
     ele.setAttribute ('hour', str (time.hour))
     ele.setAttribute ('minute', str (time.minute))
 
+def populate_event_id (ele, event):
+    ele.setAttribute ('id', str (event.main_id))
+    ele.setAttribute ('name', event.name)
+
 def add_event_id_ele (doc, root, tag, event):
     ele = doc.createElement (tag)
     root.appendChild (ele)
-    ele.setAttribute ('id', str (event.pk))
-    ele.setAttribute ('name', event.name)
+    populate_event_id (ele, event)
 
 def populate_event_ele (doc, ele, event):
-    ele.setAttribute ('id', str (event.pk))
-    ele.setAttribute ('name', event.name)
+    populate_event_id (ele, event)
 
     # listing attribute ...
 #    if event.etype:
@@ -187,6 +189,12 @@ def search_obj (request, fair):
     return HttpResponse (doc.toprettyxml ('  ', '\n', 'utf-8'),
                          mimetype = 'application/xml')
 
+def get_fair_event (request, fair, event_id):
+    event = FairEvent.get_for_fair (event_id, fair)
+    if not event:
+        raise Http404
+    return event_obj (event)
+
 # -----------------------------------------------------------------------------
 
 def all_fairs (request):
@@ -216,17 +224,10 @@ def current (request):
 
 def event (request, fair_year, event_id):
     fair = get_object_or_404 (Fair, date__year = fair_year)
-    event = get_object_or_404 (FairEvent, pk = event_id)
-    if (not event.fair) or (event.fair != fair):
-        raise Http404
-    return event_obj (event)
+    return get_fair_event (request, fair, event_id)
 
 def current_event (request, event_id):
-    fair = get_object_or_404 (Fair, current = True)
-    event = get_object_or_404 (FairEvent, pk = event_id)
-    if (not event.fair) or (event.fair != fair):
-        raise Http404
-    return event_obj (event)
+    return get_fair_event (request, Fair.get_current (), event_id)
 
 def dump (request, fair_year):
     return fair_obj (get_object_or_404 (Fair, date__year = int (fair_year)),
