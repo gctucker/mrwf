@@ -4,7 +4,7 @@ from settings import DEBUG, STATIC_ROOT
 from cams.libcams import urlcls, CAMS_VERSION
 from mrwf.extra import views
 
-min_cams = (0, 3)
+min_cams = (0, 4)
 
 if CAMS_VERSION < min_cams:
     raise Exception('cams version is too old, minimum: {}'.format(min_cams))
