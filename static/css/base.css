@@ -221,6 +221,17 @@ div.member-title {
     padding: 0 0 5px 0;
 }
 
+/* group list */
+
+div.group-list {
+    font-size: 0.8em;
+    margin: 5px 0 0 0;
+}
+
+td.group-detail {
+    padding: 2px 4px 2px 2px;
+}
+
 /* comment table */
 
 table.cmt-block {
