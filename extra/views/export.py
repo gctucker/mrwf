@@ -206,17 +206,27 @@ def invoices(request):
             return ''
 
     invs = StallInvoice.objects.filter(stall__event__fair=Fair.get_current())
-    resp = CSVFileResponse(('stall_name', 'reference', 'owner', 'organisation',
-                            'invoice address', 'tables', 'spaces', 'amount',
-                            'status', 'created', 'sent', 'paid', 'cancelled'))
+    resp = CSVFileResponse(('stall_name', 'reference', 'owner', 'email',
+                            'organisation', 'email', 'invoice address',
+                            'tables', 'spaces', 'amount', 'status', 'created',
+                            'sent', 'paid', 'cancelled'))
     for i in invs:
         if i.stall.org:
             org_name = i.stall.org.__unicode__()
         else:
             org_name = ''
         address = get_stall_invoice_address(i, u', ')
+        c = i.stall.owner.contact
+        if not c:
+            c = i.stall.invoice_contact
+        if not c and i.stall.org:
+            c = i.stall.org.contact
+        if c:
+            email = c.email
+        else:
+            email = ''
         resp.write((i.stall.name, i.reference, i.stall.owner.__unicode__(),
-                    org_name, address, str(i.stall.n_tables),
+                    email, org_name, address, str(i.stall.n_tables),
                     str(i.stall.n_spaces), str(i.amount), i.status_str,
                     date_str(i.created), date_str(i.sent), date_str(i.paid),
                     date_str(i.cancelled)))
