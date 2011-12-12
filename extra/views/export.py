@@ -219,7 +219,7 @@ def invoices(request):
         c = i.stall.owner.contact
         if not c or not c.email:
             c = i.stall.invoice_contact
-        if not c or not c.email and i.stall.org:
+        if (not c or not c.email) and i.stall.org:
             c = i.stall.org.contact
             if not c or not c.email:
                 m = i.stall.owner.members_list.filter(organisation=i.stall.org)
