@@ -217,10 +217,14 @@ def invoices(request):
             org_name = ''
         address = get_stall_invoice_address(i, u', ')
         c = i.stall.owner.contact
-        if not c:
+        if not c or not c.email:
             c = i.stall.invoice_contact
-        if not c and i.stall.org:
+        if not c or not c.email and i.stall.org:
             c = i.stall.org.contact
+            if not c or not c.email:
+                m = i.stall.owner.members_list.filter(organisation=i.stall.org)
+                if len(m):
+                    c = m[0].contact
         if c:
             email = c.email
         else:
