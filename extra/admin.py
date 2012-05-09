@@ -1,8 +1,6 @@
 from django.contrib import admin
-from cams.models import (Person, Organisation, Member, Group, Fair, Role,
-                         Player, Event, Actor, EventComment)
-from cams.admin import (PersonAdmin, OrganisationAdmin, MemberAdmin,
-                        GroupAdmin, FairAdmin, PlayerAdmin, EventAdmin,
+from cams.models import Group, Fair, Role, Player, Event, Actor, EventComment
+from cams.admin import (GroupAdmin, FairAdmin, PlayerAdmin, EventAdmin,
                         ActorAdmin, EventCommentAdmin)
 from mrwf.extra.models import (FairEventType, FairEventCategory, FairEvent,
                                StallEvent, Listener)
