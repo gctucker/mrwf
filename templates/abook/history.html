@@ -1,7 +1,7 @@
-{% extends "browser.html" %}
+{% extends "nav_layout.html" %}
 {% load mrwf_extra %}
 
-{% block browse_list %}
+{% block contents %}
           <div class="element">
             <table class="details history">
               <tr class="separator">
@@ -10,7 +10,7 @@
                 <th class="listing-sep">Action</th>
                 <th class="listing-sep">Entry</th>
                 <th class="listing">Details</th>
-              </tr>{% for it in page.object_list %}
+              </tr>{% for it in page %}
               <tr>
                 <td class="listing-sep">{{ it.datetime }}</td>
                 <td class="listing-sep">{% player_link it.user %}</td>
@@ -19,5 +19,13 @@
                 <td class="listing">{% if it.action == "EDIT" %}{{ it.args }}{% endif %}</td>
               </tr>{% endfor %}
             </table>
+            <div class="element paginator">{% if not first_page %}
+              <a href="?{% if urlmatch %}{{ urlmatch }}&{% endif %}page=1">||&nbsp;</a>
+              <a href="?{% if urlmatch %}{{ urlmatch }}&{% endif %}page={{ prev_page }}">&lt;&lt;&nbsp;</a>{% else %}
+              ||&nbsp;
+              &lt;&lt;&nbsp;{% endif %}{% if not last_page %}
+              <a href="?{% if urlmatch %}{{ urlmatch }}&{% endif %}page={{ next_page }}">&nbsp;&gt;&gt;</a>{% else %}
+              &nbsp;&gt;&gt;{% endif %}
+            </div>
           </div>
 {% endblock %}

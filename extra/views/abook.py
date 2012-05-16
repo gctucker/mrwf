@@ -722,15 +722,26 @@ class HistoryView(AbookView):
     title = 'History'
     menu_name = 'abook:search'
 
+    def get(self, request, *args, **kwargs):
+        self._page_n = int(request.GET.get('page', 1))
+        return super(HistoryView, self).get(request, *args, **kwargs)
+
     def get_context_data(self, *args, **kwargs):
         ctx = super(HistoryView, self).get_context_data(*args, **kwargs)
         h = libcams.HistoryParser(settings.HISTORY_PATH, abook_classes())
-        self._set_list_page(ctx, self._abook_history(h), 50)
+        n = 20
+        ctx['page'] = self._abook_history(h, self._page_n, n)
+        if len(ctx['page']) < n:
+            ctx['last_page'] = True
+        else:
+            ctx['next_page'] = self._page_n + 1
+        if self._page_n == 1:
+            ctx['first_page'] = True
+        else:
+            ctx['prev_page'] = self._page_n - 1
         return ctx
 
-    def _abook_history(self, hist):
-        abook = []
-
+    def _abook_history(self, hist, page_n, n):
         def get_contact_obj(obj):
             subobj = obj.obj.subobj
             arg_str = ['contact']
@@ -742,10 +753,23 @@ class HistoryView(AbookView):
         def get_member_obj(obj):
             return obj.person, ['member']
 
+        abook = []
         filters = {Contact: get_contact_obj, Member: get_member_obj}
 
-        for it in hist.data:
+        first = (page_n - 1) * n
+        last = page_n * n
+        i = 0
+        m = 0
+        hist.open()
+        while len(abook) < n:
+            it = hist.get_line(i)
+            i += 1
+            if it is None:
+                break
             if it.obj.__class__ not in (Person, Organisation, Contact, Member):
+                continue
+            m += 1
+            if m <= first:
                 continue
             fil = filters.get(it.obj.__class__, None)
             if fil:
@@ -753,8 +777,8 @@ class HistoryView(AbookView):
                 it.obj, arg_str = fil(it.obj)
                 it.args = ': '.join([it.action.lower()] + arg_str)
                 it.action = 'EDIT'
-                fil = filters.get(it.obj.__class__, None)
             abook.append(it)
+        hist.close()
 
         return abook
 
