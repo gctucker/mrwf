@@ -3,9 +3,9 @@
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 STATIC_ROOT = ''
-ADMINS = () # (loaded from local_settings)
+ADMINS = () # local_settings
 MANAGERS = ADMINS
-DATABASES = {} # (loaded from local_settings)
+DATABASES = {} # local_settings
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
