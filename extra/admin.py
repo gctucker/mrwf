@@ -1,5 +1,6 @@
 from django.contrib import admin
-from cams.models import Group, Fair, Role, Player, Event, Actor, EventComment
+from cams.models import (PinBoard, Group, Fair, Role, Player, Event, Actor,
+                         EventComment)
 from cams.admin import (GroupAdmin, FairAdmin, PlayerAdmin, EventAdmin,
                         ActorAdmin, EventCommentAdmin)
 from mrwf.extra.models import (FairEventType, FairEventCategory, FairEvent,
@@ -53,6 +54,7 @@ admin.site.register (Player, PlayerAdmin)
 #admin.site.register (Event, EventAdmin)
 #admin.site.register (Actor, ActorAdmin)
 #admin.site.register (EventComment, EventCommentAdmin)
+admin.site.register (PinBoard)
 
 # -- extra admin --
 admin.site.register (FairEvent, FairEventAdmin)
