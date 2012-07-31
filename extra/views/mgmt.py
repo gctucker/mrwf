@@ -10,7 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response, get_object_or_404
 from mrwf.extra.views.main import add_common_tpl_vars, SiteView
 from cams.libcams import str2list
-from cams.models import (Record, Player, Fair, Group, Actor,
+from cams.models import (Record, PinBoard, Player, Fair, Group, Actor,
                          Role, Event, EventComment, Application, Invoice)
 from mrwf.extra.models import (FairEventType, FairEvent, StallEvent,
                                FairEventApplication, StallInvoice)
@@ -110,9 +110,7 @@ def get_stall_invoice_address(inv, sep=u'\n'):
 
 @login_required
 def participants (request):
-    groups = Group.objects.all ()
-    fair = get_object_or_404 (Fair, current = True)
-    groups = groups.filter (Q (fair = fair) | Q (fair__isnull = True))
+    groups = Group.objects.filter (board__isnull = True)
     tpl_vars = {'title': 'Groups', 'url': 'cams/participant/'}
     add_common_tpl_vars (request, tpl_vars, 'groups', groups)
     return render_to_response ('cams/participants.html', tpl_vars)
