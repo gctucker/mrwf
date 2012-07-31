@@ -4,7 +4,7 @@ from django.db.models import (CharField, TextField, DateField, BooleanField,
                               PositiveIntegerField, PositiveSmallIntegerField,
                               ForeignKey, OneToOneField, ManyToManyField,
                               ImageField)
-from cams.models import (Record, Contact, Item, Event, Fair, Person,
+from cams.models import (Record, Contact, Event, Fair, Person,
                          Application, EventApplication, Invoice)
 from cams.libcams import get_obj_address
 from mrwf.settings import IMG_MAX_D, IMG_MAX_d
