@@ -1,6 +1,12 @@
 {% extends "browser.html" %}
 
-{% block browse_header %}<h2>Group: {{ group.name }}</h2>{% endblock %}
+{% block browse_header %}
+  <h2>Group: {{ group.get_current_version }}</h2>
+  <p class="cmd">|{% for v in group.get_versions %}{% if v = group %}
+    {{ v }}{% else %}
+    <a href="{{ px }}cams/participant/group/{{ v.pk }}/{% if v.board %}{{ v.board.pk }}/{% endif %}">{{ v }}</a>{% endif %}&nbsp;|{% endfor %}
+  </p>
+{% endblock %}
 
 {% block browse_it %}{% if it.contactable.type_str = "person" %}
                 <a href="{{ px }}abook/person/{{ it.contactable.person.id }}/">

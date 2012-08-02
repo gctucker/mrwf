@@ -116,8 +116,11 @@ def participants (request):
     return render_to_response ('cams/participants.html', tpl_vars)
 
 @login_required
-def group (request, group_id):
+def group (request, group_id, board_id = None):
     group = get_object_or_404 (Group, pk = group_id)
+    if board_id is not None:
+        board = get_object_or_404 (PinBoard, pk = board_id)
+        group = group.get_version_for_board(board)
     roles = Role.objects.filter (group = group)
     roles = roles.filter (contactable__status = Record.ACTIVE)
     # ToDo: sort alphabetically... without fetching the 2 full tables for
