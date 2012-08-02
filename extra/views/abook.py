@@ -8,7 +8,7 @@ from django.core.urlresolvers import reverse
 from django.conf import settings
 from cams import libcams
 from cams.models import (Record, Contactable, Person, Organisation, Member,
-                         Contact, Group, Role, Fair)
+                         Contact, Group, Role)
 from mrwf.extra.views.main import SiteView
 from mrwf.extra.forms import (PersonForm, OrganisationForm, ContactForm,
                               ConfirmForm, StatusForm)
@@ -485,8 +485,7 @@ class GroupsView(BaseObjView):
     class AddRoleForm(forms.Form):
         def __init__(self, obj, *args, **kw):
             super(GroupsView.AddRoleForm, self).__init__(*args, **kw)
-            q = Q(fair=Fair.get_current()) | Q(fair__isnull=True)
-            new_groups = Group.objects.filter(q)
+            new_groups = Group.objects.filter(board__isnull=True)
             for r in obj.current_roles:
                 new_groups = new_groups.exclude(pk=r.group.pk)
             self.fields['group'] = forms.ChoiceField(\
