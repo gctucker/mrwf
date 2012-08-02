@@ -109,9 +109,15 @@ def get_stall_invoice_address(inv, sep=u'\n'):
 # entry points from url's
 
 @login_required
-def participants (request):
-    groups = Group.objects.filter (board__isnull = True)
-    tpl_vars = {'title': 'Groups', 'url': 'cams/participant/'}
+def participants (request, board_id = None):
+    if board_id is None:
+        board = None
+        groups = Group.objects.filter (board__isnull = True)
+    else:
+        board = get_object_or_404 (PinBoard, pk = board_id)
+        groups = Group.objects.filter (board = board)
+    tpl_vars = {'title': 'Groups', 'boards': Group.get_boards(),
+                'board': board, 'url': 'cams/participant/'}
     add_common_tpl_vars (request, tpl_vars, 'groups', groups)
     return render_to_response ('cams/participants.html', tpl_vars)
 

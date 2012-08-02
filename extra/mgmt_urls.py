@@ -4,6 +4,7 @@ from mrwf.extra import views
 
 urlpatterns = patterns('mrwf.extra.views.mgmt',
  url(r'^participant/$', 'participants', name='groups'),
+ url(r'^participant/(?P<board_id>\d+)/$', 'participants', name='groups'),
  url(r'^participant/group/(?P<group_id>\d+)/$', 'group', name='group'),
  url(r'^participant/group/(?P<group_id>\d+)/(?P<board_id>\d+)/$', 'group', name='group'),
  url(r'^prog/$', 'programme', name='programme'),
