@@ -4,7 +4,7 @@
   <h2>Group: {{ group.get_current_version }}</h2>
   <p class="cmd">|{% for v in group.get_versions %}{% if v = group %}
     {{ v }}{% else %}
-    <a href="{{ px }}cams/participant/group/{{ v.pk }}/{% if v.board %}{{ v.board.pk }}/{% endif %}">{{ v }}</a>{% endif %}&nbsp;|{% endfor %}
+    <a href="{{ px }}cams/participant/group/{{ v.pk }}/">{{ v }}</a>{% endif %}&nbsp;|{% endfor %}
   </p>
 {% endblock %}
 
