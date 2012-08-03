@@ -1,0 +1,13 @@
+{% extends "nav_layout.html" %}
+
+{% block contents %}
+          <h2>Group: {{ group.get_current_version }}</h2>
+          <p>Select pin board</p>
+          <div class="element">
+            <form method="post" action="{{ px }}cams/participant/group/pindown/{{ group.pk }}/">
+              {% csrf_token %}
+              {% for f in form %}{{ f }}{% endfor %}
+              <p><input type="submit" value="pin down" name="pin_down" /></p>
+            </form>
+          </div>
+{% endblock %}

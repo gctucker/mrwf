@@ -18,7 +18,8 @@
                 </a> (organisation){% endif %}
 {% endblock %}
 
-{% block browse_footer %}
+{% block browse_footer %}{% if not group.board %}
+          <div class="cmd"><a href="{{ px }}cams/participant/group/pindown/{{ group.id }}/">&lt;pin down&gt;</a></div>{% endif %}
           <div class="cmd"><a href="{{ px }}export/group/{{ group.id }}/">&lt;export&gt;</a></div>
           <div class="cmd"><a href="{{ px }}export/group_email/{{ group.id }}/">&lt;e-mail list&gt;</a></div>
           <div class="cmd"><a href="{{ px }}export/group_org_pdf/{{ group.id }}/">&lt;PDF org forms&gt;</a></div>

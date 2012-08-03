@@ -134,6 +134,36 @@ def group (request, group_id):
     return render_to_response ('cams/group.html', tpl_vars)
 
 @login_required
+def pindown_group(request, group_id):
+    class PinDownGroupForm(forms.Form):
+        def __init__(self, group, *args, **kw):
+            super(PinDownGroupForm, self).__init__(*args, **kw)
+            boards = set(PinBoard.objects.all())
+            for v in group.get_versions():
+                if v.board in boards:
+                    boards.remove(v.board)
+            self.fields['board'] = forms.ChoiceField( \
+                choices=[(b.pk, b.__unicode__()) for b in boards])
+
+    group = get_object_or_404(Group, pk=group_id)
+    if request.method == 'POST':
+        form = PinDownGroupForm(group, request.POST)
+        if not form.is_valid():
+            return HttpResponseServerError("Form is not valid",
+                                           mimetype='text/plain')
+        board_id = form.cleaned_data['board']
+        board = PinBoard.objects.get(pk=board_id)
+        group.pin_down(board)
+        return HttpResponseRedirect(reverse('group', args=[group.pk]))
+    else:
+        form = PinDownGroupForm(group)
+        tpl_vars = {'title': group, 'group': group, 'form': form,
+                    'url': 'cams/participant/group/pindown/%d/' % group.id}
+        add_common_tpl_vars(request, tpl_vars, 'groups')
+        return render_to_response('cams/pindown_group.html', tpl_vars,
+                                  context_instance=RequestContext(request))
+
+@login_required
 def post_event_cmt (request, event_id, view):
     if request.method != 'POST':
         return HttpResponseServerError ("%s instead of POST" % request.method,
