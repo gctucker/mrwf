@@ -754,16 +754,11 @@ class HistoryView(AbookView):
 
         abook = []
         filters = {Contact: get_contact_obj, Member: get_member_obj}
-
         first = (page_n - 1) * n
-        last = page_n * n
-        i = 0
         m = 0
         hist.open()
-        while len(abook) < n:
-            it = hist.get_line(i)
-            i += 1
-            if it is None:
+        for it in hist:
+            if len(abook) == n:
                 break
             if it.obj.__class__ not in (Person, Organisation, Contact, Member):
                 continue
@@ -797,8 +792,13 @@ class ObjHistoryView(BaseObjView):
         objs += members
         for m in members:
             objs += m.contact_set.all()
+        obj_hist = list()
         objs += self.obj.contact_set.all()
-        obj_hist = hist.get_obj_data(objs)
+        hist.open()
+        for it in hist:
+            if it.obj in objs:
+                obj_hist.append(it)
+        hist.close()
         for it in obj_hist:
             if isinstance(it.obj, Contactable):
                 it.target = it.obj.type_str
