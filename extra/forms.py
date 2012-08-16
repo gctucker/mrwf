@@ -89,11 +89,17 @@ class StallForm(forms.ModelForm):
         forms.CharField(widget=forms.Textarea(attrs=attrs), required=False)
     extra_web_contact = \
         forms.CharField(widget=forms.Textarea(attrs=attrs), required=False)
+    infrastructure = \
+        forms.CharField(widget=forms.Textarea(attrs=attrs), required=False)
+    tombola_description = \
+        forms.CharField(widget=forms.Textarea(attrs=attrs), required=False)
 
     class Meta(object):
         model = StallEvent
-        fields = ('name', 'description', 'n_spaces', 'main_contact',
-                  'extra_web_contact', 'comments')
+        fields = ('name', 'org_name', 'description', 'n_spaces',
+                  'main_contact', 'extra_web_contact', 'comments',
+                  'plot_type', 'media_usage', 'infrastructure', 'tombola_gift',
+                  'tombola_description')
 
     def clean_n_spaces(self):
         return check_ibounds(self.cleaned_data, 'n_spaces', 1, 3)

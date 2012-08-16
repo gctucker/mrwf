@@ -91,6 +91,10 @@ class StallApplicationForm ():
         self.s.instance.status = Record.NEW
         self.s.instance.owner = self.person
         # ToDo: do not hard-code this (Market and Craft Stalls)
+        MARKET_STALL_PK = 1
+        FOOD_FAIR_PK = 2
+        print("spaces: {0}".format(self.s.instance.n_spaces))
+        print("plot type: {0}".format(self.s.instance.plot_type))
         self.s.instance.etype = FairEventType.objects.get(pk=1)
         self.s.save ()
 
@@ -110,31 +114,37 @@ class StallApplicationForm ():
 
         if rcpts:
             subject = u"Stallholder application - %s" % self.person
-            msg = u"Date:         %s\n" % self.application.created
-            msg += u"Person:       %s\n" % self.person
-            msg += u"Line 1:       %s\n" % contact.line_1
-            msg += u"Line 2:       %s\n" % contact.line_2
-            msg += u"Line 3:       %s\n" % contact.line_3
-            msg += u"Town:         %s\n" % contact.town
-            msg += u"Postcode:     %s\n" % contact.postcode
-            msg += u"E-mail:       %s\n" % contact.email
-            msg += u"Website:      %s\n" % contact.website
-            msg += u"Telephone:    %s\n" % contact.telephone
-            msg += u"Mobile:       %s\n" % contact.mobile
-            msg += u"Stall name:   %s\n" % stall.name
-            msg += u"Spaces:       %d\n" % stall.n_spaces
-            msg += u"Main contact: %s\n" % self.main_contact
-            msg += u"Description:  %s\n" % stall.description.strip()
-            msg += u"Comments:     %s\n" % stall.comments
+            msg  = u"Date:           %s\n" % self.application.created
+            msg += u"Person:         %s\n" % self.person
+            msg += u"Line 1:         %s\n" % contact.line_1
+            msg += u"Line 2:         %s\n" % contact.line_2
+            msg += u"Line 3:         %s\n" % contact.line_3
+            msg += u"Town:           %s\n" % contact.town
+            msg += u"Postcode:       %s\n" % contact.postcode
+            msg += u"E-mail:         %s\n" % contact.email
+            msg += u"Website:        %s\n" % contact.website
+            msg += u"Telephone:      %s\n" % contact.telephone
+            msg += u"Mobile:         %s\n" % contact.mobile
+            msg += u"Organisation:   %s\n" % self._ea.org_name
+            msg += u"Stall name:     %s\n" % stall.name
+            msg += u"Main contact:   %s\n" % self.main_contact
+            msg += u"Media usage:    %s\n" % stall.media_usage
+            msg += u"Description:    %s\n" % stall.description.strip()
+            msg += u"Comments:       %s\n" % stall.comments
+            msg += u"Spaces:         %d\n" % stall.n_spaces
+            msg += u"Plot:           %s\n" % stall.plot_type_str
+            msg += u"Infrastructure: %s\n" % stall.infrastructure
+            msg += u"Tombola gift:   %s\n" % stall.tombola_gift
+            msg += u"Prize:          %s\n" % stall.tombola_description
             send_mail (subject, msg, "no-reply@mangoz.org", rcpts)
 
     def send_confirmation(self, rcpts):
-        ctx = Context({'title': 'Thank you', 'form': self,
+        ctx = Context({'title': 'Thank you', 'form': self, 'ea': self._ea,
                        'fair': Fair.get_current()})
         tpl_txt = template_loader.get_template('public/thank-you-email.txt')
         tpl_html = template_loader.get_template('public/thank-you-email.html')
         subject = "MRWF - Stallholder application"
-        from_email = "adelinedouard@free.fr"
+        from_email = "stalls@millroadwinterfair.org"
         text = tpl_txt.render(ctx)
         html = tpl_html.render(ctx)
         email = EmailMultiAlternatives(subject, text, from_email, rcpts)

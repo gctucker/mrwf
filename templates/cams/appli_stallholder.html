@@ -8,7 +8,8 @@
             <tr>
               <td class="key">person</td>
               <td class="value"><a href="{{ px }}abook/person/{{ appli.person.id }}/">{{ appli.person }}</a></td>
-            </tr>
+            </tr>{% if appli.org_name %}
+            <tr><td class="key">organisation</td><td class="value">{{ appli.org_name }}</td></tr>{% endif %}
             <tr><td class="key">spaces</td><td class="value">{{ detail.n_spaces }}</td></tr>
             <tr><td class="key">chosen contact</td><td class="value">{{ detail.get_main_contact_value }}</td></tr>{% if detail.extra_web_contact %}
             <tr><td class="key">web contact</td><td class="value">{{ detail.extra_web_contact }}</td></tr>{% endif %}{% if detail.comments %}

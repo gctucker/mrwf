@@ -1,16 +1,17 @@
 {% extends "base.html" %}
 {% load mrwf_extra %}
 
+{% block page_header %}<h1>Mill Road Winter Fair - {{ fair.date|date:"l jS F Y" }}</h1>{% endblock %}
+
 {% block body %}
-      <h2>Mill Road Winter Fair - {{ fair.date|date:"l jS F Y" }}</h2>
+      <h2>Stall holder application form</h2>
       <p class="apply-help" style="font-weight: bold">Note: Fields with a * are required.</p>{% if form.has_errors %}
       <p class="errorlist">Some errors were found, please go through the form and correct them as described.</p>{% endif %}
       <form method="post" action="{{ px }}public/apply/">
         {% csrf_token %}
         <table class="apply">
           {% form_title_row "Your contact details" 2 %}{% for f in form.p %}
-          {% field_row f %}{% endfor %}
-          {% field_row form.s.org_name %}{% for f in form.c %}
+          {% field_row f %}{% endfor %}{% for f in form.c %}
           {% field_row f %}{% endfor %}
           {% form_title_row "Invoice contact" 2 %}
           <tr>
@@ -24,6 +25,10 @@
           <tr>
             <th><label for="id_name">Name of your stall*</label></th>
             <td colspan="2">{{ form.s.name.errors }}{{ form.s.name }}</td>
+          </tr>
+          <tr>
+            <th><label for="id_org_name">Organisation name</label></th>
+            <td colspan="2">{{ form.s.org_name.errors }}{{ form.s.org_name }}</td>
           </tr>
           <tr>
             <th>
@@ -41,37 +46,36 @@
             </td>
           </tr>
           <tr>
-            <th>
-              <label for="id_n_spaces">Spaces to rent*</label>
-            </th>
-            <td colspan="2">{{ form.s.n_spaces.errors }}{{ form.s.n_spaces }}</td>
-          </tr>
-          <tr>
-            <td colspan="3" class="apply-notes">
-              Minimum 1 space, maximum 3 spaces, tables included.<br />
-              A space is approximately 2m x 1m<br />
-              Price: £25 per space
-            </td>
-          </tr>
-          <tr>
             <th><label for="id_main_contact">Main contact</label></th>
             <td colspan="2">{{ form.s.main_contact.errors }}{{ form.s.main_contact }}</td>
           </tr>
           <tr>
             <td colspan="3" class="apply-notes">
-              Would you like to include one of your contact details on the programme of the Fair?<br />
-              If so, please state which one.
+              Please select a main contact you wish to be included on the programme of the Fair.
             </td>
           </tr>
           <tr>
             <th>
               <label for="id_web_contact">
-                Other contact details<br />
+                Extra contact details<br />
                 you wish to include<br />
                 on the website
             </label>
             </th>
             <td colspan="2">{{ form.s.extra_web_contact }}</td>
+          </tr>
+          <tr>
+            <th>
+              <label for="id_media_usage">
+                Media usage
+              </label>
+            </th>
+            <td colspan="2">{{ form.s.media_usage }}</td>
+          </tr>
+          <tr>
+            <td colspan="3" class="apply-notes">
+              Please tick this box if you would be happy to be interviewed or your stall and featured in any radio or magazine article.
+            </td>
           </tr>
           <tr>
             <th>
@@ -82,7 +86,106 @@
             </th>
             <td colspan="2">{{ form.s.comments }}</td>
           </tr>
+<!-- Market & Craft Stalls -->
+          {% form_title_row "Market & Craft" 2 %}
+          <tr>
+            <td colspan="3" class="apply-notes">
+              <div class="apply-info">
+                Stalls are located in marquees at a number of sites in the Mill
+                Road area - Donkeys Common, Ditchburn Place, Hope Street Yard.
+                Tables will be provided in all marquees as part of the stall
+                fee.  The MRWF Committee reserve the right to determine stall
+                location. Successful applications will be confirmed by October
+                15.  Additional outside space may also be provided near Donkeys
+                Common if demand for space is high.
+                See <a href="http://millroadwinterfair.org">the MRWF
+                website</a> for more information.
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <th>
+              <label for="id_n_spaces">Spaces to rent*</label>
+            </th>
+            <td colspan="2">{{ form.s.n_spaces.errors }}{{ form.s.n_spaces }}</td>
+          </tr>
+          <tr>
+            <td colspan="3" class="apply-notes">
+              Minimum 1 space, maximum 3 spaces, tables included.<br />
+              A space is approximately 2m x 1m<br />
+              Price: £30 per space
+            </td>
+          </tr>
+<!-- Food Fair -->
+          {% form_title_row "Food Fair" 2 %}
+          <tr>
+            <td colspan="3" class="apply-notes">
+              <span style="font-weight: bold">On-site requirements:</span>
+              <div class="apply-info">
+                The Food Fair will be located at Gwydir Street and at EF Language
+                School.  Please note there are no facilities available at the
+                food fair.  Stall holders are required to bring tables, gazebos
+                and any other equipment required, such as generators.  Stalls
+                will be located on solid concrete foundations so gazebos will
+                need to be secured safely without ground fastenings.
+            </td>
+          </tr>
+          <tr>
+            <th><label for="id_plot_type">Plot type</label></th>
+            <td colspan="2">{{ form.s.plot_type.errors }}{{ form.s.plot_type }}</td>
+          </tr>
+          <tr>
+            <td colspan="3" class="apply-notes">
+              Plot type A: 3m x 3m, £50<br />
+              Plot type B: 3m x 4m, £75<br />
+              Plot type C: 3m x 5m, £85<br />
+            </td>
+          </tr>
+          <tr>
+            <th><label for="id_infrastructure">Infrastructure</label></th>
+            <td colspan="2">{{ form.s.infrastructure.errors }}{{ form.s.infrastructure }}</td>
+          </tr>
+          <tr>
+            <td colspan="3" class="apply-notes">
+              Please describe the infrastructure of your stall.<br />
+              For example, hot food van or table under gazebo, no power etc...<br />
+              Providing this information will help us locate you in a safe position. 
+            </td>
+          </tr>
+          <tr>
+            <th><label for="id_tombola_gift">Tombola gift</label></th>
+            <td colspan="2">{{ form.s.tombola_gift.errors }}{{ form.s.tombola_gift }}</td>
+          </tr>
+          <tr>
+            <th>
+              <label for="id_tombola_description">
+                Tombola prize<br />
+                description
+              </label>
+            </th>
+            <td colspan="2">{{ form.s.tombola_description.errors }}{{ form.s.tombola_description }}</td>
+          </tr>
+          <tr>
+            <td colspan="3" class="apply-notes">
+              Please tick the box above and give a description of your prize if
+              you wish to contribute to the MRWF Tombola.<br /> Visitors to the
+              food fair will buy a ticket for the chance to win something from
+              your stall.<br /> All proceeds to the MRWF fund. Prizes could
+              include 1 free burger or coffee and a cake, or a small gift of
+              your choosing.<br /> Prizes must be redeemed on the day from your
+              stall.<br />
+            </td>
+          </tr>
         </table>
-        <p><input type="submit" value="apply" /></p>
+        <p class="apply-info">
+          The MRWF Food Fair is a public event and all stall holders must
+          follow the food hygiene regulations and guidelines for outdoor events
+          as published by Cambridge City Council.  Please read
+          the <a href="/static/mrwf/doc/food-safety.txt">food safety
+          information</a>.  On confirmation of a stall at the Foodfair you will
+          sent a further council form to complete as described in the
+          guidelines.
+        </p>
+        <p><input type="submit" value="Apply" /></p>
       </form>
 {% endblock %}

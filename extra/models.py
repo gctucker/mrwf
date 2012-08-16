@@ -123,21 +123,43 @@ class StallEvent(FairEvent):
     TELEPHONE = 0
     EMAIL = 1
     WEBSITE = 2
-
     xcontact = ((TELEPHONE, 'telephone'),
                 (EMAIL, 'email'),
                 (WEBSITE, 'website'))
 
-    n_spaces = PositiveSmallIntegerField \
-        (default=1, verbose_name="Number of spaces")
-    n_tables = PositiveSmallIntegerField \
-        (default=0, verbose_name="Number of tables")
+    PLOT_A = 0
+    PLOT_B = 1
+    PLOT_C = 2
+    xplot = ((PLOT_A, 'Plot A (3x3)'),
+             (PLOT_B, 'Plot B (3x4)'),
+             (PLOT_C, 'Plot C (3x5)'))
+
+    # ToDo: make this dynamic (in the FairEventType table?) with prices to
+    # avoid changing the model each year...
+
+    # For Market & Craft Stalls
+    n_spaces = PositiveSmallIntegerField(
+        default=1, verbose_name="Number of spaces", blank=True, null=True)
+    n_tables = PositiveSmallIntegerField(
+        default=0, verbose_name="Number of tables", blank=True, null=True)
+
+    # For Food Fair
+    plot_type = PositiveSmallIntegerField(
+        choices=xplot, blank=True, null=True, verbose_name="Plot type")
+    infrastructure = TextField(
+        blank=True, null=True, verbose_name="Infrastructure description")
+    tombola_gift = BooleanField(
+        default=False, blank=True, verbose_name="Tombola gift")
+    tombola_description = TextField(
+        blank=True, null=True, verbose_name="Tombola gift description")
     invoice_person = ForeignKey(Person, blank=True, null=True)
     invoice_contact = ForeignKey(Contact, blank=True, null=True)
-    main_contact = PositiveSmallIntegerField \
-        (choices=xcontact, blank=True, null=True)
+    main_contact = PositiveSmallIntegerField(
+        choices=xcontact, blank=True, null=True)
     extra_web_contact = TextField(blank=True)
     comments = TextField(blank=True)
+    media_usage = BooleanField(
+        default=False, blank=True, verbose_name="Media usage authorisation")
 
     def get_main_contact_value(self):
         value = None
@@ -158,6 +180,12 @@ class StallEvent(FairEvent):
             value = '[not provided]'
 
         return value
+
+    @property
+    def plot_type_str(self):
+        if self.plot_type is None:
+            return ''
+        return StallEvent.xplot[self.plot_type][1]
 
 
 class FairEventApplication(EventApplication):

@@ -311,6 +311,10 @@ td.apply-notes {
     font-size: 0.9em;
 }
 
+.apply-info {
+    width: 650px;
+}
+
 .apply-help {
     font-size: 0.9em;
 }
