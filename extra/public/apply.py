@@ -93,8 +93,6 @@ class StallApplicationForm ():
         # ToDo: do not hard-code this (Market and Craft Stalls)
         MARKET_STALL_PK = 1
         FOOD_FAIR_PK = 2
-        print("spaces: {0}".format(self.s.instance.n_spaces))
-        print("plot type: {0}".format(self.s.instance.plot_type))
         self.s.instance.etype = FairEventType.objects.get(pk=1)
         self.s.save ()
 
