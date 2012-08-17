@@ -302,6 +302,10 @@ table.apply {
     text-align: left;
 }
 
+th.apply-label {
+    vertical-align: bottom;
+}
+
 td.apply-title {
     padding: 15px 0 3px 0;
 }

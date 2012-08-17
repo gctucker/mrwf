@@ -39,7 +39,7 @@ def field_row(f, empty=False):
         req = '*'
     else:
         req = ''
-    label = '<th>{0}{1}</th>'.format(f.label_tag(), req)
+    label = '<th class="apply-label">{0}{1}</th>'.format(f.label_tag(), req)
     if f.errors and not empty:
         field = '{0}{1}'.format(f.errors, f)
     else:

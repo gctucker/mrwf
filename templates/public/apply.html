@@ -23,15 +23,15 @@
           {% field_row f form.ic.is_empty %}{% endfor %}
           {% form_title_row "Stall details" 2 %}
           <tr>
-            <th><label for="id_name">Name of your stall*</label></th>
+            <th class="apply-label"><label for="id_name">Name of your stall*</label></th>
             <td colspan="2">{{ form.s.name.errors }}{{ form.s.name }}</td>
           </tr>
           <tr>
-            <th><label for="id_org_name">Organisation name</label></th>
+            <th class="apply-label"><label for="id_org_name">Organisation name</label></th>
             <td colspan="2">{{ form.s.org_name.errors }}{{ form.s.org_name }}</td>
           </tr>
           <tr>
-            <th>
+            <th class="apply-label">
               <label for="id_description">
                 Brief description of<br />
                 what will be happening<br />
@@ -46,7 +46,7 @@
             </td>
           </tr>
           <tr>
-            <th><label for="id_main_contact">Main contact</label></th>
+            <th class="apply-label"><label for="id_main_contact">Main contact</label></th>
             <td colspan="2">{{ form.s.main_contact.errors }}{{ form.s.main_contact }}</td>
           </tr>
           <tr>
@@ -55,7 +55,7 @@
             </td>
           </tr>
           <tr>
-            <th>
+            <th class="apply-label">
               <label for="id_web_contact">
                 Extra contact details<br />
                 you wish to include<br />
@@ -65,7 +65,7 @@
             <td colspan="2">{{ form.s.extra_web_contact }}</td>
           </tr>
           <tr>
-            <th>
+            <th class="apply-label">
               <label for="id_media_usage">
                 Media usage
               </label>
@@ -78,7 +78,7 @@
             </td>
           </tr>
           <tr>
-            <th>
+            <th class="apply-label">
               <label for="id_comments">
                 Any other comments<br />
                 you would like to make
@@ -104,7 +104,7 @@
             </td>
           </tr>
           <tr>
-            <th>
+            <th class="apply-label">
               <label for="id_n_spaces">Spaces to rent*</label>
             </th>
             <td colspan="2">{{ form.s.n_spaces.errors }}{{ form.s.n_spaces }}</td>
@@ -131,7 +131,7 @@
             </td>
           </tr>
           <tr>
-            <th><label for="id_plot_type">Plot type</label></th>
+            <th class="apply-label"><label for="id_plot_type">Plot type</label></th>
             <td colspan="2">{{ form.s.plot_type.errors }}{{ form.s.plot_type }}</td>
           </tr>
           <tr>
@@ -142,7 +142,7 @@
             </td>
           </tr>
           <tr>
-            <th><label for="id_infrastructure">Infrastructure</label></th>
+            <th class="apply-label"><label for="id_infrastructure">Infrastructure</label></th>
             <td colspan="2">{{ form.s.infrastructure.errors }}{{ form.s.infrastructure }}</td>
           </tr>
           <tr>
@@ -153,11 +153,11 @@
             </td>
           </tr>
           <tr>
-            <th><label for="id_tombola_gift">Tombola gift</label></th>
+            <th class="apply-label"><label for="id_tombola_gift">Tombola gift</label></th>
             <td colspan="2">{{ form.s.tombola_gift.errors }}{{ form.s.tombola_gift }}</td>
           </tr>
           <tr>
-            <th>
+            <th class="apply-label">
               <label for="id_tombola_description">
                 Tombola prize<br />
                 description
