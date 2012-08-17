@@ -4,9 +4,12 @@ from cams.models import Record, Person, Organisation, Contact
 from mrwf.extra.models import StallEvent
 
 def check_ibounds(data, name, imin, imax):
+    val = data[name]
+    if val is None:
+        return None
     try:
-        val = int(data[name])
-        if (val < imin) or (val > imax):
+        ival = int(val)
+        if (ival < imin) or (ival > imax):
             raise forms.ValidationError(
                 'Value out of bounds (min={0}, max={1})'.format(imin, imax))
         else:
