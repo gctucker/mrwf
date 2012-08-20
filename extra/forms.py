@@ -108,13 +108,15 @@ class StallForm(forms.ModelForm):
         forms.ChoiceField(choices=((MARKET_STALL_PK, "Market & Craft"),
                                    (FOOD_FAIR_PK, "Food Fair")),
                           widget=forms.Select(attrs=_stall_type_attrs))
+    food_safety_read = \
+        forms.BooleanField(widget=forms.CheckboxInput(), required=False)
 
     class Meta(object):
         model = StallEvent
         fields = ('name', 'org_name', 'description', 'n_spaces',
                   'main_contact', 'extra_web_contact', 'comments',
                   'plot_type', 'media_usage', 'infrastructure', 'tombola_gift',
-                  'tombola_description', 'stall_type')
+                  'tombola_description', 'stall_type', 'food_safety_read')
 
     def clean_n_spaces(self):
         return check_ibounds(self.cleaned_data, 'n_spaces', 1, 3)
@@ -140,7 +142,7 @@ class StallForm(forms.ModelForm):
             del self.cleaned_data['plot_type']
             elf.cleaned_data['infrastructure'] = ''
             del self.cleaned_data['tombola_gift']
-            elf.cleaned_data['tombola_description'] = ''
+            self.cleaned_data['tombola_description'] = ''
         elif stall_type_pk == StallForm.FOOD_FAIR_PK:
             self._check_required('plot_type')
             self._check_required('infrastructure')
@@ -148,6 +150,9 @@ class StallForm(forms.ModelForm):
                 self._check_required('tombola_description')
             else:
                 self.cleaned_data['tombola_description'] = ''
+            if not self._check_true('food_safety_read'):
+                self._errors['food_safety_read'] = self.error_class(
+                    [u"Please read the document and tick this box."])
             del self.cleaned_data['n_spaces']
         else:
             self._errors['stall_type'] = self.error_class(

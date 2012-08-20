@@ -246,15 +246,21 @@ if (window.addEventListener) {
               <p class="apply-info">
                 The MRWF Food Fair is a public event and all stall holders must
                 follow the food hygiene regulations and guidelines for outdoor
-                events as published by Cambridge City Council.  Please read
+                events as published by Cambridge City Council.
+              </p>
+              <p class="apply-info">
+                {% if form.s.food_safety_read.errors %}<p>{{ form.s.food_safety_read.errors }}</p>{% endif %}
+                {{ form.s.food_safety_read }} I have read
                 the <a href="http://www.millroadwinterfair.org/assets/doc/2012-stalls/2012MRWFFoodSafetyInfo.pdf">food
-                safety information</a>.  On confirmation of a stall at the Food
-                Fair you will be sent a further council form to complete as
-                described in the guidelines.
+                safety information</a>.
+              </p>
+              <p class="apply-info">
+                On confirmation of a stall at the Food Fair you will be sent a
+                further council form to complete as described in the
+                guidelines.
               </p>
             </td>
           </tr>
-          </tbody>
         </table>
         <p><input type="submit" value="Apply" /></p>
       </form>
