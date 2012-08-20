@@ -1,6 +1,46 @@
 {% extends "base.html" %}
 {% load mrwf_extra %}
 
+{% block head %}
+<script type="text/javascript" language="javascript">
+<!--
+
+function update_stall_type(obj)
+{
+  if (obj.value == '1') {
+    document.getElementById('foodfair-stall').style.display = 'none';
+    document.getElementById('market-stall').style.display = 'table';
+  } else {
+    document.getElementById('foodfair-stall').style.display = 'table';
+    document.getElementById('market-stall').style.display = 'none';
+  }
+}
+
+function update_tombola_desc(obj)
+{
+  if (obj.checked) {
+    document.getElementById('tombola-description').style.display = 'table-row';
+  } else {
+    document.getElementById('tombola-description').style.display = 'none';
+  }
+}
+
+function page_load_hook()
+{
+    update_stall_type(document.getElementById('id_stall_type'));
+    update_tombola_desc(document.getElementById('id_tombola_gift'));
+}
+
+if (window.addEventListener) {
+    window.addEventListener('load', page_load_hook, false); //W3C
+} else {
+    window.attachEvent('onload', page_load_hook); //IE
+}
+
+-->
+</script>
+{% endblock %}
+
 {% block page_header %}<h1>Mill Road Winter Fair - {{ fair.date|date:"l jS F Y" }}</h1>{% endblock %}
 
 {% block body %}
@@ -16,7 +56,8 @@
           {% form_title_row "Invoice contact" 2 %}
           <tr>
             <td colspan="3" class="apply-notes">
-              Please fill in this part if you wish to receive the invoice at a different address than the one given above.
+              Please fill in this part if you wish to receive the invoice at a
+              different address than the one given above.
             </td>
           </tr>{% for f in form.ip %}
           {% field_row f form.ip.is_empty %}{% endfor %}{% for f in form.ic %}
@@ -42,7 +83,8 @@
           </tr>
           <tr>
             <td colspan="3" class="apply-notes">
-              Please note that this description may be used to search in the programme on the Mill Road Winter Fair website.
+              Please note that this description may be used to search in the
+              programme on the Mill Road Winter Fair website.
             </td>
           </tr>
           <tr>
@@ -62,7 +104,7 @@
                 on the website
             </label>
             </th>
-            <td colspan="2">{{ form.s.extra_web_contact }}</td>
+            <td colspan="2">{{ form.s.extra_web_contact.errors }}{{ form.s.extra_web_contact }}</td>
           </tr>
           <tr>
             <th class="apply-label">
@@ -70,11 +112,12 @@
                 Media usage
               </label>
             </th>
-            <td colspan="2">{{ form.s.media_usage }}</td>
+            <td colspan="2">{{ form.s.media_usage.errors }}{{ form.s.media_usage }}</td>
           </tr>
           <tr>
             <td colspan="3" class="apply-notes">
-              Please tick this box if you would be happy to be interviewed or your stall and featured in any radio or magazine article.
+              Please tick this box if you would be happy to be interviewed or
+              your stall and featured in any radio or magazine article.
             </td>
           </tr>
           <tr>
@@ -84,9 +127,15 @@
                 you would like to make
               </label>
             </th>
-            <td colspan="2">{{ form.s.comments }}</td>
+            <td colspan="2">{{ form.s.comments.errors }}{{ form.s.comments }}</td>
           </tr>
+          <tr>
+            <th class="apply-label">Stall type</th>
+            <td colspan="2">{{ form.s.stall_type.errors }}{{ form.s.stall_type }}</td>
+          </tr>
+        </table>
 <!-- Market & Craft Stalls -->
+        <table class="apply" id="market-stall">
           {% form_title_row "Market & Craft" 2 %}
           <tr>
             <td colspan="3" class="apply-notes">
@@ -116,7 +165,9 @@
               Price: £30 per space
             </td>
           </tr>
+        </table>
 <!-- Food Fair -->
+        <table class="apply" id="foodfair-stall">
           {% form_title_row "Food Fair" 2 %}
           <tr>
             <td colspan="3" class="apply-notes">
@@ -131,7 +182,7 @@
             </td>
           </tr>
           <tr>
-            <th class="apply-label"><label for="id_plot_type">Plot type</label></th>
+            <th class="apply-label"><label for="id_plot_type">Plot type*</label></th>
             <td colspan="2">{{ form.s.plot_type.errors }}{{ form.s.plot_type }}</td>
           </tr>
           <tr>
@@ -142,7 +193,7 @@
             </td>
           </tr>
           <tr>
-            <th class="apply-label"><label for="id_infrastructure">Infrastructure</label></th>
+            <th class="apply-label"><label for="id_infrastructure">Infrastructure*</label></th>
             <td colspan="2">{{ form.s.infrastructure.errors }}{{ form.s.infrastructure }}</td>
           </tr>
           <tr>
@@ -156,7 +207,7 @@
             <th class="apply-label"><label for="id_tombola_gift">Tombola gift</label></th>
             <td colspan="2">{{ form.s.tombola_gift.errors }}{{ form.s.tombola_gift }}</td>
           </tr>
-          <tr>
+          <tr id="tombola-description">
             <th class="apply-label">
               <label for="id_tombola_description">
                 Tombola prize<br />
@@ -176,16 +227,21 @@
               stall.<br />
             </td>
           </tr>
+          <tr>
+            <td colspan="3">
+              <p class="apply-info">
+                The MRWF Food Fair is a public event and all stall holders must
+                follow the food hygiene regulations and guidelines for outdoor
+                events as published by Cambridge City Council.  Please read
+                the <a href="/static/mrwf/doc/food-safety.txt">food safety
+                information</a>.  On confirmation of a stall at the Foodf Fair
+                you will be sent a further council form to complete as
+                described in the guidelines.
+              </p>
+            </td>
+          </tr>
+          </tbody>
         </table>
-        <p class="apply-info">
-          The MRWF Food Fair is a public event and all stall holders must
-          follow the food hygiene regulations and guidelines for outdoor events
-          as published by Cambridge City Council.  Please read
-          the <a href="/static/mrwf/doc/food-safety.txt">food safety
-          information</a>.  On confirmation of a stall at the Foodfair you will
-          sent a further council form to complete as described in the
-          guidelines.
-        </p>
         <p><input type="submit" value="Apply" /></p>
       </form>
 {% endblock %}

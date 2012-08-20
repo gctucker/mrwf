@@ -302,8 +302,9 @@ table.apply {
     text-align: left;
 }
 
-th.apply-label {
+.apply-label {
     vertical-align: bottom;
+    width: 250px;
 }
 
 td.apply-title {

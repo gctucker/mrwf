@@ -90,10 +90,8 @@ class StallApplicationForm ():
         # save stall event
         self.s.instance.status = Record.NEW
         self.s.instance.owner = self.person
-        # ToDo: do not hard-code this (Market and Craft Stalls)
-        MARKET_STALL_PK = 1
-        FOOD_FAIR_PK = 2
-        self.s.instance.etype = FairEventType.objects.get(pk=1)
+        etype_pk = int(self.s.cleaned_data['stall_type'])
+        self.s.instance.etype = FairEventType.objects.get(pk=etype_pk)
         self.s.save ()
 
         # save application
@@ -129,11 +127,15 @@ class StallApplicationForm ():
             msg += u"Media usage:    %s\n" % stall.media_usage
             msg += u"Description:    %s\n" % stall.description.strip()
             msg += u"Comments:       %s\n" % stall.comments
-            msg += u"Spaces:         %d\n" % stall.n_spaces
-            msg += u"Plot:           %s\n" % stall.plot_type_str
-            msg += u"Infrastructure: %s\n" % stall.infrastructure
-            msg += u"Tombola gift:   %s\n" % stall.tombola_gift
-            msg += u"Prize:          %s\n" % stall.tombola_description
+            msg += u"Stall type:     %s\n" % self.stall.etype
+            if self.stall.etype.pk == StallForm.MARKET_STALL_PK:
+                msg += u"Spaces:         %d\n" % stall.n_spaces
+            else:
+                msg += u"Plot:           %s\n" % stall.plot_type_str
+                msg += u"Infrastructure: %s\n" % stall.infrastructure
+                msg += u"Tombola gift:   %s\n" % stall.tombola_gift
+                if stall.tombola_gift:
+                    msg += u"Prize:          %s\n" % stall.tombola_description
             send_mail (subject, msg, "no-reply@mangoz.org", rcpts)
 
     def send_confirmation(self, rcpts):
