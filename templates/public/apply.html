@@ -45,6 +45,12 @@ if (window.addEventListener) {
 
 {% block body %}
       <h2>Stall holder application form</h2>
+      <p>
+        Please visit the <a href="http://millroadwinterfair.org">MRWF website</a>
+        and its
+        <a href="http://www.millroadwinterfair.org/stalls-at-the-2012-fair/">stalls section</a>
+        regularly to get the latest news.
+      </p>
       <p class="apply-help" style="font-weight: bold">Note: Fields with a * are required.</p>{% if form.has_errors %}
       <p class="errorlist">Some errors were found, please go through the form and correct them as described.</p>{% endif %}
       <form method="post" action="{{ px }}public/apply/">
@@ -136,19 +142,24 @@ if (window.addEventListener) {
         </table>
 <!-- Market & Craft Stalls -->
         <table class="apply" id="market-stall">
-          {% form_title_row "Market & Craft" 2 %}
+          {% form_title_row "Market &amp; Craft" 2 %}
           <tr>
             <td colspan="3" class="apply-notes">
               <div class="apply-info">
-                Stalls are located in marquees at a number of sites in the Mill
-                Road area - Donkeys Common, Ditchburn Place, Hope Street Yard.
-                Tables will be provided in all marquees as part of the stall
-                fee.  The MRWF Committee reserve the right to determine stall
-                location. Successful applications will be confirmed by October
-                15.  Additional outside space may also be provided near Donkeys
-                Common if demand for space is high.
-                See <a href="http://millroadwinterfair.org">the MRWF
-                website</a> for more information.
+                <p>
+                  Stalls are located in marquees at a number of sites in the
+                  Mill Road area - Donkeys Common, Ditchburn Place, Hope Street
+                  Yard.  Tables will be provided in all marquees as part of the
+                  stall fee.  The MRWF Committee reserve the right to determine
+                  stall location. Successful applications will be confirmed by
+                  October 15.  Additional outside space may also be provided
+                  near Donkeys Common if demand for space is high.
+                </p>
+                <p>
+                  Please read
+                  the <a href="http://www.millroadwinterfair.org/assets/doc/2012-stalls/2012MRWFMarketCraftStallsInfo.pdf">Market
+                  &amp; Craft stalls information</a>.
+                </p>
               </div>
             </td>
           </tr>
@@ -218,13 +229,16 @@ if (window.addEventListener) {
           </tr>
           <tr>
             <td colspan="3" class="apply-notes">
-              Please tick the box above and give a description of your prize if
-              you wish to contribute to the MRWF Tombola.<br /> Visitors to the
-              food fair will buy a ticket for the chance to win something from
-              your stall.<br /> All proceeds to the MRWF fund. Prizes could
-              include 1 free burger or coffee and a cake, or a small gift of
-              your choosing.<br /> Prizes must be redeemed on the day from your
-              stall.<br />
+              <p class="apply-info">
+                Please tick the box above and give a description of your prize
+                if you wish to contribute to
+                the <a href="http://www.millroadwinterfair.org/assets/doc/2012-stalls/2012MRWFFoodFairLucky-DipInfo.pdf">MRWF
+                Tombola</a>.  Visitors to the food fair will buy a ticket for
+                the chance to win something from your stall.  All proceeds to
+                the MRWF fund. Prizes could include 1 free burger or coffee and
+                a cake, or a small gift of your choosing.  Prizes must be
+                redeemed on the day from your stall.
+              </p>
             </td>
           </tr>
           <tr>
@@ -233,9 +247,9 @@ if (window.addEventListener) {
                 The MRWF Food Fair is a public event and all stall holders must
                 follow the food hygiene regulations and guidelines for outdoor
                 events as published by Cambridge City Council.  Please read
-                the <a href="/static/mrwf/doc/food-safety.txt">food safety
-                information</a>.  On confirmation of a stall at the Foodf Fair
-                you will be sent a further council form to complete as
+                the <a href="http://www.millroadwinterfair.org/assets/doc/2012-stalls/2012MRWFFoodSafetyInfo.pdf">food
+                safety information</a>.  On confirmation of a stall at the Food
+                Fair you will be sent a further council form to complete as
                 described in the guidelines.
               </p>
             </td>
