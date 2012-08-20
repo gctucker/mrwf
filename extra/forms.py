@@ -123,20 +123,9 @@ class StallForm(forms.ModelForm):
         #return check_ibounds(self.cleaned_data, 'n_tables', 0, 3)
         return None
 
-    def _clean_blank_text(self, f):
-        txt = self.cleaned_data[f]
-        if txt == '':
-            return None
-        return txt
-
-    def clean_infrastructure(self):
-        return self._clean_blank_text('infrastructure')
-
-    def clean_tombola_description(self):
-        return self._clean_blank_text('tombola_description')
-
     def _check_required(self, f):
-        if f in self.cleaned_data and self.cleaned_data[f] is None:
+        if f in self.cleaned_data and (self.cleaned_data[f] is None
+                                       or self.cleaned_data[f] == ''):
             self._errors[f] = self.error_class([u"This field is required."])
             del self.cleaned_data[f]
 
@@ -149,16 +138,16 @@ class StallForm(forms.ModelForm):
         if stall_type_pk == StallForm.MARKET_STALL_PK:
             self._check_required('n_spaces')
             del self.cleaned_data['plot_type']
-            del self.cleaned_data['infrastructure']
+            elf.cleaned_data['infrastructure'] = ''
             del self.cleaned_data['tombola_gift']
-            del self.cleaned_data['tombola_description']
+            elf.cleaned_data['tombola_description'] = ''
         elif stall_type_pk == StallForm.FOOD_FAIR_PK:
             self._check_required('plot_type')
             self._check_required('infrastructure')
             if self._check_true('tombola_gift'):
                 self._check_required('tombola_description')
             else:
-                del self.cleaned_data['tombola_description']
+                self.cleaned_data['tombola_description'] = ''
             del self.cleaned_data['n_spaces']
         else:
             self._errors['stall_type'] = self.error_class(
