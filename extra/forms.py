@@ -140,7 +140,7 @@ class StallForm(forms.ModelForm):
         if stall_type_pk == StallForm.MARKET_STALL_PK:
             self._check_required('n_spaces')
             del self.cleaned_data['plot_type']
-            elf.cleaned_data['infrastructure'] = ''
+            self.cleaned_data['infrastructure'] = ''
             del self.cleaned_data['tombola_gift']
             self.cleaned_data['tombola_description'] = ''
         elif stall_type_pk == StallForm.FOOD_FAIR_PK:
