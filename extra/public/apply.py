@@ -144,7 +144,10 @@ class StallApplicationForm ():
         tpl_txt = template_loader.get_template('public/thank-you-email.txt')
         tpl_html = template_loader.get_template('public/thank-you-email.html')
         subject = "MRWF - Stallholder application"
-        from_email = "stalls@millroadwinterfair.org"
+        if self.stall.etype.pk == StallForm.MARKET_STALL_PK:
+            from_email = "stalls@millroadwinterfair.org"
+        else:
+            from_email = "foodfair@millroadwinterfair.org"
         text = tpl_txt.render(ctx)
         html = tpl_html.render(ctx)
         email = EmailMultiAlternatives(subject, text, from_email, rcpts)
@@ -229,12 +232,17 @@ def post (request):
         return stallholder_form (request, form)
     form.save()
 
-    rcpts = []
+    rcpts = set ()
+    if form.stall.etype.pk == StallForm.MARKET_STALL_PK:
+        rcpts.add ("stalls@millroadwinterfair.org")
+    elif form.stall.etype.pk == StallForm.FOOD_FAIR_PK:
+        rcpts.add ("foodfair@millroadwinterfair.org")
+
     for l in Listener.objects.filter \
             (trigger=Listener.STALL_APPLICATION_RECEIVED):
         email = get_user_email (l.user)
         if email:
-            rcpts.append (email)
+            rcpts.add (email)
     form.send_admin_notification(rcpts)
     email = str(form.c.instance.email)
     form.send_confirmation([email])

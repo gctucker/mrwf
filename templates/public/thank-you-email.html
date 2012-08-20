@@ -4,11 +4,15 @@
     <style>
 body {
   font-family: verdana, sans-serif;
+  font-size: 1.0em;
   padding: 0 0 0 0;
   border-spacing: 0px 0px;
   margin: 10px 0 0 10px;
   background-color: #FFFFFF;
   color: #686868;
+}
+p {
+  width: 750px;
 }
 h1 {
   font-size: 1.1em;
@@ -43,16 +47,25 @@ td.value {
 
 {% block body %}
 <p>
-  Thank you for applying on-line to be a stallholder at the Mill Road Winter Fair - {{ fair.date|date:"l jS F Y" }}.<br />
-  Your stallholder application was received on {{ form.stall.created|date:"l jS F Y, h:i a" }}
+  Thank you for applying on-line to be a stallholder at the Mill Road Winter
+  Fair, {{ fair.date|date:"l jS F Y" }}.  Your stallholder application was
+  received on {{ form.stall.created|date:"l jS F Y, h:i a" }}
 </p>
 <p>
-  We will go through your application as soon as we can.<br />
-  It may take a few weeks before we come back to you.
+  We will go through your application as soon as we can.  It may take a few
+  weeks before we come back to you.
+</p>
+<p>
+  Please visit
+  the <a href="http://www.millroadwinterfair.org/stalls-at-the-2012-fair/">MRWF
+  website</a> for more information.
 </p>
 <p>
   Best wishes,<br />
   Fiona
+</p>
+<p style="font-size: 0.9em">
+  MRWF Committee - Food Fair and Stalls
 </p>
 <p>
   <table>

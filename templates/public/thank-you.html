@@ -1,16 +1,19 @@
 {% extends "base.html" %}
 
 {% block body %}
-<p>
-  Thank you for applying on-line.
-  {% if email %}A confirmation e-mail has been sent to <span style="font-family: courier; font-size: 1.0em;">{{ email }}</span>{% endif %}
+<p class="apply-info">
+  Thank you for applying on-line.{% if email %}<br />A confirmation e-mail has been
+  sent to <span style="font-family: courier; font-size: 1.0em;">{{ email }}</span>{% endif %}
 </p>
-<p>
-  We will go through your application as soon as we can.<br />
-  It may take a few weeks before we come back to you.
+<p class="apply-info">
+  We will go through your application as soon as we can.  It may take a few
+  weeks before we come back to you.
 </p>
 <p>
   Best wishes,<br />
-  Fiona<br />
+  Fiona
+</p>
+<p style="font-size: 0.9em">
+  MRWF Committee - Food Fair and Stalls
 </p>
 {% endblock %}
