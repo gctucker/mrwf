@@ -5,12 +5,19 @@ from cams.models import Contactable, Player
 register = template.Library()
 
 @register.simple_tag
-def abook_url(obj, cmd=None):
+def abook_url(obj, cmd=None, extra_arg=None):
     if cmd:
         base = '_'.join([cmd, obj.type_str])
     else:
         base = obj.type_str
-    return reverse(':'.join(['abook', base]), args=[obj.id])
+    args = [obj.pk]
+    if extra_arg is not None:
+        args.append(extra_arg)
+    return reverse(':'.join(['abook', base]), args=args)
+
+@register.simple_tag
+def abook_add_url(obj):
+    return reverse(':'.join(['abook', 'add_{0}'.format(obj.type_str)]))
 
 @register.simple_tag
 def player_link(user):

@@ -1,0 +1,18 @@
+{% extends "nav_layout.html" %}
+{% load mrwf_extra %}
+
+{% block page_title %}MRWF - Merge{% endblock %}
+
+{% block contents %}
+          <h2>Import new entry</h2>
+<h3>Current entry</h3>
+{% include details_template with person=obj %}
+{% include "abook/contact-details.html" with c=obj.contact %}
+<h3>Incoming entry</h3>
+{% include details_template with person=merge_obj %}
+{% include "abook/contact-details.html" with c=merge_obj.contact%}
+<h3>Resulting entry</h3>
+<form method="post" action="{% abook_url obj 'merge' merge_obj.pk %}">
+  {% include "abook/edit-form.html" %}
+</form>
+{% endblock %}

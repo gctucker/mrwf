@@ -1,0 +1,27 @@
+{% extends "browser.html" %}
+{% load mrwf_extra %}
+
+{% block browse_header %}
+<h2>{{ obj }}</h2>
+<p>
+{% if not page.object_list %}
+  No existing similar entry found.
+{% else %}
+  Choose best match:
+{% endif %}
+</p>
+{% endblock %}
+
+{% block browse_it %}
+<a href="{% abook_url it 'merge' obj.pk %}">{{ it }}</a>
+{% endblock %}
+
+{% block browse_footer %}
+<div class="cmd">
+  If nothing matches, or to skip the merge, please select one of the following options:
+  <p>
+    <a href="{% abook_url obj 'activate' %}">&lt;Activate&gt;</a>
+    <a href="{% abook_url obj 'disable' %}">&lt;Disable&gt;</a>
+  <p>
+</div>
+{% endblock %}

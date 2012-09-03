@@ -5,14 +5,7 @@
           <h2>{{ obj.name_nn }}</h2>
           <div class="element">
             <form method="post" action="{% abook_url obj 'edit' %}?{{ urlmatch }}{% if src_obj %}&src_obj_id={{ src_obj.id }}{% endif %}">
-              {% csrf_token %}
-              <table class="apply">{% for f in objf %}
-                {% field_row f %}{% endfor %}{% for cf in cf_list %}
-                {% form_title_row "Contact details" 3 %}{% for f in cf %}
-                {% field_row f %}{% endfor %}{% endfor %}
-              </table>
-              <p>* required</p>
-              <p><input type="submit" value="save" name="save" /></p>
+              {% include "abook/edit-form.html" %}
             </form>
             <div class="cmd"><a href="{% abook_url obj %}?{{ urlmatch }}">&lt;&lt;&nbsp;cancel</a></div>
           </div>

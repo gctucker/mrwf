@@ -6,7 +6,9 @@
 {% block browse_header %}
           <h2 class="status-{{ obj.status_str }}">{{ obj.name_nn }}</h2>{% if obj.status_str == "disabled" %}
           <div class="obj-disabled">This entry has been disabled.</div>{% else %}{% if obj.status_str == "new" %}
-          <div class="obj-new">This is a new entry.</div>{% endif %}{% endif %}{% block detail_name %}{% endblock %}
+          <div class="obj-new">
+            <a href="{% abook_url obj 'choose_merge' %}">Import this new entry&nbsp;&gt;&gt;</a>
+          </div>{% endif %}{% endif %}{% block detail_name %}{% endblock %}
           <div>{% if not contacts %}
             <span class="search-no-contact">Sorry, no contact details</span></p>{% else %}{% for c in contacts %}
 {% include "abook/contact-details.html" %}{% endfor %}{% endif %}
@@ -16,7 +18,7 @@
             &nbsp;<a href="{% abook_url obj 'activate' %}?{{ urlmatch }}">&lt;activate&gt;</a>{% endif %}{% if obj.status_str == "active" or obj.status_str == "new" %}
             &nbsp;<a href="{% abook_url obj 'disable' %}?{{ urlmatch }}">&lt;disable&gt;</a>{% endif %}{% if perms.cams.abook_delete %}
             &nbsp;<a href="{% abook_url obj 'delete' %}?{{ urlmatch }}">&lt;delete&gt;</a>{% endif %}{% if perms.cams.abook_add %}
-            <a href="{% abook_url obj 'add_member' %}">&lt;add member{% if obj.type_str = "person" %}ship{% endif %}&gt;</a>{% endif %}{% if perms.cams.abook_edit %}
+            &nbsp;<a href="{% abook_url obj 'add_member' %}">&lt;add member{% if obj.type_str = "person" %}ship{% endif %}&gt;</a>{% endif %}{% if perms.cams.abook_edit %}
             &nbsp;<a href="{% url abook:obj_history obj.id %}">view history&nbsp;&gt;&gt;</a>{% endif %}
           </div>{% endif %}
           <div class="element group-list">{% if roles %}

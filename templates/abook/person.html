@@ -3,15 +3,9 @@
 
 {% block detail_name %}
           <div class="element">
-            <table class="details separator">{% if obj.title_str %}
-              <tr><td class="key">title</td><td class="value">{{ obj.title_str }}</td></tr>{% endif %}
-              <tr><td class="key">first name</td><td class="value">{{ obj.first_name }}</td></tr>{% if obj.middle_name %}
-              <tr><td class="key">middle name</td><td class="value">{{ obj.middle_name }}</td></tr>{% endif %}{% if obj.last_name %}
-              <tr><td class="key">last name</td><td class="value">{{ obj.last_name }}</td></tr>{% endif %}{% if obj.nickname %}
-              <tr><td class="key">nickname</td><td class="value">{{ obj.nickname }}</td></tr>{% endif %}
-            </table>
+            {% include "abook/person-details.html" with person=obj %}
           </div>{% endblock %}
 
 {% block browse_link %}<a href="{% abook_url it.organisation %}?{{ urlmatch }}">{{ it.organisation.name_nn }}</a>{% endblock %}
 
-{% block browse_member %}{% with it.organisation as other %}{% include "abook/member_preview.html" %}{% endwith %}{% endblock %}
+{% block browse_member %}{% include "abook/member_preview.html" with other=it.organisation %}{% endblock %}

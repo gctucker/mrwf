@@ -33,6 +33,20 @@ def abook_classes():
         classes[cls.__name__] = cls
     return classes
 
+def clone_obj(obj):
+    new_obj = obj.__class__()
+    for f in obj._meta.fields:
+        setattr(new_obj, f.name, getattr(obj, f.name))
+    return new_obj
+
+def merge_obj(new_obj, obj, merge_fields=None):
+    if merge_fields is None:
+        merge_fields = [f.name for f in obj._meta.fields]
+    for f in merge_fields:
+        obj_f = getattr(obj, f)
+        if obj_f and not getattr(new_obj, f):
+            setattr(new_obj, f, obj_f)
+
 class SearchHelper(object):
     def __init__(self, request):
         self.form = SearchHelper.SearchForm(request.GET)
@@ -287,11 +301,7 @@ class BaseEditView(BaseObjView):
     perms = BaseObjView.perms + ['cams.abook_edit']
 
     def get(self, *args, **kwargs):
-        self._cf = []
-        for c in self.obj.contact_set.all():
-            self._cf.append(ContactForm(instance=c))
-        if not self._cf: # at least one contact in the form
-            self._cf.append(ContactForm())
+        self._cf = self._make_contact_forms()
         return super(BaseEditView, self).get(*args, **kwargs)
 
     def post(self, *args, **kwargs):
@@ -312,40 +322,43 @@ class BaseEditView(BaseObjView):
         return super(BaseEditView, self).redirect(obj_url(self._objf.instance))
 
     def _build_post_data(self):
-        self._cf = []
-        cf_valid = True
-        for c in self.obj.contact_set.all():
-            cf = ContactForm(self.request.POST, instance=c)
-            if not cf.is_valid():
-                cf_valid = False
-            self._cf.append(cf)
-        if not self._cf: # at least one contact in the form
-            c = ContactForm(self.request.POST)
-            if not c.is_empty():
-                c.instance.obj = self.obj
-                if not c.is_valid():
-                    cf_valid = False
-                self._cf.append(c)
-        self._cf_valid = cf_valid
+        self._cf = self._make_contact_forms(self.request.POST)
 
     def _is_post_data_valid(self):
         return self._cf_valid
 
-    def _save_post_data(self, *args, **kwargs):
+    def _save_post_data(self, force_save=False):
         for cf in self._cf:
             if cf.is_empty():
                 self.history.delete(self.request.user, cf.instance)
                 cf.instance.delete()
-            elif cf.has_changed():
+            elif force_save or cf.has_changed():
                 cf.save()
                 self.history.edit_form(self.request.user, cf)
+
+    def _make_contact_forms(self, post=None):
+        cf = []
+        self._cf_valid = True
+        for c in self.obj.contact_set.all():
+            f = ContactForm(post, instance=c)
+            if post is not None and not f.is_valid():
+                self._cf_valid = False
+            cf.append(f)
+        if not cf: # at least one contact in the form
+            f = ContactForm(post)
+            if post is not None and not f.is_empty():
+                f.instance.obj = self.obj
+                if not f.is_valid():
+                    self._cf_valid = False
+            cf.append(f)
+        return cf
 
 
 class EditView(BaseEditView):
     template_name = 'abook/edit.html'
 
     def get(self, *args, **kwargs):
-        self._objf = self.make_obj_form()
+        self._objf = self._make_obj_form()
         return super(EditView, self).get(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -355,18 +368,21 @@ class EditView(BaseEditView):
 
     def _build_post_data(self):
         super(EditView, self)._build_post_data()
-        self._objf = self.make_obj_form(self.request.POST)
+        self._objf = self._make_obj_form(self.request.POST)
 
     def _is_post_data_valid(self):
         if not super(EditView, self)._is_post_data_valid():
             return False
         return self._objf.is_valid()
 
-    def _save_post_data(self):
-        super(EditView, self)._save_post_data()
-        if self._objf.has_changed():
+    def _save_post_data(self, force_save=False):
+        super(EditView, self)._save_post_data(force_save)
+        if force_save or self._objf.has_changed():
             self._objf.save()
             self.history.edit_form(self.request.user, self._objf)
+
+    def _make_obj_form(self, post=None):
+        return self.form_cls(post, instance=self.obj)
 
 
 class StatusEditView(BaseObjView):
@@ -423,6 +439,76 @@ class DeleteView(StatusEditView):
     def _edit_obj_status(self):
         self.history.delete(self.request.user, self.obj)
         self.obj.delete()
+
+
+class ChooseMergeView(BaseObjView):
+    template_name = 'abook/choose-merge.html'
+
+    def get(self, *args, **kwargs):
+        objs = self.obj.__class__.objects.filter(Q(status=Record.ACTIVE))
+        q1 = Q()
+        q2 = Q()
+        for m in self.merge_search_fields:
+            q_kw = dict()
+            q_kw['{0}__icontains'.format(m)] = getattr(self.obj, m)
+            q = Q(**q_kw)
+            q1 &= q
+            q2 |= q
+        self._choice = list(objs.filter(q1)) + list(objs.filter(q2 & ~q1))
+        if len(self._choice) == 0:
+            # ToDo: redirect to edit...
+            pass
+        return super(ChooseMergeView, self).get(*args, **kwargs)
+
+    def get_context_data(self, *args, **kwargs):
+        ctx = super(ChooseMergeView, self).get_context_data(*args, **kwargs)
+        self._set_list_page(ctx, self._choice, 10)
+        return ctx
+
+
+class MergeView(EditView):
+    template_name = 'abook/merge.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        merge_id = int(kwargs['merge_id'])
+        self._merge_obj = get_object_or_404(Contactable, pk=merge_id).subobj
+        return super(EditView, self).dispatch(request, *args, **kwargs)
+
+    def get(self, *args, **kwargs):
+        return super(MergeView, self).get(*args, **kwargs)
+
+    def post(self, *args, **kwargs):
+        return super(MergeView, self).post(*args, **kwargs)
+
+    def get_context_data(self, *args, **kwargs):
+        ctx = super(MergeView, self).get_context_data(*args, **kwargs)
+        ctx['merge_obj'] = self._merge_obj
+        ctx['details_template'] = 'abook/{0}-details.html'.format(
+            self.obj.type_str)
+        return ctx
+
+    def redirect(self):
+        return super(BaseEditView, self).redirect(obj_url(self.obj))
+
+    def _make_obj_form(self, post=None):
+        new_obj = clone_obj(self._merge_obj)
+        new_obj.pk = self.obj.pk
+        merge_obj(new_obj, self.obj)
+        return self.form_cls(post, instance=new_obj)
+
+    def _make_contact_forms(self, post=None):
+        merge_c = clone_obj(self._merge_obj.contact)
+        merge_c.pk = self.obj.contact.pk
+        merge_c.obj = self.obj
+        merge_obj(merge_c, self.obj.contact)
+        cf = ContactForm(post, instance=merge_c)
+        if post is not None:
+            self._cf_valid = cf.is_valid()
+        return [cf]
+
+    def _save_post_data(self):
+        super(MergeView, self)._save_post_data(True)
+        self._merge_obj.delete()
 
 
 class ChooseMemberView(BaseObjView):
@@ -547,21 +633,21 @@ class GroupsView(BaseObjView):
 
 
 class PersonMixin(object):
+    merge_search_fields = ['first_name', 'last_name']
+    form_cls = PersonForm
+
     @property
     def members(self):
         return self.obj.members_list.order_by('organisation__name')
 
-    def make_obj_form(self, post=None):
-        return PersonForm(post, instance=self.obj)
-
 
 class OrgMixin(object):
+    merge_search_fields = ['name', 'nickname']
+    form_cls = OrganisationForm
+
     @property
     def members(self):
         return self.obj.members_list.order_by('person__last_name')
-
-    def make_obj_form(self, post=None):
-        return OrganisationForm(post, instance=self.obj)
 
 # -----------------------------------------------------------------------------
 # entry points from URL's
@@ -639,6 +725,12 @@ class PersonDisableView(DisableView, PersonMixin):
     pass
 
 class PersonDeleteView(DeleteView, PersonMixin):
+    pass
+
+class PersonChooseMergeView(ChooseMergeView, PersonMixin):
+    pass
+
+class PersonMergeView(MergeView, PersonMixin):
     pass
 
 class PersonChooseMemberView(ChooseMemberView):
