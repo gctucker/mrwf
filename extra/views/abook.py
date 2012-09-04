@@ -1,6 +1,7 @@
 import copy
 from urllib import urlencode
 from django import forms
+from django.forms.models import modelformset_factory
 from django.db.models.query import Q
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
@@ -325,33 +326,20 @@ class BaseEditView(BaseObjView):
         self._cf = self._make_contact_forms(self.request.POST)
 
     def _is_post_data_valid(self):
-        return self._cf_valid
+        return self._cf.is_valid()
 
     def _save_post_data(self, force_save=False):
-        for cf in self._cf:
-            if cf.is_empty():
-                self.history.delete(self.request.user, cf.instance)
-                cf.instance.delete()
-            elif force_save or cf.has_changed():
-                cf.save()
-                self.history.edit_form(self.request.user, cf)
+        for f in self._cf:
+            if f.is_empty() and f.instance.pk:
+                self.history.delete(self.request.user, f.instance)
+                f.instance.delete()
+            elif force_save or f.has_changed():
+                f.save()
+                self.history.edit_form(self.request.user, f)
 
     def _make_contact_forms(self, post=None):
-        cf = []
-        self._cf_valid = True
-        for c in self.obj.contact_set.all():
-            f = ContactForm(post, instance=c)
-            if post is not None and not f.is_valid():
-                self._cf_valid = False
-            cf.append(f)
-        if not cf: # at least one contact in the form
-            f = ContactForm(post)
-            if post is not None and not f.is_empty():
-                f.instance.obj = self.obj
-                if not f.is_valid():
-                    self._cf_valid = False
-            cf.append(f)
-        return cf
+        ContactFormSet = modelformset_factory(Contact, form=ContactForm)
+        return ContactFormSet(post, queryset=self.obj.contact_set.all())
 
 
 class EditView(BaseEditView):
@@ -371,9 +359,8 @@ class EditView(BaseEditView):
         self._objf = self._make_obj_form(self.request.POST)
 
     def _is_post_data_valid(self):
-        if not super(EditView, self)._is_post_data_valid():
-            return False
-        return self._objf.is_valid()
+        return (super(EditView, self)._is_post_data_valid()
+                and self._objf.is_valid())
 
     def _save_post_data(self, force_save=False):
         super(EditView, self)._save_post_data(force_save)
@@ -501,10 +488,11 @@ class MergeView(EditView):
         merge_c.pk = self.obj.contact.pk
         merge_c.obj = self.obj
         merge_obj(merge_c, self.obj.contact)
-        cf = ContactForm(post, instance=merge_c)
-        if post is not None:
-            self._cf_valid = cf.is_valid()
-        return [cf]
+        ContactFormSet = modelformset_factory(
+            Contact, form=ContactForm, extra=0)
+        cf = ContactFormSet(post, queryset=Contact.objects.none())
+        cf.forms.append(ContactForm(post, instance=merge_c))
+        return cf
 
     def _save_post_data(self):
         super(MergeView, self)._save_post_data(True)
@@ -565,8 +553,8 @@ class SaveMemberView(BaseObjView):
 class GroupsView(BaseObjView):
     template_name = 'abook/groups.html'
     perms = BaseObjView.perms
-    RoleFormSet = forms.models.modelformset_factory \
-        (Role, fields=('role',), can_delete=True, extra=0)
+    RoleFormSet = modelformset_factory(
+        Role, fields=('role',), can_delete=True, extra=0)
 
     class AddRoleForm(forms.Form):
         def __init__(self, obj, *args, **kw):
