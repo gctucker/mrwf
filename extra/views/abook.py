@@ -442,9 +442,6 @@ class ChooseMergeView(BaseObjView):
             q1 &= q
             q2 |= q
         self._choice = list(objs.filter(q1)) + list(objs.filter(q2 & ~q1))
-        if len(self._choice) == 0:
-            # ToDo: redirect to edit...
-            pass
         return super(ChooseMergeView, self).get(*args, **kwargs)
 
     def get_context_data(self, *args, **kwargs):
