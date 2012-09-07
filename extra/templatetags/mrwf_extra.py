@@ -42,6 +42,9 @@ def appli_link(obj):
 
 @register.simple_tag
 def field_row(f, empty=False):
+    if f.is_hidden:
+        return f
+
     if f.field.required and not empty:
         req = '*'
     else:
