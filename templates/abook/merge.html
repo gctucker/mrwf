@@ -6,8 +6,8 @@
 {% block contents %}
           <h2>Import new entry</h2>
 <h3>Current entry</h3>
-{% include details_template with person=obj %}
-{% include "abook/contact-details.html" with c=obj.contact %}
+{% include details_template with person=original_obj %}
+{% include "abook/contact-details.html" with c=original_obj.contact %}
 <h3>Incoming entry</h3>
 {% include details_template with person=merge_obj %}
 {% include "abook/contact-details.html" with c=merge_obj.contact%}

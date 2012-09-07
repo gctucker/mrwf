@@ -40,13 +40,12 @@ def clone_obj(obj):
         setattr(new_obj, f.name, getattr(obj, f.name))
     return new_obj
 
-def merge_obj(new_obj, obj, merge_fields=None):
-    if merge_fields is None:
-        merge_fields = [f.name for f in obj._meta.fields]
-    for f in merge_fields:
-        obj_f = getattr(obj, f)
-        if obj_f and not getattr(new_obj, f):
-            setattr(new_obj, f, obj_f)
+def merge_obj(obj, new_obj):
+    for f in obj._meta.fields:
+        if not f.primary_key:
+            new_obj_f = getattr(new_obj, f.name)
+            if new_obj_f:
+                setattr(obj, f.name, new_obj_f)
 
 class SearchHelper(object):
     def __init__(self, request):
@@ -366,7 +365,10 @@ class EditView(BaseEditView):
         super(EditView, self)._save_post_data(force_save)
         if force_save or self._objf.has_changed():
             self._objf.save()
-            self.history.edit_form(self.request.user, self._objf)
+            self._update_history()
+
+    def _update_history(self):
+        self.history.edit_form(self.request.user, self._objf)
 
     def _make_obj_form(self, post=None):
         return self.form_cls(post, instance=self.obj)
@@ -467,6 +469,7 @@ class MergeView(EditView):
     def get_context_data(self, *args, **kwargs):
         ctx = super(MergeView, self).get_context_data(*args, **kwargs)
         ctx['merge_obj'] = self._merge_obj
+        ctx['original_obj'] = self._original_obj
         ctx['details_template'] = 'abook/{0}-details.html'.format(
             self.obj.type_str)
         return ctx
@@ -475,25 +478,35 @@ class MergeView(EditView):
         return super(BaseEditView, self).redirect(obj_url(self.obj))
 
     def _make_obj_form(self, post=None):
-        new_obj = clone_obj(self._merge_obj)
-        new_obj.pk = self.obj.pk
-        merge_obj(new_obj, self.obj)
-        return self.form_cls(post, instance=new_obj)
+        self._original_obj = clone_obj(self.obj)
+        merge_obj(self.obj, self._merge_obj)
+        return self.form_cls(post, instance=self.obj)
 
     def _make_contact_forms(self, post=None):
-        merge_c = clone_obj(self._merge_obj.contact)
-        merge_c.pk = self.obj.contact.pk
-        merge_c.obj = self.obj
-        merge_obj(merge_c, self.obj.contact)
+        # ToDo: expand to all contact entries
+        new_c = clone_obj(self.obj.contact)
+        merge_obj(new_c, self._merge_obj.contact)
+        new_c.obj = self.obj
         ContactFormSet = modelformset_factory(
             Contact, form=ContactForm, extra=0)
-        cf = ContactFormSet(post, queryset=Contact.objects.none())
-        cf.forms.append(ContactForm(post, instance=merge_c))
-        return cf
+        if post is not None:
+            return ContactFormSet(post)
+        else:
+            data = {
+                'form-TOTAL_FORMS': u'1',
+                'form-INITIAL_FORMS': u'1',
+                }
+            for f in new_c._meta.fields:
+                data['form-0-{0}'.format(f.name)] = getattr(new_c, f.name)
+            return ContactFormSet(data)
 
     def _save_post_data(self):
         super(MergeView, self)._save_post_data(True)
         self._merge_obj.delete()
+
+    def _update_history(self):
+        self.history.edit_changed(self.request.user, self._original_obj,
+                                  self._objf)
 
 
 class ChooseMemberView(BaseObjView):
