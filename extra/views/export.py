@@ -18,9 +18,9 @@ def group(request, group_id):
                            'contact_type', 'organisation',
                            'line_1', 'line_2', 'line_3', 'town', 'postcode',
                            'telephone', 'mobile', 'fax', 'email', 'website',
-                           'order', 'sub-order'))
+                           'order', 'sub-order', 'role'))
 
-    for it in iterate_group_contacts(group):
+    for it, role in iterate_group_contacts(group):
         if it.p:
             p_first_name = it.p.first_name
             p_middle_name = it.p.middle_name
@@ -35,7 +35,8 @@ def group(request, group_id):
                    it.c.line_1, it.c.line_2, it.c.line_3, it.c.town,
                    it.c.postcode, it.c.telephone, it.c.mobile, it.c.fax,
                    it.c.email, it.c.website,
-                   str(it.c.addr_order), str(it.c.addr_suborder)))
+                   str(it.c.addr_order), str(it.c.addr_suborder),
+                   role.role))
 
     csv.set_file_name(make_group_file_name(group) + '.csv')
     return csv.response
@@ -44,7 +45,7 @@ def group(request, group_id):
 def group_email(request, group_id):
     group = get_object_or_404(Group, pk = group_id)
     emails = []
-    for it in iterate_group_contacts(group):
+    for it, role in iterate_group_contacts(group):
         if it.c.email and it.c.email not in emails:
             emails.append(it.c.email)
     emails.sort()
