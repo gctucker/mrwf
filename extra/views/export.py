@@ -71,8 +71,7 @@ def programme(request):
         else:
             return ''
 
-    events = FairEvent.objects.filter(status = Record.ACTIVE)
-    events = events.filter(fair__current = True)
+    events = FairEvent.objects.filter(fair__current = True)
 
     listing = get_listing_id(request)
     if listing > 0:
@@ -91,8 +90,8 @@ def programme(request):
         fmt='csv'
 
     if fmt == 'csv':
-        csv = CSVFileResponse(('name', 'description', 'time', 'until',
-                               'age min', 'age max', 'location',
+        csv = CSVFileResponse(('name', 'status', 'description', 'time',
+                               'until', 'age min', 'age max', 'location',
                                'order', 'suborder',
 
                                'event address', 'event telephone',
@@ -163,7 +162,7 @@ def programme(request):
                 org_order = ''
                 org_suborder = ''
 
-            csv.write((e.name, e.description,
+            csv.write((e.name, e.status_str, e.description,
                        istr(e.time), istr(e.end_time),
                        istr(e.age_min), istr(e.age_max), e.location,
                        istr(c.addr_order), istr(c.addr_suborder),
