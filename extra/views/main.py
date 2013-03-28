@@ -30,6 +30,7 @@ from django.conf import settings
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView
 from cams import libcams
+from cams.models import Person, Player
 from mrwf.extra.forms import UserNameForm, PersonForm, ContactForm
 
 def get_list_page(request, obj_list, n):
@@ -145,7 +146,6 @@ def login(request, *args, **kwargs):
         msg.append(request.POST['username'])
         if request.user.is_authenticated():
             msg.append('OK')
-            from cams.models import Player
             player = Player.objects.filter(user=request.user)
             if len(player) > 0:
                 msg.append(player[0].__unicode__())
@@ -160,6 +160,7 @@ def logout(request, *args, **kwargs):
     from django.contrib.auth.views import logout as django_logout
     return django_logout(request, *args, **kwargs)
 
+
 class HomeView(SiteView):
     template_name = 'home.html'
     title = 'Welcome'
@@ -170,6 +171,19 @@ class ProfileView(SiteView, PlayerMixin):
     template_name = 'profile.html'
     title = 'User profile'
     menu_name = 'profile'
+
+    def get(self, request, *args, **kwargs):
+        player = Player.objects.filter(user=request.user)
+        if len(player) == 0:
+            person = Person()
+            person.first_name = request.user.username.capitalize()
+            person.save()
+            p = Player()
+            p.user = request.user
+            p.person = person
+            p.save()
+            return HttpResponseRedirect(reverse('edit_profile'))
+        return super(ProfileView, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         ctx = super(ProfileView, self).get_context_data(**kwargs)
