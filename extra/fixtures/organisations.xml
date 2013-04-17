@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="utf-8"?>
+<django-objects version="1.0"><object pk="19" model="cams.organisation"><field type="CharField" name="name">Hitchhicker's Guide to the Galaxy</field><field type="CharField" name="nickname"></field></object></django-objects>
