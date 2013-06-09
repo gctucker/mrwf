@@ -35,6 +35,8 @@ from cams.models import Contact
 class FairEventType(models.Model):
     name = CharField(max_length=63)
     tag = CharField(max_length=3)
+    notif_email = TextField(blank=True, help_text=
+                            "e-mail addresses separated with whitespaces")
 
     def __unicode__(self):
         return self.name

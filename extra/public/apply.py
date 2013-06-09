@@ -250,11 +250,7 @@ def post (request):
         return stallholder_form (request, form)
     form.save()
 
-    rcpts = set ()
-    if form.stall.etype.pk == StallForm.MARKET_STALL_PK:
-        rcpts.add ("stalls@millroadwinterfair.org")
-    elif form.stall.etype.pk == StallForm.FOOD_FAIR_PK:
-        rcpts.add ("foodfair@millroadwinterfair.org")
+    rcpts = set(form.stall.etype.notif_email.split(' '))
 
     for l in Listener.objects.filter \
             (trigger=Listener.STALL_APPLICATION_RECEIVED):
