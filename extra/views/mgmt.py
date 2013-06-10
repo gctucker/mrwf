@@ -17,6 +17,7 @@
 # this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import datetime
+from urllib import urlencode
 from django import forms
 from django.forms.extras.widgets import SelectDateWidget
 from django.core.urlresolvers import reverse
@@ -232,13 +233,10 @@ def programme (request):
     search_form = SearchForm (request.GET)
     if search_form.is_valid ():
         match = search_form.cleaned_data['match']
-        #request.session['match'] = match
-    elif 'match' in request.session:
-        #match = request.session['match']
-        #search_form = SearchForm (initial = {'match': match})
-        match = ''
+        urlmatch = urlencode((('match', match),))
     else:
         match = ''
+        urlmatch = ''
 
     for w in str2list (match):
         prog = prog.filter (Q (name__icontains = w)
@@ -260,7 +258,7 @@ def programme (request):
 
     tpl_vars = {'title': 'Programme', 'url': 'cams/prog/',
                 'listings': listings, 'current': listing,
-                'search_form': search_form}
+                'search_form': search_form, 'urlmatch': urlmatch}
     add_common_tpl_vars (request, tpl_vars, 'programme', prog, 8)
     return render_to_response ('cams/programme.html', tpl_vars)
 
