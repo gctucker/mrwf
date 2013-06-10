@@ -13,7 +13,7 @@
         <tr><th>Group</th><th>Role</th><th>Delete</th></tr>
         <tr>{% for role_form in roles_formset %}
           {{ role_form.id }}
-          <td class="group-detail"><a href="{% url group role_form.instance.group.id %}">{{ role_form.instance.group }}</td>
+          <td class="group-detail"><a href="{% url 'group' role_form.instance.group.id %}">{{ role_form.instance.group }}</td>
           <td class="group-detail">{{ role_form.role }}</td>
           <td class="group-detail" style="text-align: center">{{ role_form.DELETE }}</td>
         </tr>{% endfor %}

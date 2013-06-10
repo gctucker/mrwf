@@ -15,6 +15,6 @@
               <p>* required</p>
               <p><input type="submit" value="save" name="save" /></p>
             </form>
-            <div class="cmd"><a href="{% url abook:search %}?{{ urlmatch }}">&lt;&lt;&nbsp;cancel</a></div>
+            <div class="cmd"><a href="{% url 'abook:search' %}?{{ urlmatch }}">&lt;&lt;&nbsp;cancel</a></div>
           </div>
 {% endblock %}

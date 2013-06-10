@@ -4,7 +4,7 @@
 {% block contents %}
           <h2>{{ title }}</h2>
           <div class="element">
-            <form method="post" action="{% url edit_profile %}">
+            <form method="post" action="{% url 'edit_profile' %}">
               {% csrf_token %}
               <table class="apply">
                 <tr><td class="apply-title" colspan="3"><h3>User information</h3></td></tr>
@@ -20,5 +20,5 @@
               <p><input type="submit" value="save" /></p>
            </form>
           </div>
-          <div class="cmd"><a href="{% url profile %}">&lt;&lt;&nbsp;cancel and go back to profile</a></div>
+          <div class="cmd"><a href="{% url 'profile' %}">&lt;&lt;&nbsp;cancel and go back to profile</a></div>
 {% endblock %}

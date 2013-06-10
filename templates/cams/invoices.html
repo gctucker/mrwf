@@ -6,12 +6,12 @@
 {% endblock %}
 
 {% block browse_it %}
-                <a href="{% url stall_invoice it.id %}">{{ it.stall }}</a>
+                <a href="{% url 'stall_invoice' it.id %}">{{ it.stall }}</a>
                 <div class="search-preview">{{ it.status_str }}, £{{ it.amount }}{% if it.reference %}, {{ it.reference }}{% endif %}</div>
 {% endblock %}
 
 {% block browse_footer %}
           <div class="cmd">
-            <a href="{% url select_invoice %}">&lt;new invoice&gt;</a>
+            <a href="{% url 'select_invoice' %}">&lt;new invoice&gt;</a>
             <a href="{{ px }}export/invoices/">&lt;export&gt;</a>
           </div>{% endblock %}

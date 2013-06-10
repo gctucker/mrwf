@@ -14,9 +14,9 @@
           <table>{% if contact %}{% with contact as c %}
 {% include "abook/contact-details.html" %}{% endwith %}{% else %}
           <p>No contact details.</p>{% endif %}
-          <div class="cmd"><a href="{% url email_test %}">&lt;email test&gt;</a></div>
-          <div class="cmd"><a href="{% url edit_profile %}">edit profile&nbsp;&gt;&gt;</a></div>
-          <div class="cmd"><a href="{% url password %}">change password&nbsp;&gt;&gt;</a></div>
+          <div class="cmd"><a href="{% url 'email_test' %}">&lt;email test&gt;</a></div>
+          <div class="cmd"><a href="{% url 'edit_profile' %}">edit profile&nbsp;&gt;&gt;</a></div>
+          <div class="cmd"><a href="{% url 'password' %}">change password&nbsp;&gt;&gt;</a></div>
           <p style="font-size: 0.7em">{% if python_version %}
             Python {{ python_version }}<br />{% endif %}{% if django_version %}
             Django {{ django_version }}<br />{% endif %}{% if cams_version %}

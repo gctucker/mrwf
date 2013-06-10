@@ -19,11 +19,11 @@
             &nbsp;<a href="{% abook_url obj 'disable' %}?{{ urlmatch }}">&lt;disable&gt;</a>{% endif %}{% if perms.cams.abook_delete %}
             &nbsp;<a href="{% abook_url obj 'delete' %}?{{ urlmatch }}">&lt;delete&gt;</a>{% endif %}{% if perms.cams.abook_add %}
             &nbsp;<a href="{% abook_url obj 'add_member' %}">&lt;add member{% if obj.type_str = "person" %}ship{% endif %}&gt;</a>{% endif %}{% if perms.cams.abook_edit %}
-            &nbsp;<a href="{% url abook:obj_history obj.id %}">view history&nbsp;&gt;&gt;</a>{% endif %}
+            &nbsp;<a href="{% url 'abook:obj_history' obj.id %}">view history&nbsp;&gt;&gt;</a>{% endif %}
           </div>{% endif %}
           <div class="element group-list">{% if roles %}
             Groups:&nbsp;{% for role in roles|slice:":4" %}&nbsp;
-            <a href="{% url group role.group.id %}">{{ role.group.name }}</a>{% if not forloop.last %},{% endif %}{% endfor %}{% if roles|length > 4 %}...{% endif %}{% else %}
+            <a href="{% url 'group' role.group.id %}">{{ role.group.name }}</a>{% if not forloop.last %},{% endif %}{% endfor %}{% if roles|length > 4 %}...{% endif %}{% else %}
             No groups.{% endif %}
             &nbsp;&nbsp;&nbsp;<a href="{% abook_url obj 'groups' %}?{{ urlmatch }}">manage&nbsp;&gt;&gt;</a>
           </div>{% endblock %}
@@ -46,4 +46,4 @@
 {% endblock %}
 
 {% block browse_footer %}
-{% if urlmatch %}          <div class="back"><a href="{% url abook:search %}?{{ urlmatch }}">&lt;&lt;&nbsp;back to the search</a></div>{% endif %}{% endblock %}
+{% if urlmatch %}          <div class="back"><a href="{% url 'abook:search' %}?{{ urlmatch }}">&lt;&lt;&nbsp;back to the search</a></div>{% endif %}{% endblock %}
