@@ -1,5 +1,10 @@
 {% extends "browser.html" %}
 
+{% block browse_header %}
+          <h2>{{ type_name|capfirst }} applications</h2>
+          {% include "cams/category_filters.html" %}
+{% endblock %}
+
 {% block browse_it %}
               <a href="{{ px }}cams/application/{{ type_id }}/{{ it.id }}/">
                 <span{% if it.status_str = "Pending" %} style="font-style: italic"{% endif %}>{{ it.event.name }}</span>

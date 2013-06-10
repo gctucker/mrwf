@@ -315,9 +315,17 @@ def appli_type (request, type_id):
         (event__fair = Fair.get_current())
     applis = applis.order_by('event__name')
     type_name = FairEventApplication.xtypes[type_id][1]
+    filters = ('Pending', 'Accepted', 'Rejected', 'All')
+    filter_name = get_filter_name(request, filters, 'appli_type_filter')
+    if filter_name != 'All':
+        for filter_id, filter_id_str in Application.xstatus:
+            if filter_id_str == filter_name:
+                break
+        applis = applis.filter(status=filter_id)
     tpl_vars = {'title': 'Applications: %ss' % type_name,
                 'url': 'cams/application/%d/' % type_id,
-                'applis': applis, 'type_id': type_id}
+                'applis': applis, 'type_id': type_id, 'type_name': type_name,
+                'filters': filters, 'filter': filter_name}
     add_common_tpl_vars (request, tpl_vars, 'applications', applis, 10)
     template = "cams/appli_list.html"
     return render_to_response (template, tpl_vars)
