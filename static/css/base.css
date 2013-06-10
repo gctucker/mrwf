@@ -126,7 +126,7 @@ ul.plain {
     padding: 0 0 0 0;
 }
 
-.current_page {
+.paginator {
     font-weight: bold;
     font-size: 0.9em;
 }
