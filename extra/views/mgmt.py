@@ -341,11 +341,16 @@ def appli_detail (request, type_id, appli_id):
         if action == 'accept':
             appli.status = Application.ACCEPTED
             appli.save ()
+            appli.event.status = Record.ACTIVE
+            appli.event.save()
         elif action == 'reject':
             appli.status = Application.REJECTED
             appli.save ()
+            appli.event.status = Record.DISABLED
+            appli.event.save()
         else:
             raise Http404
+        return HttpResponseRedirect(reverse('applications'))
 
     if appli.subtype != type_id:
         raise Http404
