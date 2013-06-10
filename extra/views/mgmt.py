@@ -123,6 +123,18 @@ def get_stall_invoice_address(inv, sep=u'\n'):
 
     return sep.join(address_list)
 
+def get_filter_name(request, filters, filter_id, filter_arg='filter'):
+    filter_name = request.GET.get(filter_arg)
+    if filter_name is not None:
+        if not filter_name in filters:
+            filter_name = filters[0]
+        request.session[filter_id] = filter_name
+    else:
+        filter_name = request.session.get(filter_id)
+        if filter_name is None:
+            filter_name = filters[0]
+    return filter_name
+
 # -----------------------------------------------------------------------------
 # entry points from url's
 
@@ -355,16 +367,7 @@ class InvoicesView(DefaultInvoiceView):
         ctx = super(InvoicesView, self).get_context_data(*args, **kw)
 
         filters = ('All', 'Pending', 'Paid')
-        filter_name = self.request.GET.get('filter')
-        if filter_name is not None:
-            if not filter_name in filters:
-                filter_name = filters[0]
-            self.request.session['invoice_filter'] = filter_name
-        else:
-            filter_name = self.request.session.get('invoice_filter')
-            if filter_name is None:
-                filter_name = filters[0]
-
+        filter_name = get_filter_name(self.request, filters, 'invoice_filter')
         fair = Fair.get_current()
         invoices = StallInvoice.objects.filter(stall__event__fair=fair)
         if filter_name == 'Pending':
