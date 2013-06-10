@@ -1,21 +1,9 @@
 {% extends "nav_layout.html" %}
 
-{% block contents %}{% block browse_header %}{% endblock %}{% if not page.object_list %}{% block browse_empty_list %}{% endblock %}{% else %}{% block browse_list %}
+{% block contents %}{% block browse_header %}{% endblock %}{% include "paginator.html" %}{% if not page.object_list %}{% block browse_empty_list %}{% endblock %}{% else %}{% block browse_list %}
           <div class="element">
             <ul class="plain">{% for it in page.object_list %}
               <li>{% block browse_it %}{% endblock %}              </li>{% endfor %}
             </ul>
-          </div>{% endblock %}{% if page.paginator.num_pages > 1 %}
-          <div class="element paginator">
-            <form action="" method="get">{% if page.number > 2 %}
-            <a href="?{% if urlmatch %}{{ urlmatch}}&{% endif %}page={{ 1 }}">1</a>&nbsp...{% endif %}{% if page.has_previous %}
-            <a href="?{% if urlmatch %}{{ urlmatch }}&{% endif %}page={{ page.previous_page_number }}">{{ page.previous_page_number }}</a>{% endif %}
-            {{ page.number }}{% if page.has_next %}
-            <a href="?{% if urlmatch %}{{ urlmatch }}&{% endif %}page={{ page.next_page_number }}">{{ page.next_page_number }}</a>{% endif %}{% if page.number < page.paginator.num_pages|add:"-1" %}
-            ...&nbsp;<a href="?{% if urlmatch %}{{ urlmatch }}&{% endif %}page={{ page.paginator.num_pages }}">{{ page.paginator.num_pages }}</a>{% endif %}{% if page.paginator.num_pages > 5 %}
-              <input type="text" name="page" value="{{ page.number }}" size="3" />
-              <input type="hidden" name="urlmatch" value="{{ urlmatch }}" />
-              <input type="submit" value="jump" />{% endif %}
-            </form>
-          </div>{% endif %}{% endif %}{% block browse_footer %}{% endblock %}
+          </div>{% endblock %}{% include "paginator.html" %}{% endif %}{% block browse_footer %}{% endblock %}
 {% endblock %}
