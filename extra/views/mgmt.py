@@ -276,6 +276,9 @@ def prog_event_cmt (request, event_id):
 
 @login_required
 def applications (request):
+    # Only 1 type of applications for now...
+    return HttpResponseRedirect(reverse('appli_type', args=[0]))
+
     fair = Fair.get_current()
     cats = []
     all_applis = FairEventApplication.objects.filter (event__fair = fair)
