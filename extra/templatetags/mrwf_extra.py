@@ -24,6 +24,8 @@ register = template.Library()
 
 @register.simple_tag
 def abook_url(obj, cmd=None, extra_arg=None):
+    if obj.type == Contactable.MEMBER:
+        obj = obj.subobj.person # No view for members, so show person instead
     if cmd:
         base = '_'.join([cmd, obj.type_str])
     else:
