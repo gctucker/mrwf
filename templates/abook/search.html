@@ -16,11 +16,17 @@
           <div class="element">View <a href="{% url 'abook:history' %}">History</a></div>{% if n_new %}
           <div class="element">There {{ n_new|pluralize:"is,are" }} <a href="{% url 'abook:browse_new' %}">{{ n_new }} new entr{{ n_new|pluralize:"y,ies" }}</a></div>{% endif %}{% endif %}{% endif %}{% endblock %}
 
-{% block browse_it %}
+{% block browse_it %}{% if reverse %}
                 <span class="status-{{ it.obj.status_str }}">
-                  <a href="{% abook_url it.obj %}?{{ urlmatch }}">{{ it.obj.name_nn }}</a>{% if it.obj.status_str != "active" %}&nbsp;({{ it.obj.status_str }}){% endif %}
+                  <a href="{% abook_url it.obj %}?{{ urlmatch }}">{{ it.obj.subobj.name_nn }}</a>{% if it.obj.status_str != "active" %}&nbsp;({{ it.obj.status_str }}){% endif %}
+                  <div class="search-preview">
+                    {{ it }}
+                  </div>
+                </span>{% else %}
+                <span class="status-{{ it.status_str }}">
+                  <a href="{% abook_url it %}?{{ urlmatch }}">{{ it.subobj.name_nn }}</a>{% if it.status_str != "active" %}&nbsp;({{ it.status_str }}){% endif %}
                   <div class="search-preview">
                     {% if not it.contacts %}<span class="search-no-contact">No contact details</span>{% else %}{{ it.contacts|first }}{% endif %}
                   </div>
-                </span>
+                </span>{% endif %}
 {% endblock %}
