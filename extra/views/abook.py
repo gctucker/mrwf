@@ -1,6 +1,6 @@
 # MRWF - extra/public/views/abook.py
 #
-# Copyright (C) 2009, 2010, 2011. 2012, 2013
+# Copyright (C) 2009, 2010, 2011, 2012, 2013
 # Guillaume Tucker <guillaume@mangoz.org>
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -98,14 +98,16 @@ class SearchHelper(object):
         return self._opt_disabled
 
     @property
+    def opt_reverse(self):
+        return self._opt_contacts # ToDo: rename reverse everywhere
+
+    @property
     def objs(self):
         return self._objs
 
     @property
     def has_results(self):
-        if self._objs:
-            return True
-        return False
+        return True if self._objs else False
 
     def do_search(self, search_p=True, search_o=True):
         if not self._match:
@@ -116,53 +118,26 @@ class SearchHelper(object):
             self._search_in_names(search_p, search_o)
 
     def _search_in_names(self, search_p, search_o):
-        obj_list = []
+        search_q = Q()
         if search_p:
-            obj_list += list(self._search_people())[:30]
+            search_q |= Q(type=Contactable.PERSON)
         if search_o:
-            obj_list += list(self._search_orgs())[:30]
-        for obj in obj_list:
-            c = obj.contact_set.all()
-            if c.count() == 0:
-                m = obj.members_list.all()
-                if m.count() > 0:
-                    c = m[0].contact_set.all()
-            self._append_obj(obj, c)
+            search_q |= Q(type=Contactable.ORGANISATION)
+        objs = Contactable.objects.filter(search_q)
+        status_q = Q(status=Record.ACTIVE)
+        if self._opt_disabled:
+            status_q = (q | Q(status=Record.DISABLED))
+        objs = objs.filter(status_q)
+        for kw in self._keywords:
+            objs = objs.filter(basic_name__icontains=kw)
+        self._objs = objs.order_by('basic_name')
 
     def _search_in_contacts(self):
         # Note: There may be several matching contacts related to the same
         # person/org, so that person/org will be in the results several
         # times (with a different contact preview though)
-        contacts = list(self._search_contacts())[:40]
 
-        for c in contacts:
-            if c.obj.type == Contactable.MEMBER:
-                self._append_obj(c.obj.member.person, (c,))
-            else:
-                self._append_obj(c.obj.subobj, (c,))
-
-    def _append_obj(self, obj, c):
-        self._objs.append({'obj': obj, 'contacts': c})
-
-    def _search_people(self):
-        people = Person.objects.all()
-        for kw in self._keywords:
-            people = people.filter(Q(first_name__icontains=kw) |
-                                   Q(middle_name__icontains=kw) |
-                                   Q(last_name__icontains=kw) |
-                                   Q(nickname__icontains=kw))
-        return self._filter_status(people)
-
-    def _search_orgs(self):
-        orgs = Organisation.objects.all()
-        for kw in self._keywords:
-            orgs = orgs.filter(Q(name__icontains=kw) |
-                               Q(nickname__icontains=kw))
-        return self._filter_status(orgs)
-
-    def _search_contacts(self):
         contacts = Contact.objects.all()
-
         tel_re = None
         for c in self._match.strip():
             if c.isdigit():
@@ -190,13 +165,7 @@ class SearchHelper(object):
                       Q(addr_order__icontains=kw)))
 
         # ToDo: handle disabled and new contact entries
-        return contacts.filter(tel_q | q).filter(status=Record.ACTIVE)
-
-    def _filter_status(self, qset):
-        q = Q(status=Record.ACTIVE)
-        if self._opt_disabled:
-            q = (q | Q(status=Record.DISABLED))
-        return qset.filter(q)
+        self._objs = contacts.filter(tel_q | q).filter(status=Record.ACTIVE)
 
     class SearchForm(forms.Form):
         match = forms.CharField(required=True, max_length=64,
@@ -535,13 +504,8 @@ class ChooseMemberView(BaseObjView):
     def get_context_data(self, *args, **kw):
         ctx = super(ChooseMemberView, self).get_context_data(*args, **kw)
         self._do_search() # ToDo: exclude existing members
-        if self.search.has_results:
-            results = SearchView.PaginatorStub(self.search.objs)
-            results.limit_list(40)
-        else:
-            results = None
-        ctx.update({'form': self.search.form, 'other_type': self.other_type,
-                    'page': results})
+        ctx.update({'form': self.search.form, 'other_type': self.other_type})
+        self._set_list_page(ctx, self.search.objs, 10)
         return ctx
 
 
@@ -675,39 +639,15 @@ class SearchView(AbookView):
     def get_context_data(self, **kwargs):
         ctx = super(SearchView, self).get_context_data(**kwargs)
         self.search.do_search()
-
-        if self.search.has_results:
-            results = SearchView.PaginatorStub(self.search.objs)
-            results.limit_list(40)
-        else:
-            results = None
-
         n_new = Contactable.objects.filter(status=Record.NEW).count()
-        ctx.update({'form': self.search.form, 'page': results, 'n_new': n_new})
+        ctx.update({'form': self.search.form, 'n_new': n_new,
+                    'reverse': self.search.opt_reverse})
+        self._set_list_page(ctx, self.search.objs, 10)
         return ctx
 
     def _log(self, opts):
         opts.append(u'search: {}'.format(self.search.match_str))
         super(SearchView, self)._log(opts)
-
-    class PaginatorStub(object):
-        def __init__(self, object_list=[]):
-            self._object_list = object_list
-
-        def limit_list(self, max_objects):
-            if len(self._object_list) > max_objects:
-                self._object_list = self._object_list[:max_objects]
-
-        @property
-        def num_pages(self):
-            if len(self.object_list):
-                return 1
-            else:
-                return 0
-
-        @property
-        def object_list(self):
-            return self._object_list
 
 
 class BrowseNewView(AbookView):
