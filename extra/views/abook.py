@@ -73,15 +73,15 @@ class SearchHelper(object):
         if self.form.is_valid():
             self._match = self.form.cleaned_data['match']
             self._keywords = libcams.str2list(self._match)
-            self._opt_contacts = self.form.cleaned_data['opt_contacts']
+            self._opt_reverse = self.form.cleaned_data['opt_reverse']
             self._opt_disabled = self.form.cleaned_data['opt_disabled']
             self._urlmatch = urlencode((('match', self._match),
-                                        ('opt_contacts', self._opt_contacts),
+                                        ('opt_reverse', self._opt_reverse),
                                         ('opt_disabled', self._opt_disabled)))
         else:
             self._match = ''
             self._keywords = []
-            self._opt_contacts = False
+            self._opt_reverse = False
             self._opt_disabled = False
             self._urlmatch = ''
 
@@ -99,7 +99,7 @@ class SearchHelper(object):
 
     @property
     def opt_reverse(self):
-        return self._opt_contacts # ToDo: rename reverse everywhere
+        return self._opt_reverse
 
     @property
     def objs(self):
@@ -112,12 +112,12 @@ class SearchHelper(object):
     def do_search(self, search_p=True, search_o=True):
         if not self._match:
             return
-        elif self._opt_contacts:
-            self._search_in_contacts()
+        elif self._opt_reverse:
+            self._reverse_search()
         else:
-            self._search_in_names(search_p, search_o)
+            self.__search(search_p, search_o)
 
-    def _search_in_names(self, search_p, search_o):
+    def __search(self, search_p, search_o):
         search_q = Q()
         if search_p:
             search_q |= Q(type=Contactable.PERSON)
@@ -132,7 +132,7 @@ class SearchHelper(object):
             objs = objs.filter(basic_name__icontains=kw)
         self._objs = objs.order_by('basic_name')
 
-    def _search_in_contacts(self):
+    def _reverse_search(self):
         # Note: There may be several matching contacts related to the same
         # person/org, so that person/org will be in the results several
         # times (with a different contact preview though)
@@ -170,8 +170,8 @@ class SearchHelper(object):
     class SearchForm(forms.Form):
         match = forms.CharField(required=True, max_length=64,
                                 widget=forms.TextInput(attrs={'size':'40'}))
-        opt_contacts = forms.BooleanField(required=False,
-                                          label="look into contacts")
+        opt_reverse = forms.BooleanField(required=False,
+                                         label="reverse search")
         opt_disabled = forms.BooleanField(required=False,
                                           label="show disabled entries")
 
