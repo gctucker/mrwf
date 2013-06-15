@@ -6,7 +6,7 @@
             <form action="{% url 'abook:search' %}" method="get">
               {{ form.match }}
               <input type="submit" value="search" /><br />
-              {{ form.opt_contacts }}<span style="font-size: 0.8em">{{ form.opt_contacts.label }}</span>&nbsp;&nbsp;
+              {{ form.opt_reverse }}<span style="font-size: 0.8em">{{ form.opt_reverse.label }}</span>&nbsp;&nbsp;
               {{ form.opt_disabled }}<span style="font-size: 0.8em">{{ form.opt_disabled.label }}</span><br />{% if perms.cams.abook_edit and perms.cams.abook_add %}
                 &nbsp;<span class="cmd"><a href="{% url 'abook:add_person' %}">&lt;add person&gt;</a></span>
                 &nbsp;<span class="cmd"><a href="{% url 'abook:add_organisation' %}">&lt;add organisation&gt;</a></span>{% endif %}
