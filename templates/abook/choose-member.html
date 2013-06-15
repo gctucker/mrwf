@@ -13,8 +13,8 @@
 {% endblock %}
 
 {% block browse_it %}
-                <span class="status-{{ it.obj.status_str }}">
-                  <a href="{% abook_url obj 'save_member' %}?member_obj_id={{ it.obj.id }}">{{ it.obj.name_nn }}</a>
+                <span class="status-{{ it.status_str }}">
+                  <a href="{% abook_url obj 'save_member' %}?member_obj_id={{ it.id }}">{{ it.subobj.name_nn }}</a>
                   <div class="search-preview">
                     {% if not it.contacts %}<span class="search-no-contact">No contact details</span>{% else %}{{ it.contacts|first }}{% endif %}
                   </div>
