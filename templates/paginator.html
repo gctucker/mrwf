@@ -6,8 +6,8 @@
             <span class="current_nav">{{ page.number }}</span>{% if page.has_next %}
             <a href="?{% if urlmatch %}{{ urlmatch }}&{% endif %}page={{ page.next_page_number }}">{{ page.next_page_number }}</a>{% endif %}{% if page.number < page.paginator.num_pages|add:"-1" %}
             ...&nbsp;<a href="?{% if urlmatch %}{{ urlmatch }}&{% endif %}page={{ page.paginator.num_pages }}">{{ page.paginator.num_pages }}</a>{% endif %}{% if page.paginator.num_pages > 5 %}
-              <input type="text" name="page" value="{{ page.number }}" size="3" />
-              <input type="hidden" name="urlmatch" value="{{ urlmatch }}" />
+              <input type="text" name="page" value="{{ page.number }}" size="3" />{% for opt, value in urlopt %}
+              <input type="hidden" name="{{ opt }}" value="{{ value }}" />{% endfor %}
               <input type="submit" value="jump" />{% endif %}
             </form>
           </div>{% endif %}
