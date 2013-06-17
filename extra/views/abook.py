@@ -75,19 +75,25 @@ class SearchHelper(object):
             self._keywords = libcams.str2list(self._match)
             self._opt_reverse = self.form.cleaned_data['opt_reverse']
             self._opt_disabled = self.form.cleaned_data['opt_disabled']
-            self._urlmatch = urlencode((('match', self._match),
-                                        ('opt_reverse', self._opt_reverse),
-                                        ('opt_disabled', self._opt_disabled)))
+            self._urlopt = (('match', self._match),
+                            ('opt_reverse', self._opt_reverse),
+                            ('opt_disabled', self._opt_disabled))
+            self._urlmatch = urlencode(self._urlopt)
         else:
             self._match = ''
             self._keywords = []
             self._opt_reverse = False
             self._opt_disabled = False
+            self._urlopt = tuple()
             self._urlmatch = ''
 
     @property
     def match_str(self):
         return self._match
+
+    @property
+    def urlopt(self):
+        return self._urlopt
 
     @property
     def urlmatch(self):
@@ -186,6 +192,7 @@ class AbookView(SiteView):
 
     def get_context_data(self, **kwargs):
         ctx = super(AbookView, self).get_context_data(**kwargs)
+        ctx['urlopt'] = self.search.urlopt
         ctx['urlmatch'] = self.search.urlmatch
         return ctx
 
