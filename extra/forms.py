@@ -55,7 +55,7 @@ class PersonForm(forms.ModelForm, IsEmptyMixin):
 
     class Meta(object):
         model = Person
-        exclude = ['alter', 'status']
+        exclude = ['alter', 'status', 'basic_name']
 
 
 class OrganisationForm(forms.ModelForm):
