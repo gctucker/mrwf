@@ -61,7 +61,7 @@ class PersonForm(forms.ModelForm, IsEmptyMixin):
 class OrganisationForm(forms.ModelForm):
     class Meta(object):
         model = Organisation
-        exclude = ['status', 'members']
+        exclude = ['status', 'members', 'basic_name']
 
 
 class ContactForm(forms.ModelForm, IsEmptyMixin):
