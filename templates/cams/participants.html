@@ -8,5 +8,5 @@
   </p>
 {% endblock %}
 
-{% block browse_it %}<a href="{{ px }}{{ url }}group/{{ it.id }}/">{{ it }}</a></li>
+{% block browse_it %}<a href="{% url 'group' it.id %}">{{ it }}</a></li>
 {% endblock %}
