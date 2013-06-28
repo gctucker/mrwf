@@ -130,7 +130,7 @@ class SearchHelper(object):
         objs = objs.filter(status_q)
         for kw in self._keywords:
             objs = objs.filter(basic_name__icontains=kw)
-        self._objs = objs.order_by('basic_name')
+        self._objs = objs
 
     def _reverse_search(self):
         # Note: There may be several matching contacts related to the same
