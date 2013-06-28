@@ -139,26 +139,34 @@ def get_filter_name(request, filters, filter_id, filter_arg='filter'):
 # -----------------------------------------------------------------------------
 # entry points from url's
 
-@login_required
-def participants (request, board_id = None):
-    if board_id is None:
-        board = None
-        groups = Group.objects.filter (board__isnull = True)
-    else:
-        board = get_object_or_404 (PinBoard, pk = board_id)
-        groups = Group.objects.filter (board = board)
-    tpl_vars = {'title': 'Groups', 'boards': Group.get_boards(),
-                'board': board, 'url': 'cams/participant/'}
-    add_common_tpl_vars (request, tpl_vars, 'groups', groups)
-    return render_to_response ('cams/participants.html', tpl_vars)
+class GroupsBaseView(SiteView):
+    perms = ['extra.group_view']
+    menu_name = 'groups'
+
+
+class GroupsView(GroupsBaseView):
+    template_name = 'cams/participants.html'
+    title = "Groups"
+
+    def get_context_data(self, *args, **kw):
+        ctx = super(GroupsView, self).get_context_data(*args, **kw)
+        board_id = kw.get('board_id', None)
+        if board_id is None:
+            board = None
+            groups = Group.objects.filter(board__isnull=True)
+        else:
+            board = get_object_or_404(PinBoard, pk=int(board_id))
+            groups = Group.objects.filter(board=board)
+        ctx.update({'boards': Group.get_boards(), 'board': board})
+        self._set_list_page(ctx, groups, 20)
+        return ctx
+
 
 @login_required
 def group (request, group_id):
     group = get_object_or_404 (Group, pk = group_id)
     roles = Role.objects.filter (group = group)
     roles = roles.filter (contactable__status = Record.ACTIVE)
-    # ToDo: sort alphabetically... without fetching the 2 full tables for
-    # people and orgs!
     tpl_vars = {'title': group, 'group': group,
                 'url': 'cams/participant/group/%d/' % group.id}
     add_common_tpl_vars (request, tpl_vars, 'groups', roles)
