@@ -162,15 +162,21 @@ class GroupsView(GroupsBaseView):
         return ctx
 
 
-@login_required
-def group (request, group_id):
-    group = get_object_or_404 (Group, pk = group_id)
-    roles = Role.objects.filter (group = group)
-    roles = roles.filter (contactable__status = Record.ACTIVE)
-    tpl_vars = {'title': group, 'group': group,
-                'url': 'cams/participant/group/%d/' % group.id}
-    add_common_tpl_vars (request, tpl_vars, 'groups', roles)
-    return render_to_response ('cams/group.html', tpl_vars)
+class GroupView(GroupsBaseView):
+    template_name = 'cams/group.html'
+
+    def get_context_data(self, **kw):
+        group_id = int(kw['group_id'])
+        group = get_object_or_404(Group, pk=group_id)
+        self.title = group # ToDo: is that really safe?
+        ctx = super(GroupView, self).get_context_data(**kw)
+        roles = Role.objects.filter(group=group)
+        roles = roles.filter(contactable__status=Record.ACTIVE)
+        roles = roles.order_by('contactable')
+        ctx.update({'group': group})
+        self._set_list_page(ctx, roles, 20)
+        return ctx
+
 
 @login_required
 def pindown_group(request, group_id):
