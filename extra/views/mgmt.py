@@ -162,27 +162,37 @@ class GroupsView(GroupsBaseView):
         return ctx
 
 
-class GroupView(GroupsBaseView):
+class GroupBaseView(GroupsBaseView):
+
+    def _get_group_and_title(self, *args, **kw):
+        group_id = int(kw['group_id'])
+        self._group = get_object_or_404(Group, pk=group_id)
+        self.title = self._group
+
+    def get(self, *args, **kw):
+        self._get_group_and_title(*args, **kw)
+        return super(GroupBaseView, self).get(*args, **kw)
+
+
+class GroupView(GroupBaseView):
     template_name = 'cams/group.html'
 
     def get_context_data(self, **kw):
-        group_id = int(kw['group_id'])
-        group = get_object_or_404(Group, pk=group_id)
-        self.title = group # ToDo: is that really safe?
         ctx = super(GroupView, self).get_context_data(**kw)
-        roles = Role.objects.filter(group=group)
+        roles = Role.objects.filter(group=self._group)
         roles = roles.filter(contactable__status=Record.ACTIVE)
         roles = roles.order_by('contactable')
-        ctx.update({'group': group})
+        ctx.update({'group': self._group})
         self._set_list_page(ctx, roles, 20)
         return ctx
 
 
-@login_required
-def pindown_group(request, group_id):
-    class PinDownGroupForm(forms.Form):
+class PinDownGroupView(GroupBaseView):
+    template_name = 'cams/pindown_group.html'
+
+    class Form(forms.Form):
         def __init__(self, group, *args, **kw):
-            super(PinDownGroupForm, self).__init__(*args, **kw)
+            super(PinDownGroupView.Form, self).__init__(*args, **kw)
             boards = set(PinBoard.objects.all())
             for v in group.get_versions():
                 if v.board in boards:
@@ -190,23 +200,23 @@ def pindown_group(request, group_id):
             self.fields['board'] = forms.ChoiceField( \
                 choices=[(b.pk, b.__unicode__()) for b in boards])
 
-    group = get_object_or_404(Group, pk=group_id)
-    if request.method == 'POST':
-        form = PinDownGroupForm(group, request.POST)
+    def post(self, *args, **kw):
+        self._get_group_and_title(*args, **kw)
+        form = PinDownGroupView.Form(self._group, self.request.POST)
         if not form.is_valid():
             return HttpResponseServerError("Form is not valid",
                                            mimetype='text/plain')
         board_id = form.cleaned_data['board']
         board = PinBoard.objects.get(pk=board_id)
-        group.pin_down(board)
-        return HttpResponseRedirect(reverse('group', args=[group.pk]))
-    else:
-        form = PinDownGroupForm(group)
-        tpl_vars = {'title': group, 'group': group, 'form': form,
-                    'url': 'cams/participant/group/pindown/%d/' % group.id}
-        add_common_tpl_vars(request, tpl_vars, 'groups')
-        return render_to_response('cams/pindown_group.html', tpl_vars,
-                                  context_instance=RequestContext(request))
+        self._group.pin_down(board)
+        return HttpResponseRedirect(reverse('group', args=[self._group.pk]))
+
+    def get_context_data(self, *args, **kw):
+        ctx = super(PinDownGroupView, self).get_context_data(*args, **kw)
+        form = PinDownGroupView.Form(self._group)
+        ctx.update({'group': self._group, 'form': form})
+        return ctx
+
 
 @login_required
 def post_event_cmt (request, event_id, view):
