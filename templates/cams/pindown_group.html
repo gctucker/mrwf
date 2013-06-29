@@ -10,5 +10,5 @@
               <p><input type="submit" value="pin down" name="pin_down" /></p>
             </form>
           </div>
-          <div class="back"><a href="{{ px }}cams/participant/group/{{ group.pk }}/">&lt;&lt;&nbsp;back</a></p>
+          <div class="back"><a href="{% url 'group' group.pk %}">&lt;&lt;&nbsp;back</a></p>
 {% endblock %}
