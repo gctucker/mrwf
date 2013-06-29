@@ -148,8 +148,8 @@ class GroupsView(GroupsBaseView):
     template_name = 'cams/participants.html'
     title = "Groups"
 
-    def get_context_data(self, *args, **kw):
-        ctx = super(GroupsView, self).get_context_data(*args, **kw)
+    def get_context_data(self, **kw):
+        ctx = super(GroupsView, self).get_context_data(**kw)
         board_id = kw.get('board_id', None)
         if board_id is None:
             board = None
@@ -164,13 +164,13 @@ class GroupsView(GroupsBaseView):
 
 class GroupBaseView(GroupsBaseView):
 
-    def _get_group_and_title(self, *args, **kw):
+    def _get_group_and_title(self, **kw):
         group_id = int(kw['group_id'])
         self._group = get_object_or_404(Group, pk=group_id)
         self.title = self._group
 
     def get(self, *args, **kw):
-        self._get_group_and_title(*args, **kw)
+        self._get_group_and_title(**kw)
         return super(GroupBaseView, self).get(*args, **kw)
 
 
@@ -201,7 +201,7 @@ class PinDownGroupView(GroupBaseView):
                 choices=[(b.pk, b.__unicode__()) for b in boards])
 
     def post(self, *args, **kw):
-        self._get_group_and_title(*args, **kw)
+        self._get_group_and_title(**kw)
         form = PinDownGroupView.Form(self._group, self.request.POST)
         if not form.is_valid():
             return HttpResponseServerError("Form is not valid",
@@ -211,8 +211,8 @@ class PinDownGroupView(GroupBaseView):
         self._group.pin_down(board)
         return HttpResponseRedirect(reverse('group', args=[self._group.pk]))
 
-    def get_context_data(self, *args, **kw):
-        ctx = super(PinDownGroupView, self).get_context_data(*args, **kw)
+    def get_context_data(self, **kw):
+        ctx = super(PinDownGroupView, self).get_context_data(**kw)
         form = PinDownGroupView.Form(self._group)
         ctx.update({'group': self._group, 'form': form})
         return ctx
@@ -398,8 +398,8 @@ class DefaultInvoiceView(SiteView):
 class InvoicesView(DefaultInvoiceView):
     template_name = 'cams/invoices.html'
 
-    def get_context_data(self, *args, **kw):
-        ctx = super(InvoicesView, self).get_context_data(*args, **kw)
+    def get_context_data(self, **kw):
+        ctx = super(InvoicesView, self).get_context_data(**kw)
 
         filters = ('All', 'Pending', 'Paid')
         filter_name = get_filter_name(self.request, filters, 'invoice_filter')
@@ -420,8 +420,8 @@ class SelectInvoiceView(DefaultInvoiceView):
     perms = DefaultInvoiceView.perms + ['extra.invoices_add']
     title = "Invoice"
 
-    def get_context_data(self, *args, **kw):
-        ctx = super(SelectInvoiceView, self).get_context_data(*args, **kw)
+    def get_context_data(self, **kw):
+        ctx = super(SelectInvoiceView, self).get_context_data(**kw)
         stalls = StallEvent.objects.filter (stallinvoice__isnull = True)
         stalls = stalls.filter (status = Record.ACTIVE)
         self._set_list_page(ctx, stalls)
@@ -459,8 +459,8 @@ class AddInvoiceView(DefaultInvoiceView):
             (initial={'amount': amount, 'reference': self._gen_reference()})
         return super(AddInvoiceView, self).get(*args, **kw)
 
-    def get_context_data(self, *args, **kw):
-        ctx = super(AddInvoiceView, self).get_context_data(*args, **kw)
+    def get_context_data(self, **kw):
+        ctx = super(AddInvoiceView, self).get_context_data(**kw)
         ctx.update({'form': self._form, 'stall': self._stall})
         return ctx
 
@@ -478,8 +478,8 @@ class BaseInvoiceView(DefaultInvoiceView):
         self._invoice = get_object_or_404(StallInvoice, pk=inv_id)
         return super(BaseInvoiceView, self).dispatch(*args, **kw)
 
-    def get_context_data(self, *args, **kw):
-        ctx = super(BaseInvoiceView, self).get_context_data(*args, **kw)
+    def get_context_data(self, **kw):
+        ctx = super(BaseInvoiceView, self).get_context_data(**kw)
         ctx.update({'inv': self._invoice})
         return ctx
 
@@ -502,8 +502,8 @@ class StallInvoiceView(BaseInvoiceView):
                     return HttpResponseRedirect(url)
         return super(StallInvoiceView, self).get(*args, **kw)
 
-    def get_context_data(self, *args, **kw):
-        ctx = super(StallInvoiceView, self).get_context_data(*args, **kw)
+    def get_context_data(self, **kw):
+        ctx = super(StallInvoiceView, self).get_context_data(**kw)
         stat_cmd_list = []
         for trans in self._invoice.stat_trans:
             for stat in self.status_kw:
@@ -536,8 +536,8 @@ class EditInvoiceView(BaseInvoiceView):
         self._form = self.StallInvoiceEditForm(instance=self._invoice)
         return super(EditInvoiceView, self).get(*args, **kw)
 
-    def get_context_data(self, *args, **kw):
-        ctx = super(EditInvoiceView, self).get_context_data(*args, **kw)
+    def get_context_data(self, **kw):
+        ctx = super(EditInvoiceView, self).get_context_data(**kw)
         ctx.update({'form': self._form, 'inv': self._invoice})
         return ctx
 
@@ -578,8 +578,8 @@ class InvoiceHardCopyView(BaseInvoiceView):
         self._form = self._make_hard_copy_form()
         return super(InvoiceHardCopyView, self).get(*args, **kw)
 
-    def get_context_data(self, *args, **kw):
-        ctx = super(InvoiceHardCopyView, self).get_context_data(*args, **kw)
+    def get_context_data(self, **kw):
+        ctx = super(InvoiceHardCopyView, self).get_context_data(**kw)
         if self._invoice_ready:
             self.template_name = 'cams/invoice_hard_copy.html'
             ctx.update({'address': self._address, 'details': self._details})
