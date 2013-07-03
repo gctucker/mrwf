@@ -4,7 +4,7 @@
   <h2>Groups</h2>
   <p class="cmd">|{% for b in boards %}{% if b = board %}
     {{ b|default:"Current" }}{% else %}
-    <a href="{{ px }}cams/participant/{% if b %}{{ b.pk }}/{% endif %}">{{ b|default:"Current" }}</a>{% endif %}&nbsp;|{% endfor %}
+    <a href="{% if b %}{% url 'groups' b.pk %}{% else %}{% url 'groups' %}{% endif %}">{{ b|default:"Current" }}</a>{% endif %}&nbsp;|{% endfor %}
   </p>
 {% endblock %}
 

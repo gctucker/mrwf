@@ -21,13 +21,13 @@ from cams.libcams import urlcls
 from mrwf.extra import views
 
 urlpatterns = patterns('mrwf.extra.views.mgmt',
- urlcls(r'^participant/$',
+ urlcls(r'^groups/$',
         views.mgmt.GroupsView, name='groups'),
- urlcls(r'^participant/(?P<board_id>\d+)/$',
+ urlcls(r'^groups/(?P<board_id>\d+)/$',
         views.mgmt.GroupsView, name='groups'),
- urlcls(r'^participant/group/(?P<group_id>\d+)/$',
+ urlcls(r'^groups/group/(?P<group_id>\d+)/$',
         views.mgmt.GroupView, name='group'),
- urlcls(r'^participant/group/pindown/(?P<group_id>\d+)/$',
+ urlcls(r'^groups/group/pindown/(?P<group_id>\d+)/$',
         views.mgmt.PinDownGroupView, name='pindown_group'),
  url(r'^prog/$', 'programme', name='programme'),
  (r'^prog/(?P<event_id>\d+)/$', 'prog_event'),

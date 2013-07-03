@@ -145,7 +145,7 @@ class GroupsBaseView(SiteView):
 
 
 class GroupsView(GroupsBaseView):
-    template_name = 'cams/participants.html'
+    template_name = 'cams/groups.html'
     title = "Groups"
 
     def get_context_data(self, **kw):

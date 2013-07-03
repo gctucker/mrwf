@@ -3,7 +3,7 @@
 {% block browse_header %}
   <h2>Group: {{ group.get_current_version }}</h2>
   <p class="cmd">|{% for v in group.get_versions %}{% if v = group.get_current_version %}&nbsp;Current:{% endif %}
-    <a href="{{ px }}cams/participant/group/{{ v.pk }}/">{% if v = group %}<span class="current_nav">{{ v }}</span>{% else %}{{ v }}{% endif %}</a>&nbsp;|{% endfor %}
+    <a href="{% url 'group' v.pk %}">{% if v = group %}<span class="current_nav">{{ v }}</span>{% else %}{{ v }}{% endif %}</a>&nbsp;|{% endfor %}
   </p>
 {% endblock %}
 
@@ -22,5 +22,5 @@
           <div class="cmd"><a href="{{ px }}export/group/{{ group.id }}/">&lt;export&gt;</a></div>
           <div class="cmd"><a href="{{ px }}export/group_email/{{ group.id }}/">&lt;e-mail list&gt;</a></div>
           <div class="cmd"><a href="{{ px }}export/group_org_pdf/{{ group.id }}/">&lt;PDF org forms&gt;</a></div>
-          <div class="back"><a href="{{ px }}cams/participant/">&lt;&lt;&nbsp;back to the list of groups</a></p>
+          <div class="back"><a href="{% url 'groups' %}">&lt;&lt;&nbsp;back to the list of groups</a></p>
 {% endblock %}
