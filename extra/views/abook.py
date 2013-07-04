@@ -126,7 +126,7 @@ class SearchHelper(object):
         objs = Contactable.objects.filter(search_q)
         status_q = Q(status=Record.ACTIVE)
         if self._opt_disabled:
-            status_q = (q | Q(status=Record.DISABLED))
+            status_q = (status_q | Q(status=Record.DISABLED))
         objs = objs.filter(status_q)
         for kw in self._keywords:
             objs = objs.filter(basic_name__icontains=kw)
