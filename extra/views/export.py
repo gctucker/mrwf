@@ -122,7 +122,7 @@ def programme(request):
                                'org mobile', 'org email', 'org website',
                                'org order', 'org sub-order',
 
-                               'n. spaces', 'n. tables', 'tombola'))
+                               'n. spaces', 'n. tables',))
 
         csv.set_file_name(u'{0}_{1}.csv'.format(file_name, get_time_string()))
 
@@ -132,14 +132,9 @@ def programme(request):
                 stall = StallEvent.objects.get(pk = e.id)
                 n_spaces = str(stall.n_spaces)
                 n_tables = str(stall.n_tables)
-                if stall.tombola_gift:
-                    tombola = stall.tombola_description
-                else:
-                    tombola = ''
             except StallEvent.DoesNotExist:
                 n_spaces = ''
                 n_tables = ''
-                tombola = ''
 
             c = e.get_composite_contact()
 
@@ -200,7 +195,7 @@ def programme(request):
                        org_name, org_addr, org_tel, org_mobile,
                        org_email, org_website, org_order, org_suborder,
 
-                       n_spaces, n_tables, tombola))
+                       n_spaces, n_tables))
 
         return csv.response
     elif fmt == 'plaintext':

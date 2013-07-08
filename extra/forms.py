@@ -116,11 +116,6 @@ class StallForm(forms.ModelForm):
         forms.CharField(widget=forms.Textarea(attrs=_attrs), required=False)
     infrastructure = \
         forms.CharField(widget=forms.Textarea(attrs=_attrs), required=False)
-    tombola_gift = \
-        forms.BooleanField(widget=forms.CheckboxInput(
-            attrs={'onChange': 'update_tombola_desc(this);'}), required=False)
-    tombola_description = \
-        forms.CharField(widget=forms.Textarea(attrs=_attrs), required=False)
     _stall_type_attrs = { 'onChange': 'update_stall_type(this);' }
     stall_type = \
         forms.ChoiceField(choices=((MARKET_STALL_PK, "Market & Craft"),
@@ -133,8 +128,8 @@ class StallForm(forms.ModelForm):
         model = StallEvent
         fields = ('name', 'org_name', 'description', 'n_spaces',
                   'main_contact', 'extra_web_contact', 'comments',
-                  'plot_type', 'media_usage', 'infrastructure', 'tombola_gift',
-                  'tombola_description', 'stall_type', 'food_safety_read')
+                  'plot_type', 'media_usage', 'infrastructure', 'stall_type',
+                  'food_safety_read')
 
     def clean_n_spaces(self):
         return check_ibounds(self.cleaned_data, 'n_spaces', 1, 3)
@@ -159,15 +154,9 @@ class StallForm(forms.ModelForm):
             self._check_required('n_spaces')
             del self.cleaned_data['plot_type']
             self.cleaned_data['infrastructure'] = ''
-            del self.cleaned_data['tombola_gift']
-            self.cleaned_data['tombola_description'] = ''
         elif stall_type_pk == StallForm.FOOD_FAIR_PK:
             self._check_required('plot_type')
             self._check_required('infrastructure')
-            if self._check_true('tombola_gift'):
-                self._check_required('tombola_description')
-            else:
-                self.cleaned_data['tombola_description'] = ''
             if not self._check_true('food_safety_read'):
                 self._errors['food_safety_read'] = self.error_class(
                     [u"Please read the document and tick this box."])
