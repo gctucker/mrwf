@@ -132,7 +132,7 @@ class StallForm(forms.ModelForm):
                   'food_safety_read')
 
     def clean_n_spaces(self):
-        return check_ibounds(self.cleaned_data, 'n_spaces', 1, 3)
+        return check_ibounds(self.cleaned_data, 'n_spaces', 1, 2)
 
     def clean_n_tables(self): # ToDo: deprecate... or make dynamic
         #return check_ibounds(self.cleaned_data, 'n_tables', 0, 3)
