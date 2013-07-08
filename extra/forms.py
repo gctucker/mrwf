@@ -118,7 +118,8 @@ class StallForm(forms.ModelForm):
         forms.CharField(widget=forms.Textarea(attrs=_attrs), required=False)
     _stall_type_attrs = { 'onChange': 'update_stall_type(this);' }
     stall_type = \
-        forms.ChoiceField(choices=((MARKET_STALL_PK, "Market & Craft"),
+        forms.ChoiceField(choices=((0, '-- PLEASE SELECT A STALL TYPE --'),
+                                   (MARKET_STALL_PK, "Market & Craft"),
                                    (FOOD_FAIR_PK, "Food Fair")),
                           widget=forms.Select(attrs=_stall_type_attrs))
     food_safety_read = \
@@ -163,6 +164,6 @@ class StallForm(forms.ModelForm):
             del self.cleaned_data['n_spaces']
         else:
             self._errors['stall_type'] = self.error_class(
-                ["Invalid stall type"])
+                ["Please select a valid stall type"])
             del self.cleaned_data['stall_type']
         return self.cleaned_data

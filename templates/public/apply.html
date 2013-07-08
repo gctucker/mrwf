@@ -10,8 +10,11 @@ function update_stall_type(obj)
   if (obj.value == '1') {
     document.getElementById('foodfair-stall').style.display = 'none';
     document.getElementById('market-stall').style.display = 'table';
-  } else {
+  } else if (obj.value == '2') {
     document.getElementById('foodfair-stall').style.display = 'table';
+    document.getElementById('market-stall').style.display = 'none';
+  } else {
+    document.getElementById('foodfair-stall').style.display = 'none';
     document.getElementById('market-stall').style.display = 'none';
   }
 }
@@ -130,7 +133,8 @@ if (window.addEventListener) {
             <td colspan="2">{{ form.s.stall_type.errors }}{{ form.s.stall_type }}</td>
           </tr>
         </table>
-<!-- Market & Craft Stalls -->
+
+        <!-- Market & Craft Stalls -->
         <table class="apply" id="market-stall">
           {% form_title_row "Market &amp; Craft" 2 %}
           <tr>
@@ -167,7 +171,8 @@ if (window.addEventListener) {
             </td>
           </tr>
         </table>
-<!-- Food Fair -->
+
+        <!-- Food Fair -->
         <table class="apply" id="foodfair-stall">
           {% form_title_row "Food Fair" 2 %}
           <tr>
@@ -246,6 +251,7 @@ if (window.addEventListener) {
             </td>
           </tr>
         </table>
+
         <p><input type="submit" value="Apply" /></p>
       </form>
 {% endblock %}
