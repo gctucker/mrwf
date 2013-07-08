@@ -16,19 +16,9 @@ function update_stall_type(obj)
   }
 }
 
-function update_tombola_desc(obj)
-{
-  if (obj.checked) {
-    document.getElementById('tombola-description').style.display = 'table-row';
-  } else {
-    document.getElementById('tombola-description').style.display = 'none';
-  }
-}
-
 function page_load_hook()
 {
     update_stall_type(document.getElementById('id_stall_type'));
-    update_tombola_desc(document.getElementById('id_tombola_gift'));
 }
 
 if (window.addEventListener) {
@@ -221,19 +211,6 @@ if (window.addEventListener) {
               For example, hot food van or table under gazebo, no power etc...<br />
               Providing this information will help us locate you in a safe position. 
             </td>
-          </tr>
-          <tr>
-            <th class="apply-label"><label for="id_tombola_gift">Tombola gift</label></th>
-            <td colspan="2">{{ form.s.tombola_gift.errors }}{{ form.s.tombola_gift }}</td>
-          </tr>
-          <tr id="tombola-description">
-            <th class="apply-label">
-              <label for="id_tombola_description">
-                Tombola prize<br />
-                description
-              </label>
-            </th>
-            <td colspan="2">{{ form.s.tombola_description.errors }}{{ form.s.tombola_description }}</td>
           </tr>
           <tr>
             <td colspan="3" class="apply-notes">

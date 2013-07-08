@@ -151,9 +151,6 @@ class StallApplicationForm ():
             else:
                 msg += u"Plot:           %s\n" % stall.plot_type_str
                 msg += u"Infrastructure: %s\n" % stall.infrastructure
-                msg += u"Tombola gift:   %s\n" % stall.tombola_gift
-                if stall.tombola_gift:
-                    msg += u"Prize:          %s\n" % stall.tombola_description
             send_mail (subject, msg, "no-reply@mangoz.org", rcpts)
 
     def send_confirmation(self, rcpts):
