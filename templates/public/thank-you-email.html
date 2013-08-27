@@ -125,8 +125,7 @@ td.value {
     <tr><td class="key">Stall type</td><td class="value">{{ form.stall.etype }}</td></tr>{% if form.stall.etype.pk == 1 %}
     <tr><td class="key">Spaces</td><td class="value">{{ form.stall.n_spaces }}</td></tr>{% else %}
     <tr><td class="key">Plot type</td><td class="value">{{ form.stall.plot_type_str }}</td></tr>
-    <tr><td class="key">Infrastructure</td><td class="value">{{ form.stall.infrastructure }}</td></tr>{% if form.stall.tombola_gift %}
-    <tr><td class="key">Tombola gift</td><td class="value">{{ form.stall.tombola_description }}</td></tr>{% endif %}{% endif %}
+    <tr><td class="key">Infrastructure</td><td class="value">{{ form.stall.infrastructure }}</td></tr>{% endif %}
   </table>
 </p>
 {% endblock %}
