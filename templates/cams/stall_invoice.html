@@ -6,9 +6,11 @@
           <table class="details">
             <tr><td class="key">event</td><td class="value"><a href="{{ px }}cams/prog/{{ inv.stall.id }}/">{{ inv.stall.name }}</a></td></tr>
             <tr><td class="key">owner</td><td class="value"><a href="{% abook_url inv.stall.owner %}">{{ inv.stall.owner }}</a></td></tr>{% if inv.stall.org %}
-            <tr><td class="key">organisation</td><td class="value"><a href="{% abook_url inv.stall.org %}">{{ inv.stall.org }}</a></td></tr>{% endif %}
-            <tr><td class="key">spaces</td><td class="value">{{ inv.stall.n_spaces }}</td></tr>
-            <tr class="separator"><td class="key">tables</td><td class="value">{{ inv.stall.n_tables }}</td></tr>
+            <tr><td class="key">organisation</td><td class="value"><a href="{% abook_url inv.stall.org %}">{{ inv.stall.org }}</a></td></tr>{% endif %}{% if inv.stall.n_spaces %}
+            <tr><td class="key">spaces</td><td class="value">{{ inv.stall.n_spaces }}</td></tr>{% endif %}{% if inv.stall.mc_stall_option %}
+            <tr><td class="key">stall option</td><td class="value">{{ inv.stall.mc_stall_option_str }}</td></tr>{% endif %}{% if inv.stall.tables %}
+            <tr><td class="key">tables</td><td class="value">{{ inv.stall.n_tables }}</td></tr>{% endif %}
+            <tr class="separator"></tr>
             <tr><td class="key">amount</td><td class="value">{{ inv.amount }}</td></tr>
             <tr><td class="key">status</td><td class="value">{{ inv.status_str }}</td></tr>
             <tr><td class="key">reference</td><td class="value">{% if inv.reference %}{{ inv.reference }}{% else %}No reference{% endif %}</td></tr>

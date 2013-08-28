@@ -166,7 +166,7 @@ class StallEvent(FairEvent):
 
     # For Market & Craft Stalls
     n_spaces = PositiveSmallIntegerField(
-        default=1, verbose_name="Number of spaces", blank=True, null=True)
+        default=0, verbose_name="Number of spaces", blank=True, null=True)
     n_tables = PositiveSmallIntegerField(
         default=0, verbose_name="Number of tables", blank=True, null=True)
     mc_stall_option = PositiveSmallIntegerField(

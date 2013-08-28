@@ -9,8 +9,9 @@
               <td class="key">person</td>
               <td class="value"><a href="{{ px }}abook/person/{{ appli.person.id }}/">{{ appli.person }}</a></td>
             </tr>{% if appli.org_name %}
-            <tr><td class="key">organisation</td><td class="value">{{ appli.org_name }}</td></tr>{% endif %}
-            <tr><td class="key">spaces</td><td class="value">{{ detail.n_spaces }}</td></tr>{% if detail.tombola_gift %}
+            <tr><td class="key">organisation</td><td class="value">{{ appli.org_name }}</td></tr>{% endif %}{% if detail.n_spaces %}
+            <tr><td class="key">spaces</td><td class="value">{{ detail.n_spaces }}</td></tr>{% endif %}{% if detail.mc_stall_option %}
+            <tr><td class="key">stall option</td><td class="value">{{ detail.mc_stall_option_str }}</td></tr>{% endif %}{% if detail.tombola_gift %}
             <tr><td class="key">tombola gift</td><td class="value">{{ detail.tombola_description }}</td></tr>{% endif %}
             <tr><td class="key">chosen contact</td><td class="value">{{ detail.get_main_contact_value }}</td></tr>{% if detail.extra_web_contact %}
             <tr><td class="key">web contact</td><td class="value">{{ detail.extra_web_contact }}</td></tr>{% endif %}{% if detail.comments %}
