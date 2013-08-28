@@ -116,7 +116,7 @@ class StallForm(forms.ModelForm):
         forms.CharField(widget=forms.Textarea(attrs=_attrs), required=False)
     infrastructure = \
         forms.CharField(widget=forms.Textarea(attrs=_attrs), required=False)
-    _stall_type_attrs = { 'onChange': 'update_stall_type(this);' }
+    _stall_type_attrs = { 'onchange': 'on_stall_type_change(this);' }
     stall_type = \
         forms.ChoiceField(choices=((0, '-- PLEASE SELECT A STALL TYPE --'),
                                    (MARKET_STALL_PK, "Market & Craft"),

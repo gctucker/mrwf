@@ -19,15 +19,21 @@ function update_stall_type(obj)
   }
 }
 
-function page_load_hook()
+function on_page_load()
 {
-    update_stall_type(document.getElementById('id_stall_type'));
+  update_stall_type(document.getElementById('id_stall_type'));
+}
+
+function on_stall_type_change(obj)
+{
+  update_stall_type(obj);
+  obj.scrollIntoView(true);
 }
 
 if (window.addEventListener) {
-    window.addEventListener('load', page_load_hook, false); //W3C
+  window.addEventListener('load', on_page_load, false); //W3C
 } else {
-    window.attachEvent('onload', page_load_hook); //IE
+  window.attachEvent('onload', on_page_load); //IE
 }
 
 -->
