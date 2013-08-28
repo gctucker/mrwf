@@ -154,6 +154,13 @@ class StallEvent(FairEvent):
              (PLOT_B, 'Plot B (3x4)'),
              (PLOT_C, 'Plot C (3x5)'))
 
+    MC_STALL_OPT_INSIDE = 0
+    MC_STALL_OPT_OUTSIDE_1 = 1
+    MC_STALL_OPT_OUTSIDE_2 = 2
+    xmcstall = ((MC_STALL_OPT_INSIDE, 'Inside a marquee'),
+                (MC_STALL_OPT_OUTSIDE_1, 'Outside x1'),
+                (MC_STALL_OPT_OUTSIDE_2, 'Outside x2'))
+
     # ToDo: make this dynamic (in the FairEventType table?) with prices to
     # avoid changing the model each year...
 
@@ -162,6 +169,8 @@ class StallEvent(FairEvent):
         default=1, verbose_name="Number of spaces", blank=True, null=True)
     n_tables = PositiveSmallIntegerField(
         default=0, verbose_name="Number of tables", blank=True, null=True)
+    mc_stall_option = PositiveSmallIntegerField(
+        choices=xmcstall, blank=True, null=True, verbose_name="Stall options")
 
     # For Food Fair
     plot_type = PositiveSmallIntegerField(
@@ -206,6 +215,12 @@ class StallEvent(FairEvent):
         if self.plot_type is None:
             return ''
         return StallEvent.xplot[self.plot_type][1]
+
+    @property
+    def mc_stall_option_str(self):
+        if self.mc_stall_option is None:
+            return ''
+        return StallEvent.xmcstall[self.mc_stall_option][1]
 
 
 class FairEventApplication(EventApplication):

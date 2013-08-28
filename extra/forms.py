@@ -127,7 +127,7 @@ class StallForm(forms.ModelForm):
 
     class Meta(object):
         model = StallEvent
-        fields = ('name', 'org_name', 'description', 'n_spaces',
+        fields = ('name', 'org_name', 'description', 'mc_stall_option',
                   'main_contact', 'extra_web_contact', 'comments',
                   'plot_type', 'media_usage', 'infrastructure', 'stall_type',
                   'food_safety_read')
@@ -152,7 +152,7 @@ class StallForm(forms.ModelForm):
         self.cleaned_data = super(StallForm, self).clean()
         stall_type_pk = int(self.cleaned_data['stall_type'])
         if stall_type_pk == StallForm.MARKET_STALL_PK:
-            self._check_required('n_spaces')
+            self._check_required('mc_stall_option')
             del self.cleaned_data['plot_type']
             self.cleaned_data['infrastructure'] = ''
         elif stall_type_pk == StallForm.FOOD_FAIR_PK:
@@ -161,7 +161,7 @@ class StallForm(forms.ModelForm):
             if not self._check_true('food_safety_read'):
                 self._errors['food_safety_read'] = self.error_class(
                     [u"Please read the document and tick this box."])
-            del self.cleaned_data['n_spaces']
+            del self.cleaned_data['mc_stall_option']
         else:
             self._errors['stall_type'] = self.error_class(
                 ["Please select a valid stall type"])

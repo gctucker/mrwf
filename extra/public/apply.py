@@ -147,7 +147,7 @@ class StallApplicationForm ():
             msg += u"Comments:       %s\n" % stall.comments
             msg += u"Stall type:     %s\n" % self.stall.etype
             if self.stall.etype.pk == StallForm.MARKET_STALL_PK:
-                msg += u"Spaces:         %d\n" % stall.n_spaces
+                msg += u"Stall option:   %s\n" % stall.mc_stall_option_str
             else:
                 msg += u"Plot:           %s\n" % stall.plot_type_str
                 msg += u"Infrastructure: %s\n" % stall.infrastructure
