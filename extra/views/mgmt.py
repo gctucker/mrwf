@@ -422,8 +422,8 @@ class SelectInvoiceView(DefaultInvoiceView):
 
     def get_context_data(self, **kw):
         ctx = super(SelectInvoiceView, self).get_context_data(**kw)
-        stalls = StallEvent.objects.filter (stallinvoice__isnull = True)
-        stalls = stalls.filter (status = Record.ACTIVE)
+        stalls = StallEvent.objects.filter(stallinvoice__isnull=True)
+        stalls = stalls.filter(status=Record.ACTIVE)
         self._set_list_page(ctx, stalls)
         return ctx
 
@@ -455,17 +455,25 @@ class AddInvoiceView(DefaultInvoiceView):
         # ToDo: do not hard-code this, use a database table
         SPACE_PRICE = 25
         amount = self._stall.n_spaces * SPACE_PRICE
-        self._form = self.StallInvoiceForm \
-            (initial={'amount': amount, 'reference': self._gen_reference()})
+        self._form = self.StallInvoiceForm(
+            initial={'amount': amount, 'reference': self._gen_reference()})
         return super(AddInvoiceView, self).get(*args, **kw)
 
     def get(self, *args, **kw):
-        prices = {StallEvent.MC_STALL_OPT_INSIDE: 30,
-                  StallEvent.MC_STALL_OPT_OUTSIDE_1: 25,
-                  StallEvent.MC_STALL_OPT_OUTSIDE_2: 50}
-        amount = prices[self._stall.mc_stall_option]
-        self._form = self.StallInvoiceForm \
-            (initial={'amount': amount, 'reference': self._gen_reference()})
+        if self._stall.mc_stall_option is not None:
+            prices = {StallEvent.MC_STALL_OPT_INSIDE: 30,
+                      StallEvent.MC_STALL_OPT_OUTSIDE_1: 25,
+                      StallEvent.MC_STALL_OPT_OUTSIDE_2: 50}
+            amount = prices[self._stall.mc_stall_option]
+        elif self._stall.plot_type is not None:
+            prices = {StallEvent.PLOT_A: 50,
+                      StallEvent.PLOT_B: 75,
+                      StallEvent.PLOT_C: 85}
+            amount = prices[self._stall.plot_type]
+        else:
+            amount = 0 # should never get here in principle...
+        self._form = self.StallInvoiceForm(
+            initial={'amount': amount, 'reference': self._gen_reference()})
         return super(AddInvoiceView, self).get(*args, **kw)
 
     def get_context_data(self, **kw):
@@ -551,12 +559,11 @@ class EditInvoiceView(BaseInvoiceView):
         return ctx
 
 
-# ToDo: PDF instead?
 # ToDo: use GET method instead of POST for the form
 class InvoiceHardCopyView(BaseInvoiceView):
     title = "Stall invoice"
 
-    class HardCopyForm (forms.Form):
+    class HardCopyForm(forms.Form):
         address = forms.CharField \
             (required=True,
              widget=forms.Textarea(attrs={'cols': '40', 'rows': '5'}))
@@ -611,10 +618,10 @@ class InvoiceHardCopyView(BaseInvoiceView):
         inv_details = str(listing)
 
         if inv.stall.n_tables:
-            inv_details += " and {} x table hire".format(inv.stall.n_tables)
+            inv_details += "{} x table hire".format(inv.stall.n_tables)
 
         if inv.stall.mc_stall_option:
-            inv_details += " Option: {0}".format(inv.stall.mc_stall_option_str)
+            inv_details += "Option: {0}".format(inv.stall.mc_stall_option_str)
 
         return self.HardCopyForm(initial={'address': address,
                                           'date': datetime.date.today(),
