@@ -46,6 +46,6 @@ urlpatterns = patterns('mrwf.extra.views.mgmt',
         views.mgmt.StallInvoiceView, name='stall_invoice'),
  urlcls(r'^invoice/(?P<inv_id>\d+)/edit/$',
         views.mgmt.EditInvoiceView, name='edit_invoice'),
- urlcls(r'^invoice/(?P<inv_id>\d+)/hard_copy/$',
-        views.mgmt.InvoiceHardCopyView, name='invoice_hard_copy'),
+ urlcls(r'^invoice/(?P<inv_id>\d+)/html/$',
+        views.mgmt.InvoiceHTMLView, name='invoice_html'),
 )

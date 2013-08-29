@@ -560,10 +560,10 @@ class EditInvoiceView(BaseInvoiceView):
 
 
 # ToDo: use GET method instead of POST for the form
-class InvoiceHardCopyView(BaseInvoiceView):
+class InvoiceHTMLView(BaseInvoiceView):
     title = "Stall invoice"
 
-    class HardCopyForm(forms.Form):
+    class HTMLForm(forms.Form):
         address = forms.CharField \
             (required=True,
              widget=forms.Textarea(attrs={'cols': '40', 'rows': '5'}))
@@ -574,10 +574,10 @@ class InvoiceHardCopyView(BaseInvoiceView):
 
     def dispatch(self, *args, **kw):
         self._invoice_ready = False
-        return super(InvoiceHardCopyView, self).dispatch(*args, **kw)
+        return super(InvoiceHTMLView, self).dispatch(*args, **kw)
 
     def post(self, *args, **kw):
-        self._form = self.HardCopyForm(self.request.POST)
+        self._form = self.HTMLForm(self.request.POST)
         if self._form.is_valid():
             details = [("Date", self._form.cleaned_data['date'])]
             if self._invoice.reference:
@@ -588,23 +588,23 @@ class InvoiceHardCopyView(BaseInvoiceView):
             self._address = self._form.cleaned_data['address']
             self._details = details
             self._invoice_ready = True
-        return super(InvoiceHardCopyView, self).get(*args, **kw)
+        return super(InvoiceHTMLView, self).get(*args, **kw)
 
     def get(self, *args, **kw):
-        self._form = self._make_hard_copy_form()
-        return super(InvoiceHardCopyView, self).get(*args, **kw)
+        self._form = self._make_html_form()
+        return super(InvoiceHTMLView, self).get(*args, **kw)
 
     def get_context_data(self, **kw):
-        ctx = super(InvoiceHardCopyView, self).get_context_data(**kw)
+        ctx = super(InvoiceHTMLView, self).get_context_data(**kw)
         if self._invoice_ready:
-            self.template_name = 'cams/invoice_hard_copy.html'
+            self.template_name = 'cams/invoice_html.html'
             ctx.update({'address': self._address, 'details': self._details})
         else:
-            self.template_name = 'cams/invoice_edit_hard_copy.html'
+            self.template_name = 'cams/invoice_edit_html.html'
             ctx.update({'form': self._form})
         return ctx
 
-    def _make_hard_copy_form(self):
+    def _make_html_form(self):
         inv = self._invoice
 
         address = get_stall_invoice_address(inv)
@@ -623,6 +623,6 @@ class InvoiceHardCopyView(BaseInvoiceView):
         if inv.stall.mc_stall_option:
             inv_details += "Option: {0}".format(inv.stall.mc_stall_option_str)
 
-        return self.HardCopyForm(initial={'address': address,
-                                          'date': datetime.date.today(),
-                                          'details': inv_details})
+        return self.HTMLForm(initial={'address': address,
+                                      'date': datetime.date.today(),
+                                      'details': inv_details})
