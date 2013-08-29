@@ -609,19 +609,22 @@ class InvoiceHTMLView(BaseInvoiceView):
 
         address = get_stall_invoice_address(inv)
 
-        if inv.stall.etype:
-            listing = "{}:\n".format(inv.stall.etype)
-        else:
-            listing = ''
+        inv_details = ''
 
-        #inv_details = "{}{} x Stall space".format(listing, inv.stall.n_spaces)
-        inv_details = str(listing)
+        if inv.stall.etype:
+            inv_details += "{}\n".format(inv.stall.etype)
+
+        if inv.stall.n_spaces:
+            inv_details += "{} x spaces\n".format(inv.stall.n_spaces)
 
         if inv.stall.n_tables:
-            inv_details += "{} x table hire".format(inv.stall.n_tables)
+            inv_details += "{} x table hire\n".format(inv.stall.n_tables)
 
         if inv.stall.mc_stall_option:
-            inv_details += "Option: {0}".format(inv.stall.mc_stall_option_str)
+            inv_details += "{0}\n".format(inv.stall.mc_stall_option_str)
+
+        if inv.stall.plot_type:
+            inv_details += "{0}\n".format(inv.stall.plot_type_str)
 
         return self.HTMLForm(initial={'address': address,
                                       'date': datetime.date.today(),
