@@ -6,9 +6,12 @@
             <form action="" method="POST">
               {% csrf_token %}
               <table class="details">
-                <tr><td class="key">Stall name</td><td class="value">{{ inv.stall.name }}</td></tr>
-                <tr><td class="key">Spaces</td><td class="value">{{ inv.stall.n_spaces }}</td></tr>
-                <tr class="separator"><td class="key">Tables</td><td class="value">{{ inv.stall.n_tables }}</td></tr>{% for field in form %}
+                <tr><td class="key">Stall name</td><td class="value">{{ inv.stall.name }}</td></tr>{% if inv.stall.n_spaces %}
+                <tr><td class="key">Spaces</td><td class="value">{{ inv.stall.n_spaces }}</td></tr>{% endif %}{% if inv.stall.n_tables %}
+                <tr><td class="key">Tables</td><td class="value">{{ inv.stall.n_tables }}</td></tr>{% endif %}{% if inv.stall.plot_type %}
+                <tr><td class="key">Plot type</td><td class="value">{{ inv.stall.plot_type_str }}</td></tr>{% endif %}{% if inv.stall.mc_stall_option %}
+                <tr><td class="key">Option</td><td class="value">{{ inv.stall.mc_stall_option_str }}</td></tr>{% endif %}
+                <tr class="separator"></tr>{% for field in form %}
                 <tr><td class="key">{{ field.label_tag }}</td><td class="value">{{ field.errors }}{{ field }}</td></tr>{% endfor %}
               </table>
               <p><input type="submit" value="save" /></p>
