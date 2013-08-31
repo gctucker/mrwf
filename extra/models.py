@@ -154,12 +154,12 @@ class StallEvent(FairEvent):
              (PLOT_B, 'Plot B (3x4)'),
              (PLOT_C, 'Plot C (3x5)'))
 
-    MC_STALL_OPT_INSIDE = 0
-    MC_STALL_OPT_OUTSIDE_1 = 1
-    MC_STALL_OPT_OUTSIDE_2 = 2
-    xmcstall = ((MC_STALL_OPT_INSIDE, 'Inside a marquee'),
-                (MC_STALL_OPT_OUTSIDE_1, 'Outside x1'),
-                (MC_STALL_OPT_OUTSIDE_2, 'Outside x2'))
+    MC_STALL_OPT_INSIDE_1 = 0
+    MC_STALL_OPT_INSIDE_2 = 1
+    MC_STALL_OPT_OUTSIDE = 2
+    xmcstall = ((MC_STALL_OPT_INSIDE_1, 'Inside the marquee, 1 table'),
+                (MC_STALL_OPT_INSIDE_2, 'Inside the marquee, 2 tables'),
+                (MC_STALL_OPT_OUTSIDE, 'Outside'))
 
     # ToDo: make this dynamic (in the FairEventType table?) with prices to
     # avoid changing the model each year...

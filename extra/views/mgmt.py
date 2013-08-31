@@ -461,9 +461,9 @@ class AddInvoiceView(DefaultInvoiceView):
 
     def get(self, *args, **kw):
         if self._stall.mc_stall_option is not None:
-            prices = {StallEvent.MC_STALL_OPT_INSIDE: 30,
-                      StallEvent.MC_STALL_OPT_OUTSIDE_1: 25,
-                      StallEvent.MC_STALL_OPT_OUTSIDE_2: 50}
+            prices = {StallEvent.MC_STALL_OPT_INSIDE_1: 30,
+                      StallEvent.MC_STALL_OPT_INSIDE_2: 60,
+                      StallEvent.MC_STALL_OPT_OUTSIDE: 25}
             amount = prices[self._stall.mc_stall_option]
         elif self._stall.plot_type is not None:
             prices = {StallEvent.PLOT_A: 50,
