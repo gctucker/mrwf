@@ -140,7 +140,6 @@ def get_filter_name(request, filters, filter_id, filter_arg='filter'):
 # entry points from url's
 
 class GroupsBaseView(SiteView):
-    perms = ['extra.group_view']
     menu_name = 'groups'
 
 
