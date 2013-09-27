@@ -220,16 +220,26 @@ class ProfileEditView(SiteView, PlayerMixin):
                                 prefix='user')
         self._pf = PersonForm(request.POST,instance=request.user.player.person)
 
+        # ToDo: move the logic to save contacts and delete empty ones into
+        # the contactable model or form
         if self.contacts.count() > 0:
-            self._cf = ContactForm(request.POST,instance=self.contacts[0])
+            self._cf = ContactForm(request.POST, instance=self.contacts[0])
+            if self._cf.is_empty():
+                self._cf.instance.delete()
+                self._cf = None
         else:
             self._cf = ContactForm(request.POST)
-            self._cf.instance.person = request.user.player.person
+            if self._cf.is_empty():
+                self._cf = None
+            else:
+                self._cf.instance.obj = request.user.player.person
 
-        if self._uf.is_valid() and self._pf.is_valid() and self._cf.is_valid():
+        if (self._uf.is_valid() and self._pf.is_valid() and
+            (self._cf is None or self._cf.is_valid())):
             self._uf.save()
             self._pf.save()
-            self._cf.save()
+            if self._cf is not None:
+                self._cf.save()
             return HttpResponseRedirect(reverse('profile'))
 
         return super(ProfileEditView, self).get(request, *args, **kwargs)
