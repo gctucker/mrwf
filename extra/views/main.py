@@ -238,8 +238,10 @@ class ProfileEditView(SiteView, PlayerMixin):
             (self._cf is None or self._cf.is_valid())):
             self._uf.save()
             self._pf.save()
+            self.history.edit_form(self.request.user, self._pf)
             if self._cf is not None:
                 self._cf.save()
+                self.history.edit_form(self.request.user, self._cf)
             return HttpResponseRedirect(reverse('profile'))
 
         return super(ProfileEditView, self).get(request, *args, **kwargs)
