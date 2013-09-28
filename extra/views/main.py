@@ -176,8 +176,13 @@ class ProfileView(SiteView, PlayerMixin):
         player = Player.objects.filter(user=request.user)
         if len(player) == 0:
             person = Person()
-            person.first_name = request.user.username.capitalize()
+            name = request.user.username.split('_')
+            person.first_name = name[0].capitalize()
+            if len(name) > 1:
+                person.last_name = name[1].capitalize()
             person.save()
+            self.history.create(request.user, person,
+                                PersonForm().fields.keys())
             p = Player()
             p.user = request.user
             p.person = person
