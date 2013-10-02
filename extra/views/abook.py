@@ -333,7 +333,10 @@ class BaseEditView(BaseObjView):
 
     def _make_contact_forms(self, post=None):
         ContactFormSet = modelformset_factory(Contact, form=ContactForm)
-        return ContactFormSet(post, queryset=self.obj.contact_set.all())
+        cf = ContactFormSet(post, queryset=self.obj.contact_set.all())
+        for f in cf:
+            f.instance.obj = self.obj
+        return cf
 
 
 class EditView(BaseEditView):
