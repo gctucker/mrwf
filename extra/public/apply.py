@@ -17,6 +17,7 @@
 # this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from urllib import urlencode
+import datetime
 from django import forms
 from django.http import (HttpResponse, HttpResponseServerError,
                          HttpResponseRedirect)
@@ -231,11 +232,27 @@ def stallholder_form (request, form):
     return render_to_response ('public/apply.html', tpl_vars,
                                context_instance = RequestContext (request))
 
+def application_closed (request):
+    tpl_vars = {'title': 'Stallholder Application closed',
+                'px': settings.URL_PREFIX, 'fair': Fair.get_current()}
+    return render_to_response ('public/closed.html', tpl_vars,
+                               context_instance = RequestContext (request))
+
+def get_deadline():
+    return Fair.get_current().date - datetime.timedelta(weeks=8)
+
+def is_application_open():
+    today = datetime.datetime.today().date()
+    return today < get_deadline()
+
 # -----------------------------------------------------------------------------
 
 def post (request):
     if request.method != 'POST':
         return post_error ("ERROR: %s instead of POST" % request.method)
+
+    if is_application_open () is False:
+        return HttpResponseRedirect (reverse(stallholder))
 
     form = StallApplicationForm (PersonForm (request.POST),
                                  ContactForm (request.POST),
@@ -262,10 +279,14 @@ def post (request):
 
 
 def stallholder (request):
+    if is_application_open () is False:
+        return application_closed (request)
     return stallholder_form (request, StallApplicationForm ())
 
 
 def thank_you (request):
+    if is_application_open () is False:
+        return application_closed (request)
     email = request.GET.get('email')
     tpl_vars = {'title': 'Thank you', 'px': settings.URL_PREFIX,
                 'email': email}
